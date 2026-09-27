@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Metro Dating Pool Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +20,7 @@
   --bg:#0F131A; --surface:#171D27; --ink:#E6EAF1; --muted:#98A3B6; --line:#2A3342; --track:#232B38;
   --accent:#8EA6FF; --accent-soft:#1F2A4A; --hot:#FF8A4C; --hot-soft:#3A2418; --dot:#5E6A80; }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:0 16px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:0 16px}
 .wrap{max-width:1120px;margin:0 auto;padding-block:36px 64px;display:grid;gap:24px}
 h1{font-family:var(--display);font-weight:500;font-size:clamp(30px,4.6vw,46px);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
 h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0;text-wrap:balance}
@@ -42,6 +44,13 @@ p{margin:0}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .main{display:grid;gap:20px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.mini{display:none}
+@media (max-width:860px){
+  .mini{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin-inline:-16px;width:calc(100% + 32px);box-sizing:border-box;padding:8px 16px;gap:6px 14px;flex-wrap:wrap;align-items:baseline;background:var(--surface);border-bottom:1px solid var(--line);font-size:13.5px}
+  .mini b{font-family:var(--mono);font-weight:500;color:var(--hot)}
+  .mini span:first-child{font-weight:600}
+}
+@media (max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat .n{font-size:30px}}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
 .stat.key{background:var(--hot-soft);border-color:transparent}
 .stat .n{font-family:var(--display);font-size:36px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -108,6 +117,8 @@ code{font-family:var(--mono);font-size:12.5px}
     <p class="lede">Pick any of the 387 U.S. metro areas and say who you are and who you date. The page estimates how many people there would be real possibilities if you want a secular-leaning, progressive, college-educated partner, how many other people are after the same pool, and how that metro compares with the others.</p>
     <span class="status" id="status"><i></i><span id="statusT"></span></span>
   </header>
+
+  <div class="mini" aria-hidden="true"><span id="miniM"></span><span><b id="miniP"></b> possibilities</span><span>ratio <b id="miniR"></b></span></div>
 
   <div class="pick">
     <input id="metro" list="metroList" autocomplete="off" aria-label="Metro area" placeholder="Type a metro, e.g. Memphis">
@@ -364,6 +375,7 @@ function update(){
   const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
   $("sRatio").textContent = fmt2(f.ratio);
+  $("miniM").textContent = m.short; $("miniP").textContent = fmt(f.click); $("miniR").textContent = fmt2(f.ratio);
   $("sRatioL").textContent = `${who === "people" ? "possible partners" : who} per person looking for them (#${rRank} of 387)`;
 
   const openTo = `Open to dating a ${G[P.you].one}`;
