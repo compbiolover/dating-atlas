@@ -87,19 +87,20 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plot circle.on{fill:var(--hot);fill-opacity:1;stroke:var(--surface);stroke-width:2}
 .plot text.lbl{fill:var(--ink);font-weight:600;font-size:12px}
 .readout{background:var(--accent-soft);border-radius:10px;padding:14px 18px;display:grid;gap:6px}
-.notes{color:var(--muted);font-size:13.5px;display:grid;gap:8px;max-width:78ch}
+.notes{color:var(--muted);font-size:13.5px;display:block}
 .notes h2{color:var(--ink);font-size:19px}
 .notes summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
 .notes summary::-webkit-details-marker{display:none}
 .notes summary::after{content:"Show";font-size:13px;color:var(--accent);text-decoration:underline}
 .notes[open] summary::after{content:"Hide"}
-.notes[open] summary{margin-bottom:8px}
+.notes[open] summary{margin-bottom:12px}
 .notes summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 @media (max-width:560px){
   .list{max-height:none;overflow:visible;padding-right:0}
   .plot svg{min-width:0}
 }
-.notes p{margin:0}
+.notes p{margin:0;max-width:78ch;line-height:1.55}
+.notes p + p{margin-top:12px}
 .notes a{color:var(--accent)}
 code{font-family:var(--mono);font-size:12.5px}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
@@ -201,21 +202,22 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="plot" id="plot"></div>
         <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
       </div>
+
+    <details class="card notes" id="notes">
+      <summary><h2>How the estimates work</h2></summary>
+      <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
+      <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
+      <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
+      <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
+      <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
+      <p>The competition ratio divides the single, degree-holding people of the genders you picked by every single, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single degree-holding women per single degree-holding man.</p>
+      <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share is <code>15% + 0.6 × Harris share − 0.35 × Black share + 0.3 × (degree share − 33%)</code>. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. The model misses very religious places outside the South, like Utah, so use the slider if you know the local scene.</p>
+      <p>The degree share in that formula is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). It only feeds the values model. The degree step in the funnel uses Table B15001.</p>
+      <p>The chemistry and app rates come from your own sliders and are the same in every metro, so the comparison isolates what the metro itself changes.</p>
+    </details>
     </section>
   </div>
 
-  <details class="notes" id="notes">
-    <summary><h2>How the estimates work</h2></summary>
-    <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
-    <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
-    <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
-    <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
-    <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
-    <p>The competition ratio divides the single, degree-holding people of the genders you picked by every single, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single degree-holding women per single degree-holding man.</p>
-    <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share is <code>15% + 0.6 × Harris share − 0.35 × Black share + 0.3 × (degree share − 33%)</code>. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. The model misses very religious places outside the South, like Utah, so use the slider if you know the local scene.</p>
-    <p>The degree share in that formula is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). It only feeds the values model. The degree step in the funnel uses Table B15001.</p>
-    <p>The chemistry and app rates come from your own sliders and are the same in every metro, so the comparison isolates what the metro itself changes.</p>
-  </details>
 </div>
 
 <script>
