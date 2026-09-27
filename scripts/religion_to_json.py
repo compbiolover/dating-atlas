@@ -129,7 +129,7 @@ def main():
             missing.append(name)
             continue
         pop, adh = int(r["2020 Population"]), int(r["Adherents"])
-        rows.append({"metro": name, "source": src, "population_2020": pop, "adherents_2020": adh,
+        rows.append({"metro": name, "usrc_2020_area": src, "population_2020": pop, "adherents_2020": adh,
                      "adherent_pct": round(100 * adh / pop, 1), "prri_unaffiliated_pct": round(unaff[name], 1)})
     if missing:
         sys.exit("No Religion Census row (add to ALIAS) or PRRI counties for these atlas metros:\n  " + "\n  ".join(missing))
