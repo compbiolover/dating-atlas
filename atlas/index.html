@@ -99,7 +99,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   .list{max-height:none;overflow:visible;padding-right:0}
   .plot svg{min-width:0}
 }
-.notes ul{margin:0;padding-left:18px;display:grid;gap:5px}
+.notes p{margin:0}
 .notes a{color:var(--accent)}
 code{font-family:var(--mono);font-size:12.5px}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
@@ -124,7 +124,7 @@ code{font-family:var(--mono);font-size:12.5px}
 <div class="wrap">
   <header style="display:grid;gap:10px">
     <h1>Metro Dating Pool Atlas</h1>
-    <p class="lede">Pick any of the 387 U.S. metro areas and say who you are and who you date. The page estimates how many people there would be real possibilities if you want a secular-leaning, progressive, college-educated partner, how many other people are after the same pool, and how that metro compares with the others.</p>
+    <p class="lede">Pick one of the 387 U.S. metro areas and say who you are and who you date. The page estimates how many people there could be real matches if you want a secular-leaning, progressive, college-educated partner. It also shows how many other people are looking for the same partners, and where the metro ranks against the rest.</p>
     <span class="status" id="status"><i></i><span id="statusT"></span></span>
   </header>
 
@@ -168,10 +168,10 @@ code{font-family:var(--mono);font-size:12.5px}
 
     <section class="main" aria-live="polite">
       <div class="stats">
-        <div class="stat key"><span class="n" id="sPool">–</span><span class="l">real possibilities in the metro</span></div>
-        <div class="stat"><span class="n" id="sApps">–</span><span class="l">of those on the apps now</span></div>
-        <div class="stat"><span class="n" id="sRank">–</span><span class="l">rank among 387 metros by pool size</span></div>
-        <div class="stat"><span class="n" id="sRatio">–</span><span class="l" id="sRatioL">competition ratio</span></div>
+        <div class="stat key"><span class="n" id="sPool">…</span><span class="l">real possibilities in the metro</span></div>
+        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of those on the apps now</span></div>
+        <div class="stat"><span class="n" id="sRank">…</span><span class="l">rank among 387 metros by pool size</span></div>
+        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">competition ratio</span></div>
       </div>
 
       <div class="readout" id="readout"></div>
@@ -199,26 +199,22 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="card">
         <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the list above.</small></div>
         <div class="plot" id="plot"></div>
-        <p class="note">Up and to the right is where the pool is biggest: a large metro where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
+        <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
       </div>
     </section>
   </div>
 
   <details class="notes" id="notes">
     <summary><h2>How the estimates work</h2></summary>
-    <ul>
-      <li><strong>Population:</strong> Census Bureau 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>.</li>
-      <li><strong>Gender:</strong> the Census counts only women and men. The page assumes 50% women, 48.5% men and 1.5% nonbinary among adults of dating age, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</li>
-      <li><strong>Who dates whom:</strong> each group's share open to dating each gender is a rough national figure drawn from Gallup's 2024 LGBTQ+ identification data for younger adults. For example, about 94% of men and 14% of women are open to dating women. It's the same in every metro for now, so it won't catch places with larger queer communities.</li>
-      <li><strong>Singlehood and degrees:</strong> from the Census Bureau's 2019–23 American Community Survey. Table B12002 gives never-married, divorced and widowed women and men in each 5-year age band, and bands that straddle your age range are split evenly by year. The ACS can't see couples who live together unmarried, so singles are cut by about 15%. Table B15001 gives the share of women and men 25–34 with a bachelor's or higher. Nonbinary people use the average of women and men, adjusted by the same gaps as below. Small metros have wide ACS margins of error, so treat their ratios loosely.</li>
-      <li><strong>Before the ACS data (kept as a fallback):</strong> singlehood came from the slider (men 6 points higher, nonbinary people 10), and degree share was the metro's adult bachelor's rate × 1.25 for women, × 0.97 for men and × 1.15 for nonbinary people.</li>
-      <li><strong>Competition ratio:</strong> the single, degree-holding people of the genders you picked, divided by every single, degree-holding person in the same age range who is open to dating them, of any gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is plainer: single degree-holding women per single degree-holding man.</li>
-      <li><strong>Adult degree rate (values model input):</strong> the county-level share of adults 25+ with a bachelor's or higher from the 2015–19 American Community Survey (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% → 36.9%). It only feeds the values model below; the degree filter in the funnel uses B15001.</li>
-      <li><strong>2024 vote:</strong> county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share.</li>
-      <li><strong>Values fit</strong> is a model, not survey data. Progressive share = Harris share + 20 points, capped at 90%. The secular-leaning share is <code>15% + 0.6 × Harris share − 0.35 × Black share + 0.3 × (degree share − 33%)</code>. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. The model misses very religious places outside the South, like Utah, so use the slider if you know the local scene.</li>
-      <li>County-to-metro mapping uses the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), with a few metros created since then mapped by hand. Metro names are matched to the ACS by name, and all 387 matched.</li>
-      <li>The chemistry and app rates come from your own sliders and are the same in every metro, so the comparison isolates what the city itself changes.</li>
-    </ul>
+    <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
+    <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
+    <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
+    <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
+    <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
+    <p>The competition ratio divides the single, degree-holding people of the genders you picked by every single, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single degree-holding women per single degree-holding man.</p>
+    <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share is <code>15% + 0.6 × Harris share − 0.35 × Black share + 0.3 × (degree share − 33%)</code>. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. The model misses very religious places outside the South, like Utah, so use the slider if you know the local scene.</p>
+    <p>The degree share in that formula is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). It only feeds the values model. The degree step in the funnel uses Table B15001.</p>
+    <p>The chemistry and app rates come from your own sliders and are the same in every metro, so the comparison isolates what the metro itself changes.</p>
   </details>
 </div>
 
@@ -369,14 +365,14 @@ function update(){
   $("ageMinO").textContent = s.ageMin; $("ageMaxO").textContent = s.ageMax;
   SLIDERS.slice(2).forEach(k => $(k+"O").textContent = s[k] + "%");
   if (s.edu === 0) $("eduO").textContent = "any";
-  $("statusT").textContent = nACS ? `Singles and degrees from ACS 2019–23 for ${nACS} of 387 metros` : "Singles and degrees are modeled until the ACS data is loaded";
+  $("statusT").textContent = nACS ? `Singles and degrees from the 2019 to 2023 ACS for ${nACS} of 387 metros` : "Singles and degrees are modeled estimates";
   $("status").classList.toggle("live", !!nACS);
 
   const b = blends(m, s, P);
   $("single").disabled = !!m.acs;
   if (m.acs) $("singleO").textContent = "ACS";
-  $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : "Neither married nor living with a partner. About half of women this age, nationally; men run a few points higher.";
-  $("eduHint").innerHTML = `Estimate for ${who} ${s.ageMin}–${s.ageMax} in ${m.short}: ${Math.round(b.edu)}%. ` + (s.edu > 0 && s.edu !== Math.round(b.edu) ? `<button type="button" data-r="edu">Reset</button>` : "");
+  $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : "Not married and not living with a partner. Nationally that's about half of women this age, and a few points more for men.";
+  $("eduHint").innerHTML = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}: ${Math.round(b.edu)}%. ` + (s.edu > 0 && s.edu !== Math.round(b.edu) ? `<button type="button" data-r="edu">Reset</button>` : "");
   $("valuesHint").innerHTML = `Modeled for ${m.short}: ${Math.round(b.val)}% (2024 Harris share ${m.dem}%${m.demNote ? ", statewide" : ""}). ` + (s.values !== Math.round(b.val) ? `<button type="button" data-r="values">Reset</button>` : "");
   document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { $(x.dataset.r).value = Math.round(x.dataset.r === "edu" ? b.edu : b.val); update(); });
 
@@ -394,7 +390,7 @@ function update(){
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   const steps = [["Everyone in the metro", m.pop, ""],
     ...(P.seek.length < 3 ? [[who[0].toUpperCase() + who.slice(1), f.total, pc(f.total, m.pop)]] : []),
-    [`Ages ${s.ageMin}–${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`],
+    [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`],
     ["Single", f.single, pc(f.single, f.age)],
     ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.single)]] : []),
     [openTo, f.open, pc(f.open, f.deg)],
@@ -410,7 +406,7 @@ function update(){
   $("readout").innerHTML = `<p>In the ${m.name} metro, about <strong>${fmt(f.click)}</strong> ${who} fit these settings, and about <strong>${fmt(f.apps)}</strong> of them are likely on the apps right now. That ranks <strong>#${rank}</strong> of 387 metros, and ${bigger} metros have at least twice as many.</p>` +
     (peer && peer.v > f.click ? `<p>Among metros of similar size, ${peer.m.short} does best, with about <strong>${fmt(peer.v/f.click)}×</strong> as many possibilities under the same settings. ` : `<p>No metro of similar size beats it. `) +
     `The biggest pool overall is ${byPool[0].m === m ? "this one" : `${byPool[0].m.short}, at about <strong>${fmt(byPool[0].v/f.click)}×</strong>`}.</p>` +
-    `<p>Competition: there are <strong>${fmt2(f.ratio)}</strong> ${edu} ${who} ${s.ageMin}–${s.ageMax} for every ${edu} person that age open to dating them, which ranks <strong>#${rRank}</strong>. Counting only women and men, it's <strong>${fmt2(sv.inv ? 1/f.sexWM : f.sexWM)}</strong> ${sv.label}. ${byRatio[0].m === m ? "No metro has better odds." : `The best odds are in ${byRatio[0].m.short}, at ${fmt2(byRatio[0].ratio)}.`}${m.acs ? "" : " Until the ACS data is loaded, these ratios barely differ between metros, because only the local degree gap moves them."}</p>`;
+    `<p>There are <strong>${fmt2(f.ratio)}</strong> ${edu} ${who} aged ${s.ageMin} to ${s.ageMax} for each ${edu} person that age who is open to dating them. That ranks <strong>#${rRank}</strong> for competition. Counting only women and men, it's <strong>${fmt2(sv.inv ? 1/f.sexWM : f.sexWM)}</strong> ${sv.label}. ${byRatio[0].m === m ? "No metro has better odds." : `The best odds are in ${byRatio[0].m.short}, at ${fmt2(byRatio[0].ratio)}.`}${m.acs ? "" : " Without ACS data these ratios barely differ between metros, because only the local degree gap moves them."}</p>`;
 
   const scope = $("scope").value, sort = $("sort").value;
   let set = scope === "near" ? new Set(M.filter(x => near(x, m))) : new Set(TOP.slice(0, +scope));
@@ -423,11 +419,11 @@ function update(){
   const rcol = sort === "sex" ? "sex" : "ratio";
   $("ratioH").textContent = sort === "sex" ? (sv.inv ? "M per W" : "W per M") : "Ratio";
   $("listNote").textContent = sort === "pool"
-    ? `Ranked by estimated possibilities, using your sliders for age, singlehood and chemistry. Each metro uses its own population, degree share and values estimate. Ratio is ${who} per person looking for them. The last column shows how many times bigger that metro's pool is than the one you picked. Click a row to switch to that metro.`
+    ? `Ranked by estimated possibilities, using your sliders for age, singlehood and chemistry. Each metro uses its own population, degree share and values estimate. The ratio column is ${who} per person looking for them, and the last column shows how many times bigger each pool is than yours. Tap or click a row to switch to that metro.`
     : sort === "ratio"
-    ? `Ranked by competition ratio: ${edu} ${who} in your age range for every ${edu} person of any gender open to dating them. Higher is better for you. Click a row to switch to that metro.`
-    : `Ranked by the plain sex ratio: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Until the ACS data is loaded this only varies with the local degree gap, so treat it as a placeholder."} Click a row to switch to that metro.`;
-  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : "competition ratio"} ${fmt2(a[rcol])}${a.m === m ? ", selected" : `, ${fmt(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="x">${a.m === m ? "—" : fmt(a.v/f.click) + "×"}</span></button>`).join("");
+    ? `Ranked by competition ratio: ${edu} ${who} in your age range for every ${edu} person of any gender open to dating them. Higher is better for you. Tap or click a row to switch.`
+    : `Ranked by the plain sex ratio: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
+  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : "competition ratio"} ${fmt2(a[rcol])}${a.m === m ? ", selected" : `, ${fmt(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="x">${a.m === m ? "you" : fmt(a.v/f.click) + "×"}</span></button>`).join("");
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
