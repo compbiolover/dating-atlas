@@ -2,12 +2,14 @@
 """Turn tidycensus ACS output into the ACS object the atlas page reads.
 
 Inputs (both written by scripts/pull_acs.R):
-  metro_acs_2023.csv      wide get_acs() output for B12002 and B15001, one row per CBSA
+  metro_acs_2023.csv      wide get_acs() output for B12002, B15001 and B11012, one row per CBSA
   acs_variables_2023.csv  load_variables(2023, "acs5") with columns name,label
 
 Per metro and sex it keeps, by B12002 age band:
   single people (never married + divorced + widowed) and everyone
-and from B15001 the share of 25-34 year olds with a bachelor's or higher.
+from B15001 the share of 25-34 year olds with a bachelor's or higher,
+and from B11012 the number of single parents (householders with no spouse
+or partner present and their own children under 18).
 
 Usage:
   python3 scripts/acs_to_json.py data/metro_acs_2023.csv data/acs_variables_2023.csv
@@ -60,11 +62,11 @@ def load_labels(path):
     with open(path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             # Accept both "B12002_004" and "B12002_004E"; skip margin-of-error rows
-            m = re.fullmatch(r"(B1(?:2002|5001)_\d+)(E?)", row["name"].strip())
+            m = re.fullmatch(r"(B1(?:2002|5001|1012)_\d+)(E?)", row["name"].strip())
             if m:
                 labels[m.group(1)] = label_parts(row["label"])
     if not labels:
-        sys.exit(f"No B12002/B15001 variables found in {path}")
+        sys.exit(f"No B12002/B15001/B11012 variables found in {path}")
     return labels
 
 
@@ -115,6 +117,20 @@ def b15001_plan(labels):
     return total, deg
 
 
+def b11012_plan(labels):
+    """The single-parent householder cell for each sex."""
+    cells = {}
+    for var, parts in labels.items():
+        if var.startswith("B11012_") and len(parts) == 2 and "no spouse or partner" in parts[0] \
+                and parts[1].startswith("with children"):
+            sex = parts[0].split(" ")[0]
+            if sex in SEXES:
+                cells[SEXES[sex]] = var
+    if set(cells) != {"w", "m"}:
+        sys.exit("Could not find the B11012 single-parent cells in the variable labels")
+    return cells
+
+
 def estimate(row, var):
     value = row[var + "E"]
     return 0.0 if value in ("", "NA") else float(value)
@@ -138,6 +154,7 @@ def main():
     labels = load_labels(a.labels)
     plan, bands = b12002_plan(labels)
     total25, deg25 = b15001_plan(labels)
+    parents = b11012_plan(labels)
     idx = {band: i for i, band in enumerate(bands)}
     atlas = atlas_names(a.page)  # largest metro first
     names = {norm(n): n for n in atlas}
@@ -164,6 +181,7 @@ def main():
             for sex in ("w", "m"):
                 t = estimate(row, total25[sex])
                 rec["d" + sex] = round(100 * sum(estimate(row, v) for v in deg25[sex]) / t, 1) if t else 0
+                rec["k" + sex] = round(estimate(row, parents[sex]))
             metros[name] = rec
 
     acs = {"bands": [list(b) for b in bands], "metros": metros}

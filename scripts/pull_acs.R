@@ -1,4 +1,4 @@
-# Pull the ACS tables the atlas needs, one row per metro (CBSA).
+# Pull the ACS tables the atlas needs (B12002, B15001, B11012), one row per metro (CBSA).
 # Needs a Census API key: tidycensus::census_api_key("...", install = TRUE)
 library(tidycensus)
 library(dplyr)
@@ -9,12 +9,18 @@ acs <- get_acs(geography = "cbsa", table = "B12002", year = 2023, survey = "acs5
     get_acs(geography = "cbsa", table = "B15001", year = 2023, survey = "acs5", output = "wide") |>
       select(GEOID, ends_with("E"), -NAME),
     by = "GEOID"
-  )
+  ) |>
+  inner_join(
+    get_acs(geography = "cbsa", table = "B11012", year = 2023, survey = "acs5", output = "wide") |>
+      select(GEOID, ends_with("E"), -NAME),
+    by = "GEOID"
+  ) |>
+  arrange(GEOID)  # stable row order keeps re-pull diffs small
 dir.create("data", showWarnings = FALSE)
 write.csv(acs, "data/metro_acs_2023.csv", row.names = FALSE)
 
 # Variable labels, so the converter can find each cell without hard-coded numbers
 load_variables(2023, "acs5") |>
-  filter(grepl("^B1(2002|5001)_", name)) |>
+  filter(grepl("^B1(2002|5001|1012)_", name)) |>
   select(name, label) |>
   write.csv("data/acs_variables_2023.csv", row.names = FALSE)
