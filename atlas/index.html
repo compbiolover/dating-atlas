@@ -229,9 +229,9 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>The competition ratio divides the single, degree-holding people of the genders you picked by every single, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single degree-holding women per single degree-holding man.</p>
       <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. Use the slider if you know the local scene.</p>
       <p>The adult bachelor's rate in the fallback above is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). The degree step in the funnel uses Table B15001.</p>
-      <p>The kids step removes people whose plans clash with yours. Among single adults without kids, the page uses Pew's 2023 split for 18 to 34 year olds: 45% of women and 57% of men want kids, 30% are unsure, and the rest don't (<a href="https://www.pewresearch.org/short-reads/2024/02/15/among-young-adults-without-children-men-are-more-likely-than-women-to-say-they-want-to-be-parents-someday/">Pew</a>). If you want kids, people who don't are removed, and the reverse if you don't; unsure people stay either way. The share who already have kids comes from ACS Table B11012: single mothers and fathers who head a household with their own children under 18, divided by the metro's single adults aged 20 to 64. That misses parents whose kids live mostly with the other parent, so it undercounts fathers.</p>
+      <p>The kids step removes people whose plans clash with yours. For single adults without kids aged 34 and under, the page uses Pew's 2023 split for 18 to 34 year olds: 45% of women and 57% of men want kids, 30% are unsure, and the rest don't (<a href="https://www.pewresearch.org/short-reads/2024/02/15/among-young-adults-without-children-men-are-more-likely-than-women-to-say-they-want-to-be-parents-someday/">Pew</a>). From 35 up, 47% are counted as not wanting kids, Pew's 2024 figure for adults without kids under 50 who say they're unlikely ever to have them (<a href="https://www.pewresearch.org/social-trends/2024/07/25/the-experiences-of-u-s-adults-who-dont-have-children/">Pew</a>). The rest are split as at 18 to 34. Pew has no figure for older ages, so 50 and up use the same split. If you want kids, people who don't are removed, and the reverse if you don't; unsure people stay either way. The share who already have kids comes from ACS Table B11012: single mothers and fathers who head a household with their own children under 18, divided by the metro's single adults aged 20 to 64. That misses parents whose kids live mostly with the other parent, so it undercounts fathers.</p>
       <p>"They're interested back" is the rate for someone the same age as them, of average height, with a degree, a steady job and no kids. Your own traits scale it, and each effect is treated as independent:</p>
-      <p><strong>Age.</strong> Each person has a youngest and oldest partner age they'd accept, which rise with their own age, from <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10367477/">Antfolk (2017)</a>. The bounds are shifted so the share who wouldn't consider someone 10 years older or younger lands close to <a href="https://www.pewresearch.org/social-trends/2020/08/20/nearly-half-of-u-s-adults-say-dating-has-gotten-harder-for-most-people-in-the-last-10-years/">Pew's 2019 figures</a> (women 27% and 42%, men 47% and 16%).</p>
+      <p><strong>Age.</strong> Each person has a largest age gap they'd accept, older and younger. Everyone accepts someone their own age, and the share who'd accept you falls as the gap grows. How the limits change with a person's own age follows <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10367477/">Antfolk (2017)</a>. Their size is set so that, on average, the share who wouldn't consider someone 10 years older or younger matches <a href="https://www.pewresearch.org/social-trends/2020/08/20/nearly-half-of-u-s-adults-say-dating-has-gotten-harder-for-most-people-in-the-last-10-years/">Pew's 2019 figures</a>: 27% and 42% of women, 47% and 16% of men.</p>
       <p><strong>Height</strong> applies only between women and men. Women on average want a man about 4 cm taller than them, and men want a woman no taller than them (<a href="https://www.gertstulp.com/pdf/Stulp%20et%20al%202013_PAID_Women%20want%20taller%20men%20more%20than%20men%20want%20shorter%20women.pdf">Stulp and colleagues, 2013</a>), set against U.S. heights from <a href="https://www.cdc.gov/nchs/data/series/sr_03/sr03-046-508.pdf">NHANES 2015 to 2018</a>. Men's aversion is weaker, so it counts half.</p>
       <p><strong>Education and work.</strong> From the <a href="https://www.americansurveycenter.org/research/from-swiping-to-sexting-the-enduring-gender-divide-in-american-dating-and-relationships/">Survey Center on American Life (2022)</a>, 54% of college-educated women and 44% of college-educated men are less likely to date someone without a degree, and 89% and 66% are less likely to date someone without a job, with lower shares among people without degrees. "Less likely" counts as half a rejection. Pew 2019 found 24% of women and 7% of men wouldn't date someone who makes much less than them.</p>
       <p><strong>Having kids.</strong> Pew 2019 found 42% of singles under 40 and 28% of those 40 and older wouldn't date someone raising children.</p>
@@ -260,9 +260,12 @@ const COHAB = .85; // ACS can't see cohabiting couples; about 15% of unmarried y
 const CORR = 1.5;  // filters overlap: single, educated young adults skew secular/progressive
 
 // What partners want in you, by the rater's gender. Sources are in the notes.
-// Acceptable partner age: normal lower and upper bounds that move with the rater's own age (Antfolk 2017),
-// shifted so the share rejecting someone 10 years older or younger comes close to Pew 2019.
-const AGE_PREF = {w:{at:35.03, lo:[29.44,.583,7.24], hi:[43.19,1.012,11.09]}, m:{at:37.25, lo:[29.38,.257,5.25], hi:[39.71,.787,10.64]}};
+// Acceptable age gap: how much older (hi) or younger (lo) a partner can be, lognormal with spread AGE_SD.
+// Its mean follows Antfolk 2017's youngest/oldest acceptable age at the rater's own age, [scale, intercept,
+// slope, reference age], scaled so the average share rejecting a 10-year gap matches Pew 2019
+// (women 27% older, 42% younger; men 47% and 16%). A same-age partner is always acceptable.
+const AGE_GAP = {w:{hi:[1.30,46.19,1.012,35.03], lo:[1.27,27.44,.583,35.03]}, m:{hi:[.99,49.21,.787,37.25], lo:[1.09,21.38,.257,37.25]}};
+const AGE_SD = .45;
 const HT = {w:[162.5,6.9], m:[176.1,7.5]};  // NHANES 2015-18, ages 20-49, cm
 const EDU_PEN = {w:[.54,.25], m:[.44,.14]};  // less likely to date someone without a bachelor's, raters [with, without] one (SCAL 2022)
 const JOB_PEN = {w:[.89,.74], m:[.66,.47]};  // less likely to date someone unemployed, same split (SCAL 2022)
@@ -270,13 +273,19 @@ const PENALTY = .5;                         // "less likely" treated as half a r
 const LESS_MONEY = {w:.24, m:.07};          // would not date someone who makes much less (Pew 2019)
 const PARENT_NO = [.42, .28];               // would not date someone raising kids, raters under 40 / 40+ (Pew 2019)
 const WANT = {w:[.45,.30,.25], m:[.57,.30,.13]}; // non-parents 18-34: want kids, unsure, don't (Pew 2023)
+const UNLIKELY_U50 = .47; // non-parents under 50 unlikely ever to have kids (Pew 2024); used from 35 up, no data past 49
 const PARENTS = {w:.14, m:.033};            // single parents per single adult 20-64, national ACS, when a metro has no ACS row
 const Phi = z => { const t = 1/(1 + .3275911*Math.abs(z)/Math.SQRT2),
   e = 1 - ((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - .284496736)*t + .254829592)*t*Math.exp(-z*z/2);
   return z >= 0 ? (1 + e)/2 : (1 - e)/2; };
 const hyp = (a, b) => Math.hypot(a, b);
-function ageOK(r, a, y){ const p = AGE_PREF[r], d = a - p.at;
-  return Phi((y - p.lo[0] - p.lo[1]*d)/p.lo[2]) * Phi((p.hi[0] + p.hi[1]*d - y)/p.hi[2]); }
+// Share of raters of gender r and age a who'd accept a partner aged y
+function ageOK(r, a, y){
+  const d = y - a; if (Math.abs(d) < .5) return 1;
+  const [k, b0, b1, at] = AGE_GAP[r][d > 0 ? "hi" : "lo"], bound = b0 + b1*(a - at);
+  const mu = Math.max(1, k*(d > 0 ? bound - a : a - bound));
+  return 1 - Phi((Math.log(Math.abs(d)) - Math.log(mu) + AGE_SD*AGE_SD/2)/AGE_SD);
+}
 // Share of raters of gender r who'd accept your height h (cm), from Stulp 2013's minimum height gap
 // (women want a man about 4 cm taller than them; men want a woman no taller than them). Stulp's maximum
 // gaps are left out: they would penalize tall men, which app data doesn't show. Men's aversion is much
@@ -293,7 +302,7 @@ function traitRel(s, P){
     const rs = t === "n" ? ["w","m"] : [t];
     let age = 0, kid = 0, n = 0;
     for (let a = s.ageMin; a <= s.ageMax; a++) rs.forEach(r => {
-      age += ageOK(r, a, P.age)/ageOK(r, a, a);
+      age += ageOK(r, a, P.age);
       kid += P.kids === "have" ? 1 - PARENT_NO[a < 40 ? 0 : 1] : 1; n++; });
     const opp = (t === "w" && P.you === "m") || (t === "m" && P.you === "w");
     const avg = f => rs.reduce((q, r) => q + f(r), 0)/rs.length;
@@ -303,13 +312,21 @@ function traitRel(s, P){
   });
   return out;
 }
-// Share of single people of gender t whose kids situation fits yours
-function kidsFit(m, t, P){
+// Want kids, unsure, don't: Pew's 18-34 split up to 34; from 35, 47% unlikely and the rest split as at 18-34
+function wantSplit(g, age){
+  const w = g === "n" ? WANT.w.map((v, i) => (v + WANT.m[i])/2) : WANT[g];
+  if (age <= 34) return w;
+  const r = (1 - UNLIKELY_U50)/(w[0] + w[1]);
+  return [w[0]*r, w[1]*r, UNLIKELY_U50];
+}
+// Share of single people of gender t in your age range whose kids situation fits yours
+function kidsFit(m, t, P, s){
   const a = m.acs, sg = g => a ? a["k"+g]/bandSum(a[g], {ageMin:20, ageMax:64}) : PARENTS[g];
   const k = Math.min(.5, t === "n" ? (sg("w") + sg("m"))/2 : sg(t));
-  const [y, u, no] = t === "n" ? WANT.w.map((v, i) => (v + WANT.m[i])/2) : WANT[t];
-  const fit = P.kids === "want" ? y + u : P.kids === "dont" ? no + u : 1;
-  return (1 - k)*fit + k*(P.openP ? 1 : 0);
+  let fit = 0;
+  for (let y = s.ageMin; y <= s.ageMax; y++){ const [yes, u, no] = wantSplit(t, y);
+    fit += P.kids === "want" ? yes + u : P.kids === "dont" ? no + u : 1; }
+  return (1 - k)*fit/(s.ageMax - s.ageMin + 1) + k*(P.openP ? 1 : 0);
 }
 
 const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
@@ -428,7 +445,7 @@ function pool(m, s, P, adj, T){
   P.seek.forEach(t => {
     const {b, n} = dg[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.deg += n; r.open += o;
-    const v = o*Math.min(1, m.val[t]/100*va*CORR), kf = v*kidsFit(m, t, P);
+    const v = o*Math.min(1, m.val[t]/100*va*CORR), kf = v*kidsFit(m, t, P, s);
     const tr = T[t], ba = s.edu === 0 ? m.deg[t]/100 : 1, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her/100*rel);
     r.vals += v; r.kids += kf; r.click += kf*(s.his/100)*her;
