@@ -37,7 +37,7 @@ p{margin:0}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px}
 .gt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .ctrl{display:grid;gap:3px}
-.ctrl label{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:500}
+.ctrl label,.ctrl .lbl{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:500}
 .ctrl output{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
 .ctrl small{color:var(--muted);font-size:12.5px;line-height:1.4}
 .ctrl small button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
@@ -190,13 +190,12 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="ctrl"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
       <div class="ctrl"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
       <div class="ctrl"><label for="single">Share single <output id="singleO"></output></label><input type="range" id="single" min="30" max="70" value="50"><small id="singleHint"></small></div>
-      <div class="ctrl"><label for="edu">Bachelor's or higher <output id="eduO"></output></label><input type="range" id="edu" min="0" max="85" value="40"><small id="eduHint"></small></div>
-      <div class="ctrl"><label for="values">Secular-leaning and progressive <output id="valuesO"></output></label><input type="range" id="values" min="2" max="75" value="20"><small id="valuesHint"></small></div>
+      <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small></div>
+      <div class="ctrl"><div class="lbl">Secular-leaning and progressive <output id="valuesO"></output></div><small id="valuesHint"></small></div>
       <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Whether it clicks</div>
       <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
       <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
       <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
-      <small class="note">Setting the degree slider to 0% removes that filter for both your pool and the competition.</small>
     </form>
 
     <section class="main" aria-live="polite">
@@ -246,7 +245,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
       <p>Not every single person is available or looking. In Pew's 2022 survey, 20% of people who were neither married nor living with a partner were in a committed relationship (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">topline, p. 64</a>), and Pew doesn't break that out by age, so the page removes 20% at every age. Of the rest, Pew's 2019 survey found 67% of men and 61% of women under 40 looking for a relationship or dates, against 55% of men and only 29% of women 40 and older (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf">report, p. 18</a>). By 2022 the share looking had fallen from 61% to 50% for single men and from 38% to 35% for single women (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so the page scales each age split by that drop: 55% and 45% for men, 56% and 27% for women. Nonbinary people get the average. The same step applies to the competition, since people who aren't looking aren't competing.</p>
       <p>The competition ratio divides the single, looking, degree-holding people of the genders you picked by every single, looking, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single, looking, degree-holding women per man. Because far fewer women than men over 40 are looking, it tilts toward men at older ages.</p>
-      <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. Use the slider if you know the local scene.</p>
+      <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular.</p>
       <p>The adult bachelor's rate in the fallback above is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). The degree step in the funnel uses Table B15001.</p>
       <p>Housing cost is a recent mover's rent for a 1-bedroom as a share of median yearly pay, from the 2019 to 2023 ACS. Table B25031 gives each metro's median gross rent, including utilities, for a 1-bedroom. That median includes people on long leases and in rent-stabilized units, so it is scaled by the metro's ratio of rent for people who moved in from 2021 on to rent for all renters (Table B25113). Pay is the median earnings of people 25 and older with a bachelor's degree, or with some college if you set no bachelor's (Table B20004), and it covers part-time workers too. The 30% line is HUD's definition of a cost-burdened renter. Rents have risen since 2023, so treat the dollar figures as a floor. The ranking between metros holds up better. Housing cost doesn't change the pool. It's a separate measure of what living there costs.</p>
       <p>The kids step removes people whose plans clash with yours. For single adults without kids aged 34 and under, the page uses Pew's 2023 split for 18 to 34 year olds: 45% of women and 57% of men want kids, 30% are unsure, and the rest don't (<a href="https://www.pewresearch.org/short-reads/2024/02/15/among-young-adults-without-children-men-are-more-likely-than-women-to-say-they-want-to-be-parents-someday/">Pew</a>). From 35 up, 47% are counted as not wanting kids, Pew's 2024 figure for adults without kids under 50 who say they're unlikely ever to have them (<a href="https://www.pewresearch.org/social-trends/2024/07/25/the-experiences-of-u-s-adults-who-dont-have-children/">Pew</a>). The rest are split as at 18 to 34. Pew has no figure for older ages, so 50 and up use the same split. If you want kids, people who don't are removed, and the reverse if you don't; unsure people stay either way. The share who already have kids comes from ACS Table B11012: single mothers and fathers who head a household with their own children under 18, divided by the metro's single adults aged 20 to 64 who don't live with a partner. That misses parents whose kids live mostly with the other parent, so it undercounts fathers.</p>
@@ -408,7 +407,7 @@ const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const near = (x, m) => x.pop >= m.pop*.6 && x.pop <= m.pop*1.4;
 const NARROW = matchMedia("(max-width:560px)");
 let PTS = [];
-const SLIDERS = ["ageMin","ageMax","single","edu","values","his","her","apps"];
+const SLIDERS = ["ageMin","ageMax","single","his","her","apps"];
 let cur = M.find(m => m.short === "Memphis"), shownCur = null;
 
 // Profile: who you are and who you're looking for
@@ -479,22 +478,21 @@ function base(m, g, s){
   return {age, single: age*Math.min(.9, (s.single + SINGLE_ADJ[g])/100)};
 }
 
-// Slider defaults for a metro: degree and values shares blended across the genders you're looking for
+// Degree and values shares for a metro, blended across the genders you're looking for
 function blends(m, s, P){
   let w1 = 0, e = 0, w2 = 0, v = 0;
   P.seek.forEach(t => {
-    const sg = base(m, t, s).single, dg = sg*(s.edu === 0 ? 1 : m.deg[t]/100), o = dg*OPEN[t][P.you];
+    const sg = base(m, t, s).single, dg = sg*m.deg[t]/100, o = dg*OPEN[t][P.you];
     w1 += sg; e += sg*m.deg[t]; w2 += o; v += o*m.val[t];
   });
   return {edu: e/w1, val: w2 ? v/w2 : 0};
 }
 
-// The full funnel for one metro. adj scales degree and values shares when the sliders move off the estimate.
-function pool(m, s, P, adj, T){
-  const ea = adj ? adj.edu : 1, va = adj ? adj.val : 1;
+// The full funnel for one metro
+function pool(m, s, P, T){
   const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, kids:0, click:0, apps:0}, dg = {}, D = clickDefaults(P);
   const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0};
-  GK.forEach(g => { const b = base(m, g, s), lk = b.single*lookFit(g, s); dg[g] = {b, lk, n: lk*(s.edu === 0 ? 1 : Math.min(1, m.deg[g]/100*ea))}; });
+  GK.forEach(g => { const b = base(m, g, s), lk = b.single*lookFit(g, s); dg[g] = {b, lk, n: lk*m.deg[g]/100}; });
   // Competitors: everyone open to at least one of the genders you're looking for, counted once.
   // OPEN only gives rates per gender, so openness to each is treated as independent.
   let N = 0, C = 0;
@@ -502,8 +500,8 @@ function pool(m, s, P, adj, T){
   P.seek.forEach(t => {
     const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
-    const v = o*Math.min(1, m.val[t]/100*va*CORR), kf = v*kidsFit(m, t, P, s);
-    const tr = T[t], ba = s.edu === 0 ? m.deg[t]/100 : 1, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
+    const v = o*Math.min(1, m.val[t]/100*CORR), kf = v*kidsFit(m, t, P, s);
+    const tr = T[t], f = {age:tr.age, ht:tr.ht, edu:tr.edu(1), job:tr.job(1), kids:tr.kids};
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
     r.vals += v; r.kids += kf; r.click += ck; r.apps += ck*Math.min(.9, s.apps*appsRate(t, P)/D.apps/100);
     Object.keys(f).forEach(k => fx[k] += kf*f[k]); fx.all += kf*rel;
@@ -521,9 +519,8 @@ function sexView(P){
   return {inv:false, label:"women per man"};
 }
 
-function select(m){ cur = m; $("metro").value = m.name; resetSliders(); update(); }
+function select(m){ cur = m; $("metro").value = m.name; update(); }
 function resetClicks(){ const D = clickDefaults(profile()); ["his","her","apps"].forEach(k => $(k).value = Math.round(D[k])); }
-function resetSliders(){ const s = S(), b = blends(cur, s, profile()); if (s.edu !== 0) $("edu").value = Math.round(b.edu); $("values").value = Math.round(b.val); }
 $("metro").addEventListener("change", e => { const q = e.target.value.trim().toLowerCase();
   const m = byName.get(q) || (q && M.find(x => x.name.toLowerCase().includes(q)));
   if (m) select(m); else e.target.value = cur.name; });
@@ -533,7 +530,7 @@ const saveProfile = () => { const p = profile(); if (!htSet) delete p.ht;
 document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => el.addEventListener("change", () => {
   if (!document.querySelector('input[name="seek"]:checked')) el.checked = true; // keep at least one
   if (!htSet) $("yHt").value = defaultHt();
-  saveProfile(); resetSliders(); resetClicks(); update();
+  saveProfile(); resetClicks(); update();
 }));
 $("yHt").addEventListener("change", () => htSet = true);
 ["yAge","yHt","yEdu","yJob","openP"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); update(); }));
@@ -543,7 +540,6 @@ function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
   $("ageMinO").textContent = s.ageMin; $("ageMaxO").textContent = s.ageMax; $("yAgeO").textContent = P.age;
   SLIDERS.slice(2).forEach(k => $(k+"O").textContent = s[k] + "%");
-  if (s.edu === 0) $("eduO").textContent = "any";
   $("statusT").textContent = nACS ? `Singles and degrees from the 2019 to 2023 ACS for ${nACS} of 387 metros` : "Singles and degrees are modeled estimates";
   $("status").classList.toggle("live", !!nACS);
 
@@ -551,16 +547,16 @@ function update(){
   $("single").disabled = !!m.acs;
   if (m.acs) $("singleO").textContent = "ACS";
   $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : "Not married and not living with a partner. Nationally that's about half of women this age, and a few points more for men.";
-  $("eduHint").innerHTML = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}: ${Math.round(b.edu)}%. ` + (s.edu > 0 && s.edu !== Math.round(b.edu) ? `<button type="button" data-r="edu">Reset</button>` : "");
-  $("valuesHint").innerHTML = `Modeled for ${m.short}: ${Math.round(b.val)}% (2024 Harris share ${m.dem}%${m.demNote ? ", statewide" : ""}, ${m.none}% with no religion, ${m.adh}% in a congregation). ` + (s.values !== Math.round(b.val) ? `<button type="button" data-r="values">Reset</button>` : "");
+  $("eduO").textContent = Math.round(b.edu) + "%"; $("valuesO").textContent = Math.round(b.val) + "%";
+  $("eduHint").textContent = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}.`;
+  $("valuesHint").textContent = `Modeled for ${m.short} from the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""}), ${m.none}% with no religion and ${m.adh}% in a congregation.`;
   const D = clickDefaults(P), rst = k => s[k] !== Math.round(D[k]) ? ` <button type="button" data-r="${k}">Reset</button>` : "";
   $("hisHint").innerHTML = `Speed-dating data suggest about 35% for men and 25% for women judging the people they meet. Default for you: ${Math.round(D.his)}%.` + rst("his");
   $("appsHint").innerHTML = `Share of singles looking to date who are on an app now. Pew found 28% in 2022, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
-  document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(k === "edu" ? b.edu : k === "values" ? b.val : D[k]); update(); });
+  document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(D[k]); update(); });
 
-  const adj = {edu: s.edu === 0 ? 1 : s.edu/b.edu, val: b.val ? s.values/b.val : 1};
-  const T = traitRel(s, P), f = pool(m, s, P, adj, T);
-  const all = M.map(x => { const r = x === m ? f : pool(x, s, P, null, T); return {m:x, v:r.click, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
+  const T = traitRel(s, P), f = pool(m, s, P, T);
+  const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
@@ -585,7 +581,7 @@ function update(){
     [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`, 0],
     ["Single", f.single, pc(f.single, f.age), 1],
     ["Unattached and looking to date", f.look, pc(f.look, f.single), 1],
-    ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.look), 1]] : []),
+    ["Bachelor's or higher", f.deg, pc(f.deg, f.look), 1],
     [openTo, f.open, pc(f.open, f.deg), 2],
     ["Secular-leaning and progressive", f.vals, pc(f.vals, f.open), 2],
     ...(Math.abs(f.kids - f.vals) > .5 ? [["Compatible on kids", f.kids, pc(f.kids, f.vals), 2]] : []),
@@ -606,7 +602,7 @@ function update(){
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const bigger = byPool.filter(a => a.v > f.click * 2).length;
-  const edu = s.edu > 0 ? "single, looking, degree-holding" : "single, looking";
+  const edu = "single, looking, degree-holding";
   $("readout").innerHTML = `<p>In the ${m.name} metro, about <strong>${fmt(f.click)}</strong> ${who} fit these settings, and about <strong>${fmt(f.apps)}</strong> of them are likely on the apps right now. That ranks <strong>#${rank}</strong> of 387 metros, and ${bigger} metros have at least twice as many.</p>` +
     (peer && peer.v > f.click ? `<p>Among metros of similar size, ${peer.m.short} does best, with about <strong>${fmt(peer.v/f.click)}×</strong> as many possibilities under the same settings. ` : `<p>No metro of similar size beats it. `) +
     `The biggest pool overall is ${byPool[0].m === m ? "this one" : `${byPool[0].m.short}, at about <strong>${fmt(byPool[0].v/f.click)}×</strong>`}.</p>` +
