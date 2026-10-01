@@ -415,7 +415,7 @@ function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
   const kids = document.querySelector('input[name="kids"]:checked').value;
-  return {you, seek, age:+$("yAge").value, ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked};
+  return {you, seek, age:+$("yAge").value, ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -443,6 +443,7 @@ try {
     if (["job","less","none"].includes(p.job)) $("yJob").value = p.job;
     if (["any","want","dont","have"].includes(p.kids)) $("kids-" + p.kids).checked = true;
     if (typeof p.openP === "boolean") $("openP").checked = p.openP;
+    if (typeof p.degOnly === "boolean") $("degOnly").checked = p.degOnly;
   }
 } catch(e){}
 if (!htSet) $("yHt").value = defaultHt();
@@ -533,8 +534,7 @@ document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => 
   saveProfile(); resetClicks(); update();
 }));
 $("yHt").addEventListener("change", () => htSet = true);
-$("degOnly").addEventListener("change", update);
-["yAge","yHt","yEdu","yJob","openP"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); update(); }));
+["yAge","yHt","yEdu","yJob","openP","degOnly"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 
 function update(){
