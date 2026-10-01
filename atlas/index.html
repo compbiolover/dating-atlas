@@ -58,13 +58,25 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .head small,.note{color:var(--muted);font-size:12.5px}
-.frow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;align-items:baseline}
-.frow .cut{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.frow .c{font-family:var(--mono);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
-.bar{grid-column:1/-1;height:7px;background:var(--track);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
-.frow.last .bar i{background:var(--hot)}
-.frow.last .name{font-weight:600}
+.phases{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;font-size:12.5px;color:var(--muted)}
+.phases .ph{display:inline-flex;align-items:baseline;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--track)}
+.phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block}
+.phases .ph b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.phases .arr{color:var(--dot)}
+.fun{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) max-content;column-gap:14px;row-gap:3px;align-items:center}
+.fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right}
+.fun .cut{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.fun .seg{height:38px;background:var(--c);clip-path:var(--clip);transition:clip-path .35s ease}
+.fun .c{font-family:var(--mono);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+.fun .last .lab,.fun .last.c{font-weight:600}
+.fun .last.c{color:var(--hot)}
+.fun .ptag{grid-column:1/-1;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:8px}
+.fun .ptag:first-child{padding-top:0}
+@media (max-width:560px){
+  .fun{grid-template-columns:minmax(0,1fr) max-content;column-gap:10px}
+  .fun .lab{grid-column:1/-1;text-align:left;display:flex;gap:8px;align-items:baseline;padding-top:4px}
+  .fun .seg{height:26px}
+}
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
 .tools select{font:inherit;font-size:13px;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .list{display:grid;gap:4px;max-height:560px;overflow-y:auto;padding-right:4px}
@@ -103,7 +115,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .notes p + p{margin-top:12px}
 .notes a{color:var(--accent)}
 code{font-family:var(--mono);font-size:12.5px}
-@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.fun .seg{transition:none}}
 .crow,.lhead{grid-template-columns:28px minmax(0,180px) minmax(0,1fr) 58px 52px 52px}
 .lhead{display:grid;gap:10px;padding:0 6px 4px;font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line)}
 .lhead span:nth-child(n+4){text-align:right}
@@ -194,8 +206,9 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="readout" id="readout"></div>
 
       <div class="card">
-        <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Bars on a log scale</small></div>
-        <div id="funnel" style="display:grid;gap:10px"></div>
+        <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
+        <div class="phases" id="phases"></div>
+        <div class="fun" id="funnel"></div>
       </div>
 
       <div class="card">
@@ -250,6 +263,10 @@ const ACS = {"bands":[[15,17],[18,19],[20,24],[25,29],[30,34],[35,39],[40,44],[4
 const REL = {"New York–Newark–Jersey City, NY-NJ":[53.6,20.6],"Los Angeles–Long Beach–Anaheim, CA":[50.7,26.0],"Chicago–Naperville–Elgin, IL-IN":[52.4,23.4],"Dallas–Fort Worth–Arlington, TX":[54.2,18.2],"Houston–Pasadena–The Woodlands, TX":[54.9,20.0],"Atlanta–Sandy Springs–Roswell, GA":[51.4,17.4],"Washington–Arlington–Alexandria, DC-VA-MD-WV":[46.7,24.8],"Miami–Fort Lauderdale–West Palm Beach, FL":[46.3,24.5],"Philadelphia–Camden–Wilmington, PA-NJ-DE-MD":[49.0,20.6],"Phoenix–Mesa–Chandler, AZ":[46.6,28.2],"Boston–Cambridge–Newton, MA-NH":[50.3,24.7],"Riverside–San Bernardino–Ontario, CA":[43.4,23.6],"San Francisco–Oakland–Fremont, CA":[38.7,29.3],"Detroit–Warren–Dearborn, MI":[43.8,23.2],"Seattle–Tacoma–Bellevue, WA":[41.1,36.7],"Minneapolis–St. Paul–Bloomington, MN-WI":[46.8,25.2],"Tampa–St. Petersburg–Clearwater, FL":[50.0,23.6],"San Diego–Chula Vista–Carlsbad, CA":[41.4,27.3],"Denver–Aurora–Centennial, CO":[34.4,28.1],"Orlando–Kissimmee–Sanford, FL":[48.4,24.8],"Charlotte–Concord–Gastonia, NC-SC":[56.0,17.4],"Baltimore–Columbia–Towson, MD":[39.4,21.3],"St. Louis, MO-IL":[51.0,21.0],"San Antonio–New Braunfels, TX":[52.9,20.5],"Austin–Round Rock–San Marcos, TX":[42.6,25.3],"Portland–Vancouver–Hillsboro, OR-WA":[35.6,32.9],"Sacramento–Roseville–Folsom, CA":[38.0,29.1],"Pittsburgh, PA":[54.8,19.7],"Las Vegas–Henderson–North Las Vegas, NV":[43.3,35.1],"Cincinnati, OH-KY-IN":[51.5,23.1],"Kansas City, MO-KS":[45.4,22.4],"Columbus, OH":[43.2,29.0],"Indianapolis–Carmel–Greenwood, IN":[43.6,23.8],"Nashville-Davidson–Murfreesboro–Franklin, TN":[51.9,20.2],"Cleveland, OH":[55.5,26.8],"San Jose–Sunnyvale–Santa Clara, CA":[46.4,38.6],"Virginia Beach–Norfolk–Newport News, VA-NC":[43.8,24.9],"Jacksonville, FL":[55.6,17.9],"Providence–Warwick, RI-MA":[48.3,20.1],"Raleigh–Cary, NC":[48.9,23.5],"Milwaukee–Waukesha, WI":[55.1,21.5],"Oklahoma City, OK":[61.6,23.1],"Louisville/Jefferson County, KY-IN":[46.2,22.5],"Richmond, VA":[54.2,23.6],"Memphis, TN-MS-AR":[64.4,16.5],"Salt Lake City–Murray, UT":[67.6,24.2],"Fresno, CA":[42.9,17.5],"Birmingham, AL":[68.4,14.7],"Grand Rapids–Wyoming–Kentwood, MI":[41.5,21.1],"Hartford–West Hartford–East Hartford, CT":[47.1,21.5],"Buffalo–Cheektowaga, NY":[64.4,15.2],"Tucson, AZ":[38.8,29.6],"Tulsa, OK":[56.9,24.2],"Rochester, NY":[47.0,26.0],"Greenville–Anderson–Greer, SC":[60.4,19.3],"Omaha, NE-IA":[44.3,25.2],"Urban Honolulu, HI":[38.5,13.6],"Bridgeport–Stamford–Danbury, CT":[56.4,16.9],"New Orleans–Metairie, LA":[67.4,17.4],"Knoxville, TN":[54.8,16.9],"North Port–Bradenton–Sarasota, FL":[43.6,21.8],"Bakersfield–Delano, CA":[45.6,18.2],"Albuquerque, NM":[54.6,28.1],"McAllen–Edinburg–Mission, TX":[61.4,10.2],"Albany–Schenectady–Troy, NY":[37.8,27.1],"Charleston–North Charleston, SC":[44.6,23.4],"Baton Rouge, LA":[56.7,15.4],"Worcester, MA":[42.6,21.3],"Allentown–Bethlehem–Easton, PA-NJ":[40.5,24.0],"El Paso, TX":[62.3,11.6],"Columbia, SC":[54.5,17.3],"Cape Coral–Fort Myers, FL":[41.7,24.1],"Lakeland–Winter Haven, FL":[41.6,20.0],"Boise City, ID":[45.5,29.5],"Oxnard–Thousand Oaks–Ventura, CA":[51.1,20.8],"Dayton–Kettering–Beavercreek, OH":[53.1,21.8],"Stockton–Lodi, CA":[38.1,17.4],"Greensboro–High Point, NC":[50.6,20.0],"Colorado Springs, CO":[42.8,28.0],"Little Rock–North Little Rock–Conway, AR":[54.4,18.2],"Provo–Orem–Lehi, UT":[88.7,4.6],"Des Moines–West Des Moines, IA":[39.1,25.4],"Deltona–Daytona Beach–Ormond Beach, FL":[40.5,24.3],"Kiryas Joel–Poughkeepsie–Newburgh, NY":[46.0,21.1],"Winston-Salem, NC":[60.6,18.5],"Madison, WI":[37.3,36.6],"Akron, OH":[43.6,20.8],"Ogden, UT":[73.1,20.0],"Palm Bay–Melbourne–Titusville, FL":[42.1,20.4],"Wichita, KS":[44.6,21.8],"Syracuse, NY":[48.4,26.2],"Augusta-Richmond County, GA-SC":[51.9,16.3],"Durham–Chapel Hill, NC":[46.3,22.9],"Fayetteville–Springdale–Rogers, AR":[53.0,21.5],"Harrisburg–Carlisle, PA":[42.3,21.4],"Jackson, MS":[65.3,13.5],"Spokane–Spokane Valley, WA":[41.6,24.6],"Toledo, OH":[45.2,23.6],"Chattanooga, TN-GA":[53.6,17.9],"New Haven, CT":[46.6,18.1],"Reno, NV":[38.7,37.9],"Portland–South Portland, ME":[32.2,29.0],"Scranton–Wilkes-Barre, PA":[54.9,15.4],"Port St. Lucie, FL":[41.7,20.3],"Lancaster, PA":[47.2,16.5],"Modesto, CA":[38.7,17.4],"Huntsville, AL":[61.4,14.9],"Pensacola–Ferry Pass–Brent, FL":[50.7,20.4],"Lexington-Fayette, KY":[47.5,25.2],"Killeen–Temple, TX":[45.8,22.3],"Springfield, MO":[50.9,20.0],"Wilmington, NC":[48.6,19.4],"Santa Rosa–Petaluma, CA":[36.4,34.6],"Visalia, CA":[53.4,17.0],"Lansing–East Lansing, MI":[34.4,34.5],"York–Hanover, PA":[34.1,25.3],"Fort Wayne, IN":[53.2,16.9],"Springfield, MA":[39.4,18.2],"Waterbury–Shelton, CT":[46.6,18.1],"Vallejo, CA":[32.3,33.0],"Corpus Christi, TX":[63.6,20.0],"Salem, OR":[41.7,27.1],"Ocala, FL":[38.4,21.3],"Santa Maria–Santa Barbara, CA":[46.4,23.3],"Reading, PA":[45.6,22.6],"Savannah, GA":[39.3,15.9],"Brownsville–Harlingen, TX":[54.6,12.4],"Salinas, CA":[59.7,19.8],"Manchester–Nashua, NH":[27.7,32.8],"Gulfport–Biloxi, MS":[43.8,20.5],"Myrtle Beach–Conway–North Myrtle Beach, SC":[43.8,16.3],"Lafayette, LA":[65.7,14.6],"Youngstown–Warren, OH":[47.6,20.4],"Asheville, NC":[52.8,22.6],"Naples–Marco Island, FL":[61.6,24.0],"Mobile, AL":[72.7,17.8],"Spartanburg, SC":[51.5,17.1],"Anchorage, AK":[35.7,24.4],"Flint, MI":[40.5,29.6],"Canton–Massillon, OH":[46.6,22.8],"Beaumont–Port Arthur, TX":[64.3,15.3],"Trenton–Princeton, NJ":[47.8,26.3],"Tallahassee, FL":[48.2,25.4],"Fayetteville, NC":[51.9,22.9],"Montgomery, AL":[63.5,15.1],"Shreveport–Bossier City, LA":[72.0,18.0],"Eugene–Springfield, OR":[23.8,35.8],"Davenport–Moline–Rock Island, IA-IL":[36.9,25.5],"Greeley, CO":[27.9,27.0],"Fort Collins–Loveland, CO":[34.8,31.4],"Hickory–Lenoir–Morganton, NC":[59.9,15.7],"Atlantic City–Hammonton, NJ":[53.9,23.7],"Ann Arbor, MI":[31.8,34.1],"Lubbock, TX":[52.1,18.8],"Huntington–Ashland, WV-KY-OH":[40.3,25.5],"Peoria, IL":[40.8,25.2],"Gainesville, FL":[45.0,29.0],"Lincoln, NE":[45.3,26.6],"Clarksville, TN-KY":[50.5,29.6],"Rockford, IL":[55.4,26.7],"Green Bay, WI":[54.2,23.9],"Boulder, CO":[36.4,40.4],"Columbus, GA-AL":[53.7,18.6],"South Bend–Mishawaka, IN-MI":[37.2,27.4],"Kennewick–Richland, WA":[52.5,23.1],"Roanoke, VA":[55.1,21.1],"Hagerstown–Martinsburg, MD-WV":[33.0,27.7],"Crestview–Fort Walton Beach–Destin, FL":[48.4,18.2],"Kingsport–Bristol, TN-VA":[60.3,14.7],"Sioux Falls, SD-MN":[56.6,16.7],"Waco, TX":[57.1,15.2],"Olympia–Lacey–Tumwater, WA":[36.5,34.9],"Longview, TX":[63.0,17.0],"Merced, CA":[45.1,20.4],"College Station–Bryan, TX":[43.2,19.2],"Utica–Rome, NY":[48.8,20.0],"Norwich–New London–Willimantic, CT":[35.6,29.8],"Bremerton–Silverdale–Port Orchard, WA":[44.1,36.2],"San Luis Obispo–Paso Robles, CA":[38.6,34.4],"Tuscaloosa, AL":[50.3,12.8],"Laredo, TX":[68.7,9.2],"Duluth, MN-WI":[35.4,24.1],"Cedar Rapids, IA":[45.0,26.1],"Slidell–Mandeville–Covington, LA":[81.1,17.3],"Amarillo, TX":[61.9,16.3],"Evansville, IN":[46.0,25.4],"Fargo, ND-MN":[49.9,18.5],"Lynchburg, VA":[56.0,16.8],"Daphne–Fairhope–Foley, AL":[53.7,14.1],"Bend, OR":[29.3,29.1],"Erie, PA":[38.7,21.8],"Kalamazoo–Portage, MI":[39.0,29.5],"Yakima, WA":[46.5,20.5],"Santa Cruz–Watsonville, CA":[39.5,38.6],"Prescott Valley–Prescott, AZ":[41.6,26.5],"Tyler, TX":[61.6,17.1],"Appleton, WI":[60.9,16.4],"Lake Charles, LA":[60.9,19.5],"Binghamton, NY":[43.0,30.1],"Hilton Head Island–Bluffton–Port Royal, SC":[43.7,22.6],"Champaign–Urbana, IL":[39.4,35.9],"Macon-Bibb County, GA":[49.7,14.4],"Bellingham, WA":[43.7,36.1],"Fort Smith, AR-OK":[56.3,17.9],"Barnstable Town, MA":[36.1,21.9],"Topeka, KS":[40.4,22.9],"Rochester, MN":[53.3,21.4],"Panama City–Panama City Beach, FL":[36.9,19.9],"Las Cruces, NM":[37.3,18.3],"Charlottesville, VA":[40.3,31.6],"Lafayette–West Lafayette, IN":[29.5,35.0],"Lake Havasu City–Kingman, AZ":[25.6,33.2],"Burlington–South Burlington, VT":[49.1,35.0],"Gainesville, GA":[80.1,21.3],"Yuma, AZ":[35.0,18.2],"Athens-Clarke County, GA":[38.0,20.6],"Monroe, LA":[61.5,12.9],"Medford, OR":[28.2,27.5],"Columbia, MO":[38.9,30.3],"Punta Gorda, FL":[48.0,15.0],"Jacksonville, NC":[35.1,24.0],"Johnson City, TN":[49.3,20.2],"St. George, UT":[74.1,20.5],"Lexington Park, MD":[44.3,27.8],"Chico, CA":[29.0,38.2],"Joplin, MO-KS":[49.7,20.3],"Elkhart–Goshen, IN":[45.9,19.3],"Warner Robins, GA":[44.3,21.2],"Auburn–Opelika, AL":[35.8,16.8],"Springfield, IL":[46.9,25.1],"St. Cloud, MN":[52.9,15.1],"Florence, SC":[52.1,14.3],"Charleston, WV":[37.8,23.0],"Houma–Bayou Cane–Thibodaux, LA":[57.2,15.5],"Racine–Mount Pleasant, WI":[41.7,24.1],"Bowling Green, KY":[49.5,19.1],"Dover, DE":[31.5,27.8],"Billings, MT":[33.0,24.0],"Midland, TX":[65.1,21.8],"Coeur d'Alene, ID":[63.7,25.2],"Saginaw, MI":[47.8,21.1],"Yuba City, CA":[35.7,32.3],"Burlington, NC":[44.2,16.9],"Abilene, TX":[60.1,16.1],"Jackson, TN":[67.7,17.9],"Kingston, NY":[36.0,30.9],"Greenville, NC":[38.1,22.7],"Iowa City, IA":[31.4,38.1],"Redding, CA":[38.5,29.7],"Blacksburg–Christiansburg–Radford, VA":[36.9,25.8],"El Centro, CA":[86.3,12.9],"Muskegon–Norton Shores, MI":[28.4,24.2],"Eau Claire, WI":[40.2,19.4],"Oshkosh–Neenah, WI":[44.6,23.4],"Idaho Falls, ID":[70.2,19.3],"Odessa, TX":[50.3,15.3],"Sebastian–Vero Beach–West Vero Corridor, FL":[52.6,20.0],"Homosassa Springs, FL":[37.2,21.2],"Bloomington, IL":[44.3,22.2],"La Crosse–Onalaska, WI-MN":[45.4,21.0],"Pueblo, CO":[35.1,33.5],"Terre Haute, IN":[35.0,30.7],"Waterloo–Cedar Falls, IA":[50.7,25.5],"Kenosha, WI":[35.1,24.5],"Janesville–Beloit, WI":[38.2,24.5],"Bloomington, IN":[27.6,42.2],"Amherst Town–Northampton, MA":[24.0,38.3],"Grand Junction, CO":[37.9,30.7],"Logan, UT-ID":[85.7,10.0],"Kahului–Wailuku, HI":[46.6,24.7],"Chambersburg, PA":[32.8,21.8],"Decatur, AL":[69.1,19.3],"Jackson, MI":[28.0,26.9],"Hattiesburg, MS":[59.5,16.4],"Bangor, ME":[29.1,30.7],"Wildwood–The Villages, FL":[30.3,15.8],"State College, PA":[33.9,33.8],"Vineland, NJ":[43.8,20.6],"Traverse City, MI":[28.0,25.2],"Rapid City, SD":[46.1,24.3],"Santa Fe, NM":[72.1,39.2],"Florence–Muscle Shoals, AL":[64.0,18.5],"Dothan, AL":[76.9,17.6],"Monroe, MI":[45.6,36.6],"Hanford–Corcoran, CA":[45.2,20.1],"Sherman–Denison, TX":[45.5,20.2],"Valdosta, GA":[47.3,18.2],"Jefferson City, MO":[50.9,16.4],"Niles, MI":[43.7,22.0],"Winchester, VA-WV":[41.0,20.3],"Wichita Falls, TX":[67.8,17.2],"Rocky Mount, NC":[48.5,20.1],"Alexandria, LA":[69.0,14.3],"Dalton, GA":[60.5,17.4],"Texarkana, TX-AR":[67.8,14.7],"Lebanon, PA":[36.1,19.9],"Sioux City, IA-NE-SD":[46.6,20.1],"Albany, GA":[48.6,11.7],"Flagstaff, AZ":[32.4,40.4],"Morgantown, WV":[27.8,35.3],"Hammond, LA":[52.3,16.5],"Harrisonburg, VA":[51.1,23.2],"Bismarck, ND":[58.9,15.6],"Jonesboro, AR":[62.8,16.5],"Wausau, WI":[51.5,19.4],"Manhattan, KS":[40.5,30.1],"Springfield, OH":[33.9,23.5],"Wheeling, WV-OH":[41.1,22.2],"Cleveland, TN":[63.1,17.4],"Battle Creek, MI":[32.3,34.1],"Mount Vernon–Anacortes, WA":[38.6,32.6],"Napa, CA":[50.1,29.1],"Albany, OR":[35.4,25.3],"Salisbury, MD":[39.1,24.0],"Staunton–Stuarts Draft, VA":[47.5,17.9],"Johnstown, PA":[63.8,20.2],"Morristown, TN":[63.6,16.9],"Bozeman, MT":[29.5,38.9],"Missoula, MT":[26.8,43.0],"Elizabethtown, KY":[45.2,32.3],"Wenatchee–East Wenatchee, WA":[52.7,31.1],"Pittsfield, MA":[42.8,30.5],"Ames, IA":[36.9,27.4],"Lawton, OK":[61.1,31.1],"Sierra Vista–Douglas, AZ":[45.4,27.9],"Mansfield, OH":[44.0,20.3],"Glens Falls, NY":[31.3,29.7],"Twin Falls, ID":[44.2,29.1],"Goldsboro, NC":[48.5,21.5],"San Angelo, TX":[60.0,22.9],"Lawrence, KS":[29.1,43.6],"Farmington, NM":[40.2,33.7],"Altoona, PA":[42.2,15.0],"St. Joseph, MO-KS":[42.5,21.7],"Brunswick–St. Simons, GA":[45.0,20.7],"Sheboygan, WI":[54.9,15.2],"Lewiston–Auburn, ME":[40.1,20.9],"Anniston–Oxford, AL":[71.8,15.7],"Longview–Kelso, WA":[36.7,31.8],"Owensboro, KY":[66.7,19.0],"Muncie, IN":[31.1,28.9],"Sandusky, OH":[56.1,28.4],"Williamsport, PA":[43.2,17.1],"Weirton–Steubenville, WV-OH":[40.6,21.8],"Watertown–Fort Drum, NY":[29.6,29.6],"Michigan City–La Porte, IN":[36.1,26.9],"Sebring, FL":[51.6,22.2],"Pinehurst–Southern Pines, NC":[50.2,15.3],"Beckley, WV":[33.3,24.8],"Gettysburg, PA":[39.4,28.1],"Kankakee, IL":[47.8,27.1],"Sumter, SC":[52.9,22.5],"Grand Forks, ND-MN":[50.0,17.5],"Mankato, MN":[52.1,18.9],"Fond du Lac, WI":[56.9,27.2],"Ithaca, NY":[29.8,47.0],"Gadsden, AL":[81.1,13.5],"Cheyenne, WY":[32.1,21.5],"Paducah, KY-IL":[75.7,13.4],"Bay City, MI":[39.7,17.0],"Rome, GA":[62.5,16.9],"Lima, OH":[57.4,21.4],"Victoria, TX":[55.0,18.2],"Hot Springs, AR":[51.1,20.8],"Dubuque, IA":[55.5,16.0],"Decatur, IL":[46.3,28.6],"Cape Girardeau, MO-IL":[56.0,15.4],"Corvallis, OR":[28.0,42.7],"Helena, MT":[33.8,30.4],"Fairbanks–College, AK":[30.2,35.2],"Hinesville, GA":[34.0,19.4],"Pocatello, ID":[53.4,32.8],"Grants Pass, OR":[30.9,30.0],"Parkersburg–Vienna, WV":[48.4,28.8],"Columbus, IN":[47.8,20.2],"Great Falls, MT":[37.8,31.4],"Kokomo, IN":[47.4,17.4],"Midland, MI":[44.3,27.4],"Casper, WY":[40.7,33.8],"Elmira, NY":[42.6,23.4],"Grand Island, NE":[47.0,25.6],"Minot, ND":[44.5,22.3],"Lewiston, ID-WA":[39.2,42.5],"Walla Walla, WA":[40.0,30.2],"Enid, OK":[63.9,22.8],"Eagle Pass, TX":[77.2,5.8],"Carson City, NV":[34.4,26.3]};
 
 const GK = ["w","m","n"];
+// Funnel stages, from who lives there to who'd say yes
+const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 30%, var(--track))"},
+  {name:"Who's available", c:"color-mix(in srgb, var(--accent) 60%, var(--track))"},
+  {name:"Who fits", c:"var(--accent)"}, {name:"Who clicks", c:"var(--hot)"}];
 const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", share:.485}, n:{noun:"nonbinary people", one:"nonbinary person", share:.015}};
 // OPEN[a][b]: share of single people of gender a who are open to dating someone of gender b
 const OPEN = {w:{w:.14, m:.88, n:.10}, m:{w:.94, m:.07, n:.05}, n:{w:.60, m:.50, n:.60}};
@@ -515,18 +532,29 @@ function update(){
     (xs.length ? `Your traits change it by ×${fmt2(fx.all)} (${xs.join(", ")}), to about ${Math.round(Math.min(95, s.her*fx.all))}%.` : "Your traits match that.");
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
-  const steps = [["Everyone in the metro", m.pop, ""],
-    ...(P.seek.length < 3 ? [[who[0].toUpperCase() + who.slice(1), f.total, pc(f.total, m.pop)]] : []),
-    [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`],
-    ["Single", f.single, pc(f.single, f.age)],
-    ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.single)]] : []),
-    [openTo, f.open, pc(f.open, f.deg)],
-    ["Secular-leaning and progressive", f.vals, pc(f.vals, f.open)],
-    ...(Math.abs(f.kids - f.vals) > .5 ? [["Compatible on kids", f.kids, pc(f.kids, f.vals)]] : []),
-    ["Mutual attraction", f.click, pc(f.click, f.kids)]];
-  const lmax = Math.log10(m.pop);
+  // Each step: [label, count, cut note, phase]
+  const steps = [["Everyone in the metro", m.pop, "", 0],
+    ...(P.seek.length < 3 ? [[who[0].toUpperCase() + who.slice(1), f.total, pc(f.total, m.pop), 0]] : []),
+    [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`, 0],
+    ["Single", f.single, pc(f.single, f.age), 1],
+    ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.single), 1]] : []),
+    [openTo, f.open, pc(f.open, f.deg), 2],
+    ["Secular-leaning and progressive", f.vals, pc(f.vals, f.open), 2],
+    ...(Math.abs(f.kids - f.vals) > .5 ? [["Compatible on kids", f.kids, pc(f.kids, f.vals), 2]] : []),
+    ["Mutual attraction", f.click, pc(f.click, f.kids), 3],
+    ["On the apps now", f.apps, pc(f.apps, f.click), 3]];
   $("funnelTitle").textContent = `The funnel in ${m.short}`;
-  $("funnel").innerHTML = steps.map((st,i) => `<div class="frow${i === steps.length-1 ? " last" : ""}"><span class="name">${st[0]} <span class="cut">${st[2]}</span></span><span class="c">${fmt(st[1])}</span><span class="bar"><i style="width:${Math.max(1, Math.log10(Math.max(1, st[1]))/lmax*100)}%"></i></span></div>`).join("");
+  // Widths on a log scale from 1 person to the whole metro, so every stage stays visible
+  const lmax = Math.log10(m.pop), wd = v => Math.max(4, Math.log10(Math.max(1, v))/lmax*100);
+  const end = PHASES.map((_, p) => steps.filter(st => st[3] === p).pop());
+  $("phases").innerHTML = PHASES.map((ph, p) => `<span class="ph"><i style="background:${ph.c}"></i>${ph.name} <b>${fmt(end[p][1])}</b></span>`).join('<span class="arr" aria-hidden="true">→</span>');
+  $("funnel").innerHTML = steps.map((st, i) => {
+    const top = wd(st[1]), bot = i < steps.length - 1 ? wd(steps[i+1][1]) : top*.92, last = i === steps.length - 1 ? " last" : "";
+    const clip = `polygon(${50 - top/2}% 0, ${50 + top/2}% 0, ${50 + bot/2}% 100%, ${50 - bot/2}% 100%)`;
+    const tag = i === 0 || st[3] !== steps[i-1][3] ? `<div class="ptag">${PHASES[st[3]].name}</div>` : "";
+    return `${tag}<div class="lab${last}"><span>${st[0]}</span><span class="cut">${st[2] && st[2][0] === "×" ? "keeps " + st[2].slice(1) : st[2]}</span></div>` +
+      `<div class="seg" aria-hidden="true" style="--c:${PHASES[st[3]].c};--clip:${clip}"></div><div class="c${last}">${fmt(st[1])}</div>`;
+  }).join("");
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const bigger = byPool.filter(a => a.v > f.click * 2).length;
