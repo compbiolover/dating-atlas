@@ -19,4 +19,4 @@ python3 scripts/housing_to_json.py acsdt5y2023-b25031.dat acsdt5y2023-b25113.dat
 
 The 2019–23 extract is in `data/` and embedded in the page, and all 387 metros match. Each metro uses its real counts of never-married, divorced and widowed people by age band, less about 15% who live with a partner, plus the real share of women and men 25–34 with a bachelor's or higher.
 
-The defaults for the three "Whether it clicks" sliders (attraction, interest back and app use) come from speed-dating studies and Pew's surveys of online dating. `docs/clicks-research.md` has the evidence and sources.
+The "unattached and looking to date" funnel step and the defaults for the three "Whether it clicks" sliders (attraction, interest back and app use) come from speed-dating studies and Pew's surveys of single adults and online dating. `docs/clicks-research.md` has the evidence and sources.

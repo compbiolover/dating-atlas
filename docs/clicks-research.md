@@ -52,3 +52,17 @@ None of the speed-dating datasets includes same-sex daters. HurryDate dropped sa
 The biggest correction is to slider 3's base, not to the attraction sliders. Moving from 35% to about 15% halves the estimated app-reachable pool. By comparison, splitting sliders 1 and 2 by gender leaves the opposite-sex mutual rate almost unchanged. The atlas's opposite-sex headline numbers were therefore mainly overstated by the app slider. Splitting by gender makes each slider honest about who is judging, and it gives a principled way to set same-sex defaults. It also makes clear that slider 2 is not a separate quantity: it is the other gender's slider 1 applied to the user.
 
 The evidence has three weak points, and these are where better data would most change the defaults. The attraction anchors date from 2002–2005, when people met through in-person scorecards rather than apps. There is almost no data on raters aged 45–55 or on lesbian and nonbinary daters. And no survey since July 2022 measures current app use among singles who are looking. If Pew repeats its online-dating survey, the first figure to update is the 28%, along with current-use figures by gender and age, which Pew has not yet published.
+
+## Addendum: the "looking to date" step
+
+After this report, the atlas added a funnel step for singles who are unattached and looking. Slider 3 therefore now applies to singles who are looking, so it uses Pew's 28% instead of the all-singles figure of about 15%.
+
+- **Committed but living apart.** In Pew 2022, 20% of adults who are neither married nor cohabiting said they were in a committed romantic relationship (2019: 21%). Pew publishes no age or gender split, so the atlas removes 20% everywhere. Sources: [2022 topline, p. 64–65](https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf); [2019 topline](https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20_dating-relationships.topline.pdf). An older survey, the GSS 1996–98 "steady partner" item, puts the share higher, at about 35% ([Strohm et al. 2009](https://www.demographic-research.org/volumes/vol21/7/21-7.pdf)). That makes 20% a conservative cut.
+- **Looking for a relationship or dates, among singles.** Pew 2019 ([report, p. 18](https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf)) found:
+
+  | | Under 40 | 40 and older | All ages |
+  |---|---|---|---|
+  | Men | 67% | 55% | 61% |
+  | Women | 61% | 29% | 38% |
+- **Change by 2022.** The share looking fell to 50% of single men and 35% of single women ([Pew short read, Feb 2023](https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/)). The atlas scales each 2019 age split by its sex's drop, giving men 55% and 45%, and women 56% and 27%. Nonbinary people get the average.
+- **Slider 3 on the new base.** 28% of singles who are looking are currently on a dating site or app (Pew 2022). Pew's past-year gender gap (50% vs 37%) splits this into about 31% for men and 23% for women. Same-gender and nonbinary pairs are still multiplied by 1.5. The range is 10–60%.

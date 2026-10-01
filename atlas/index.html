@@ -195,7 +195,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Whether it clicks</div>
       <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
       <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
-      <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="5" max="40" value="15"><small id="appsHint"></small></div>
+      <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
       <small class="note">Setting the degree slider to 0% removes that filter for both your pool and the competition.</small>
     </form>
 
@@ -244,7 +244,8 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
       <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
       <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
-      <p>The competition ratio divides the single, degree-holding people of the genders you picked by every single, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single degree-holding women per single degree-holding man.</p>
+      <p>Not every single person is available or looking. In Pew's 2022 survey, 20% of people who were neither married nor living with a partner were in a committed relationship (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">topline, p. 64</a>), and Pew doesn't break that out by age, so the page removes 20% at every age. Of the rest, Pew's 2019 survey found 67% of men and 61% of women under 40 looking for a relationship or dates, against 55% of men and only 29% of women 40 and older (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf">report, p. 18</a>). By 2022 the share looking had fallen from 61% to 50% for single men and from 38% to 35% for single women (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so the page scales each age split by that drop: 55% and 45% for men, 56% and 27% for women. Nonbinary people get the average. The same step applies to the competition, since people who aren't looking aren't competing.</p>
+      <p>The competition ratio divides the single, looking, degree-holding people of the genders you picked by every single, looking, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single, looking, degree-holding women per man. Because far fewer women than men over 40 are looking, it tilts toward men at older ages.</p>
       <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular. Use the slider if you know the local scene.</p>
       <p>The adult bachelor's rate in the fallback above is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). The degree step in the funnel uses Table B15001.</p>
       <p>Housing cost is a recent mover's rent for a 1-bedroom as a share of median yearly pay, from the 2019 to 2023 ACS. Table B25031 gives each metro's median gross rent, including utilities, for a 1-bedroom. That median includes people on long leases and in rent-stabilized units, so it is scaled by the metro's ratio of rent for people who moved in from 2021 on to rent for all renters (Table B25113). Pay is the median earnings of people 25 and older with a bachelor's degree, or with some college if you set no bachelor's (Table B20004), and it covers part-time workers too. The 30% line is HUD's definition of a cost-burdened renter. Rents have risen since 2023, so treat the dollar figures as a floor. The ranking between metros holds up better. Housing cost doesn't change the pool. It's a separate measure of what living there costs.</p>
@@ -256,7 +257,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p><strong>Having kids.</strong> Pew 2019 found 42% of singles under 40 and 28% of those 40 and older wouldn't date someone raising children.</p>
       <p>These studies are mostly about women and men dating each other, so for nonbinary people the page uses the average of the two.</p>
       <p><strong>Whether it clicks.</strong> The attraction defaults come from speed dating, where people say whether they'd like to see each partner again. Men said yes to 47% and women to 37% of partners in the <a href="http://www.stat.columbia.edu/~gelman/arm/examples/speed.dating/">Columbia speed-dating data</a> (<a href="https://wiwi.hs-duesseldorf.de/personen/christian.schwarz/Documents/genderDifferences.pdf">Fisman and colleagues, 2006</a>), and 49% and 34% among 10,526 non-student adults at HurryDate (<a href="https://static1.squarespace.com/static/5252b095e4b06da77026f5e5/t/528d1b22e4b0c1452601cb08/1384979234029/hurrydate-mate-preferences-in-action.pdf">Kurzban and Weeden, 2005</a>). A yes there only means another conversation, and when people chose after the event instead, in a <a href="https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/iser/2007-17.pdf">UK study</a>, rates halved to 22% and 12%. So the page uses 35% for men and 25% for women judging someone, and 30% for nonbinary people. Both click sliders depend on who is judging: the first on you, the second on the people you're looking for. In the Columbia data mutual matches came out at about the rate you'd get by multiplying the two, which is how the page combines them. There is no comparable data for same-sex or nonbinary daters.</p>
-      <p>The app default comes from <a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">Pew's 2022 survey</a>: 28% of singles who are looking for dates and 3% of those who aren't were using a dating app or site. The pool counts all singles, and fewer than half are looking, so that works out to about 15%: 20% for men and 13% for women, from Pew's gender split. LGB singles were about 1.5 times as likely to be dating online (<a href="https://www.pewresearch.org/social-trends/2020/08/20/a-profile-of-single-americans/">Pew 2019</a>), so same-gender and nonbinary matches use 1.5 times those rates. App use has slipped since, with Match Group's paying users down 6% in the year to mid-2026.</p>
+      <p>The app default comes from <a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">Pew's 2022 survey</a>: 28% of singles who are looking for dates were using a dating app or site. Pew's past-year figures (50% of looking men, 37% of looking women) give about 31% for men and 23% for women. LGB singles were about 1.5 times as likely to be dating online (<a href="https://www.pewresearch.org/social-trends/2020/08/20/a-profile-of-single-americans/">Pew 2019</a>), so same-gender and nonbinary matches use 1.5 times those rates. App use has slipped since, with Match Group's paying users down 6% in the year to mid-2026.</p>
       <p>These rates are the same in every metro, so the comparison isolates what the metro itself changes. Moving a slider scales every gender's rate by the same factor.</p>
     </details>
     </section>
@@ -300,9 +301,22 @@ const LESS_MONEY = {w:.24, m:.07};          // would not date someone who makes 
 const PARENT_NO = [.42, .28];               // would not date someone raising kids, raters under 40 / 40+ (Pew 2019)
 const WANT = {w:[.45,.30,.25], m:[.57,.30,.13]}; // non-parents 18-34: want kids, unsure, don't (Pew 2023)
 const UNLIKELY_U50 = .47; // non-parents under 50 unlikely ever to have kids (Pew 2024); used from 35 up, no data past 49
+// Who's looking to date. Pew asks people who are neither married nor living with a partner; 20% of them are
+// in a committed relationship (2022), the same at every age as far as Pew reports. Of the rest, the share
+// looking for a relationship or dates is Pew 2019's split by sex and age (under 40 / 40 and up), scaled by
+// each sex's drop from 2019 to 2022 (men 61% to 50%, women 38% to 35%).
+const COMMITTED = .20;
+const LOOKING = {w:[.61*35/38, .29*35/38], m:[.67*50/61, .55*50/61]};
+// Share of unmarried, non-cohabiting people of gender g in the age range who are unattached and looking
+function lookFit(g, s){
+  const rate = (k, a) => LOOKING[k][a < 40 ? 0 : 1];
+  let t = 0;
+  for (let a = s.ageMin; a <= s.ageMax; a++) t += g === "n" ? (rate("w", a) + rate("m", a))/2 : rate(g, a);
+  return (1 - COMMITTED)*t/(s.ageMax - s.ageMin + 1);
+}
 // Whether it clicks, by the gender of whoever is judging. Sources are in the notes.
 const ATTRACT = {w:25, m:35, n:30}; // % of eligible partners a rater would want to date (speed-dating yes rates, discounted)
-const APPS = {w:13, m:20, n:17};    // % of all single adults on a dating app now (Pew 2022)
+const APPS = {w:23, m:31, n:27};    // % of singles looking to date who are on a dating app now (Pew 2022: 28% overall)
 const LGB_APPS = 1.5;               // LGB singles are about 1.5 times as likely to be dating online (Pew 2019)
 const appsRate = (t, P) => APPS[t]*(t === P.you || t === "n" || P.you === "n" ? LGB_APPS : 1);
 // Slider defaults for a profile, blended over the genders you're looking for by how many are open to you.
@@ -478,16 +492,16 @@ function blends(m, s, P){
 // The full funnel for one metro. adj scales degree and values shares when the sliders move off the estimate.
 function pool(m, s, P, adj, T){
   const ea = adj ? adj.edu : 1, va = adj ? adj.val : 1;
-  const r = {total:0, age:0, single:0, deg:0, open:0, vals:0, kids:0, click:0, apps:0}, dg = {}, D = clickDefaults(P);
+  const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, kids:0, click:0, apps:0}, dg = {}, D = clickDefaults(P);
   const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0};
-  GK.forEach(g => { const b = base(m, g, s); dg[g] = {b, n: b.single*(s.edu === 0 ? 1 : Math.min(1, m.deg[g]/100*ea))}; });
+  GK.forEach(g => { const b = base(m, g, s), lk = b.single*lookFit(g, s); dg[g] = {b, lk, n: lk*(s.edu === 0 ? 1 : Math.min(1, m.deg[g]/100*ea))}; });
   // Competitors: everyone open to at least one of the genders you're looking for, counted once.
   // OPEN only gives rates per gender, so openness to each is treated as independent.
   let N = 0, C = 0;
   GK.forEach(g => C += dg[g].n*(1 - P.seek.reduce((q, t) => q*(1 - OPEN[g][t]), 1)));
   P.seek.forEach(t => {
-    const {b, n} = dg[t], o = n*OPEN[t][P.you];
-    r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.deg += n; r.open += o;
+    const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
+    r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
     const v = o*Math.min(1, m.val[t]/100*va*CORR), kf = v*kidsFit(m, t, P, s);
     const tr = T[t], ba = s.edu === 0 ? m.deg[t]/100 : 1, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
@@ -541,7 +555,7 @@ function update(){
   $("valuesHint").innerHTML = `Modeled for ${m.short}: ${Math.round(b.val)}% (2024 Harris share ${m.dem}%${m.demNote ? ", statewide" : ""}, ${m.none}% with no religion, ${m.adh}% in a congregation). ` + (s.values !== Math.round(b.val) ? `<button type="button" data-r="values">Reset</button>` : "");
   const D = clickDefaults(P), rst = k => s[k] !== Math.round(D[k]) ? ` <button type="button" data-r="${k}">Reset</button>` : "";
   $("hisHint").innerHTML = `Speed-dating data suggest about 35% for men and 25% for women judging the people they meet. Default for you: ${Math.round(D.his)}%.` + rst("his");
-  $("appsHint").innerHTML = `Share of all the singles in your pool on an app now. Pew found 28% of singles who are looking and 3% of those who aren't, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
+  $("appsHint").innerHTML = `Share of singles looking to date who are on an app now. Pew found 28% in 2022, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
   document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(k === "edu" ? b.edu : k === "values" ? b.val : D[k]); update(); });
 
   const adj = {edu: s.edu === 0 ? 1 : s.edu/b.edu, val: b.val ? s.values/b.val : 1};
@@ -570,7 +584,8 @@ function update(){
     ...(P.seek.length < 3 ? [[who[0].toUpperCase() + who.slice(1), f.total, pc(f.total, m.pop), 0]] : []),
     [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`, 0],
     ["Single", f.single, pc(f.single, f.age), 1],
-    ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.single), 1]] : []),
+    ["Unattached and looking to date", f.look, pc(f.look, f.single), 1],
+    ...(s.edu > 0 ? [["Bachelor's or higher", f.deg, pc(f.deg, f.look), 1]] : []),
     [openTo, f.open, pc(f.open, f.deg), 2],
     ["Secular-leaning and progressive", f.vals, pc(f.vals, f.open), 2],
     ...(Math.abs(f.kids - f.vals) > .5 ? [["Compatible on kids", f.kids, pc(f.kids, f.vals), 2]] : []),
@@ -591,7 +606,7 @@ function update(){
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const bigger = byPool.filter(a => a.v > f.click * 2).length;
-  const edu = s.edu > 0 ? "single, degree-holding" : "single";
+  const edu = s.edu > 0 ? "single, looking, degree-holding" : "single, looking";
   $("readout").innerHTML = `<p>In the ${m.name} metro, about <strong>${fmt(f.click)}</strong> ${who} fit these settings, and about <strong>${fmt(f.apps)}</strong> of them are likely on the apps right now. That ranks <strong>#${rank}</strong> of 387 metros, and ${bigger} metros have at least twice as many.</p>` +
     (peer && peer.v > f.click ? `<p>Among metros of similar size, ${peer.m.short} does best, with about <strong>${fmt(peer.v/f.click)}×</strong> as many possibilities under the same settings. ` : `<p>No metro of similar size beats it. `) +
     `The biggest pool overall is ${byPool[0].m === m ? "this one" : `${byPool[0].m.short}, at about <strong>${fmt(byPool[0].v/f.click)}×</strong>`}.</p>` +
