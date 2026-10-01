@@ -139,6 +139,7 @@ code{font-family:var(--mono);font-size:12.5px}
 .ctrl select{font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
 .chk{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:400}
 .chk input{accent-color:var(--accent);margin:0}
+.ctrl .chk{justify-content:flex-start;font-size:13.5px;font-weight:400;margin-top:4px}
 </style>
 
 <div class="wrap">
@@ -189,7 +190,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Who you're looking for</div>
       <div class="ctrl"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
       <div class="ctrl"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
-      <div class="ctrl"><label for="single">Share single <output id="singleO"></output></label><input type="range" id="single" min="30" max="70" value="50"><small id="singleHint"></small></div>
+      <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
       <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
       <div class="ctrl"><div class="lbl">Secular-leaning and progressive <output id="valuesO"></output></div><small id="valuesHint"></small></div>
       <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Whether it clicks</div>
@@ -242,7 +243,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
       <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
       <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
-      <p>If a metro had no ACS row, the page would fall back to the slider for singlehood (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
+      <p>If a metro had no ACS row, the page would fall back to 50% single for women (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
       <p>Not every single person is available or looking. In Pew's 2022 survey, 20% of people who were neither married nor living with a partner were in a committed relationship (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">topline, p. 64</a>), and Pew doesn't break that out by age, so the page removes 20% at every age. Of the rest, Pew's 2019 survey found 67% of men and 61% of women under 40 looking for a relationship or dates, against 55% of men and only 29% of women 40 and older (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf">report, p. 18</a>). By 2022 the share looking had fallen from 61% to 50% for single men and from 38% to 35% for single women (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so the page scales each age split by that drop: 55% and 45% for men, 56% and 27% for women. Nonbinary people get the average. The same step applies to the competition, since people who aren't looking aren't competing.</p>
       <p>The competition ratio divides the single, looking, degree-holding people of the genders you picked by every single, looking, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single, looking, degree-holding women per man. Because far fewer women than men over 40 are looking, it tilts toward men at older ages. Unchecking the degree filter drops the degree step from your pool and the competition alike.</p>
       <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular.</p>
@@ -279,7 +280,7 @@ const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 30%, va
 const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", share:.485}, n:{noun:"nonbinary people", one:"nonbinary person", share:.015}};
 // OPEN[a][b]: share of single people of gender a who are open to dating someone of gender b
 const OPEN = {w:{w:.14, m:.88, n:.10}, m:{w:.94, m:.07, n:.05}, n:{w:.60, m:.50, n:.60}};
-const SINGLE_ADJ = {w:0, m:6, n:10};  // points above the slider (modeled) or above the women/men average (ACS, nonbinary)
+const SINGLE_ADJ = {w:0, m:6, n:10};  // points above SINGLE (modeled) or above the women/men average (ACS, nonbinary)
 const DEG_MULT = {w:1.25, m:.97, n:1.15};
 const VAL_SHIFT = {w:[0,0], m:[-.10,.04], n:[.25,.15]}; // [progressive, secular]
 const COHAB = .85; // ACS can't see cohabiting couples; about 15% of unmarried young adults live with a partner
@@ -407,7 +408,8 @@ const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const near = (x, m) => x.pop >= m.pop*.6 && x.pop <= m.pop*1.4;
 const NARROW = matchMedia("(max-width:560px)");
 let PTS = [];
-const SLIDERS = ["ageMin","ageMax","single","his","her","apps"];
+const SLIDERS = ["ageMin","ageMax","his","her","apps"];
+const SINGLE = 50; // modeled share single for women, used only for a metro without ACS counts
 let cur = M.find(m => m.short === "Memphis"), shownCur = null;
 
 // Profile: who you are and who you're looking for
@@ -476,7 +478,7 @@ function base(m, g, s){
     return {age, single: age*Math.min(.9, sgl/all + SINGLE_ADJ.n/100)};
   }
   const age = m.pop*G[g].share*Math.min(1, (s.ageMax - s.ageMin + 1)*.0125);
-  return {age, single: age*Math.min(.9, (s.single + SINGLE_ADJ[g])/100)};
+  return {age, single: age*Math.min(.9, (SINGLE + SINGLE_ADJ[g])/100)};
 }
 
 // Degree and values shares for a metro, blended across the genders you're looking for
@@ -545,9 +547,9 @@ function update(){
   $("status").classList.toggle("live", !!nACS);
 
   const b = blends(m, s, P);
-  $("single").disabled = !!m.acs;
-  if (m.acs) $("singleO").textContent = "ACS";
-  $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : "Not married and not living with a partner. Nationally that's about half of women this age, and a few points more for men.";
+  const sg = P.seek.reduce((t, g) => { const x = base(m, g, s); return [t[0] + x.single, t[1] + x.age]; }, [0, 0]);
+  $("singleO").textContent = Math.round(sg[0]/sg[1]*100) + "%";
+  $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : `Modeled for ${who} aged ${s.ageMin} to ${s.ageMax}: not married and not living with a partner, about half of women this age and a few points more for men.`;
   $("eduO").textContent = Math.round(b.edu) + "%"; $("valuesO").textContent = Math.round(b.val) + "%";
   $("eduHint").textContent = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}.${s.deg ? "" : " Not used as a filter."}`;
   $("valuesHint").textContent = `Modeled for ${m.short} from the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""}), ${m.none}% with no religion and ${m.adh}% in a congregation.`;
