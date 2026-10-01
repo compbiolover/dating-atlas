@@ -193,9 +193,9 @@ code{font-family:var(--mono);font-size:12.5px}
       <div class="ctrl"><label for="edu">Bachelor's or higher <output id="eduO"></output></label><input type="range" id="edu" min="0" max="85" value="40"><small id="eduHint"></small></div>
       <div class="ctrl"><label for="values">Secular-leaning and progressive <output id="valuesO"></output></label><input type="range" id="values" min="2" max="75" value="20"><small id="valuesHint"></small></div>
       <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Whether it clicks</div>
-      <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="60" value="30"></div>
-      <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="60" value="30"><small id="herHint"></small></div>
-      <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="35"></div>
+      <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
+      <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
+      <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="5" max="40" value="15"><small id="appsHint"></small></div>
       <small class="note">Setting the degree slider to 0% removes that filter for both your pool and the competition.</small>
     </form>
 
@@ -255,7 +255,9 @@ code{font-family:var(--mono);font-size:12.5px}
       <p><strong>Education and work.</strong> From the <a href="https://www.americansurveycenter.org/research/from-swiping-to-sexting-the-enduring-gender-divide-in-american-dating-and-relationships/">Survey Center on American Life (2022)</a>, 54% of college-educated women and 44% of college-educated men are less likely to date someone without a degree, and 89% and 66% are less likely to date someone without a job, with lower shares among people without degrees. "Less likely" counts as half a rejection. Pew 2019 found 24% of women and 7% of men wouldn't date someone who makes much less than them.</p>
       <p><strong>Having kids.</strong> Pew 2019 found 42% of singles under 40 and 28% of those 40 and older wouldn't date someone raising children.</p>
       <p>These studies are mostly about women and men dating each other, so for nonbinary people the page uses the average of the two.</p>
-      <p>The chemistry and app rates come from your own sliders and are the same in every metro, so the comparison isolates what the metro itself changes.</p>
+      <p><strong>Whether it clicks.</strong> The attraction defaults come from speed dating, where people say whether they'd like to see each partner again. Men said yes to 47% and women to 37% of partners in the <a href="http://www.stat.columbia.edu/~gelman/arm/examples/speed.dating/">Columbia speed-dating data</a> (<a href="https://wiwi.hs-duesseldorf.de/personen/christian.schwarz/Documents/genderDifferences.pdf">Fisman and colleagues, 2006</a>), and 49% and 34% among 10,526 non-student adults at HurryDate (<a href="https://static1.squarespace.com/static/5252b095e4b06da77026f5e5/t/528d1b22e4b0c1452601cb08/1384979234029/hurrydate-mate-preferences-in-action.pdf">Kurzban and Weeden, 2005</a>). A yes there only means another conversation, and when people chose after the event instead, in a <a href="https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/iser/2007-17.pdf">UK study</a>, rates halved to 22% and 12%. So the page uses 35% for men and 25% for women judging someone, and 30% for nonbinary people. Both click sliders depend on who is judging: the first on you, the second on the people you're looking for. In the Columbia data mutual matches came out at about the rate you'd get by multiplying the two, which is how the page combines them. There is no comparable data for same-sex or nonbinary daters.</p>
+      <p>The app default comes from <a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">Pew's 2022 survey</a>: 28% of singles who are looking for dates and 3% of those who aren't were using a dating app or site. The pool counts all singles, and fewer than half are looking, so that works out to about 15%: 20% for men and 13% for women, from Pew's gender split. LGB singles were about 1.5 times as likely to be dating online (<a href="https://www.pewresearch.org/social-trends/2020/08/20/a-profile-of-single-americans/">Pew 2019</a>), so same-gender and nonbinary matches use 1.5 times those rates. App use has slipped since, with Match Group's paying users down 6% in the year to mid-2026.</p>
+      <p>These rates are the same in every metro, so the comparison isolates what the metro itself changes. Moving a slider scales every gender's rate by the same factor.</p>
     </details>
     </section>
   </div>
@@ -298,6 +300,18 @@ const LESS_MONEY = {w:.24, m:.07};          // would not date someone who makes 
 const PARENT_NO = [.42, .28];               // would not date someone raising kids, raters under 40 / 40+ (Pew 2019)
 const WANT = {w:[.45,.30,.25], m:[.57,.30,.13]}; // non-parents 18-34: want kids, unsure, don't (Pew 2023)
 const UNLIKELY_U50 = .47; // non-parents under 50 unlikely ever to have kids (Pew 2024); used from 35 up, no data past 49
+// Whether it clicks, by the gender of whoever is judging. Sources are in the notes.
+const ATTRACT = {w:25, m:35, n:30}; // % of eligible partners a rater would want to date (speed-dating yes rates, discounted)
+const APPS = {w:13, m:20, n:17};    // % of all single adults on a dating app now (Pew 2022)
+const LGB_APPS = 1.5;               // LGB singles are about 1.5 times as likely to be dating online (Pew 2019)
+const appsRate = (t, P) => APPS[t]*(t === P.you || t === "n" || P.you === "n" ? LGB_APPS : 1);
+// Slider defaults for a profile, blended over the genders you're looking for by how many are open to you.
+// The sliders then scale every gender's rate by the same factor.
+function clickDefaults(P){
+  let w = 0, her = 0, apps = 0;
+  P.seek.forEach(t => { const k = G[t].share*OPEN[t][P.you]; w += k; her += k*ATTRACT[t]; apps += k*appsRate(t, P); });
+  return {his: ATTRACT[P.you], her: her/w, apps: apps/w};
+}
 const PARENTS = {w:.164, m:.039};           // single parents per single adult 20-64 (cohabiters removed), national ACS, when a metro has no ACS row
 const Phi = z => { const t = 1/(1 + .3275911*Math.abs(z)/Math.SQRT2),
   e = 1 - ((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - .284496736)*t + .254829592)*t*Math.exp(-z*z/2);
@@ -464,7 +478,7 @@ function blends(m, s, P){
 // The full funnel for one metro. adj scales degree and values shares when the sliders move off the estimate.
 function pool(m, s, P, adj, T){
   const ea = adj ? adj.edu : 1, va = adj ? adj.val : 1;
-  const r = {total:0, age:0, single:0, deg:0, open:0, vals:0, kids:0, click:0}, dg = {};
+  const r = {total:0, age:0, single:0, deg:0, open:0, vals:0, kids:0, click:0, apps:0}, dg = {}, D = clickDefaults(P);
   const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0};
   GK.forEach(g => { const b = base(m, g, s); dg[g] = {b, n: b.single*(s.edu === 0 ? 1 : Math.min(1, m.deg[g]/100*ea))}; });
   // Competitors: everyone open to at least one of the genders you're looking for, counted once.
@@ -476,13 +490,12 @@ function pool(m, s, P, adj, T){
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.deg += n; r.open += o;
     const v = o*Math.min(1, m.val[t]/100*va*CORR), kf = v*kidsFit(m, t, P, s);
     const tr = T[t], ba = s.edu === 0 ? m.deg[t]/100 : 1, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
-    const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her/100*rel);
-    r.vals += v; r.kids += kf; r.click += kf*(s.his/100)*her;
+    const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
+    r.vals += v; r.kids += kf; r.click += ck; r.apps += ck*Math.min(.9, s.apps*appsRate(t, P)/D.apps/100);
     Object.keys(f).forEach(k => fx[k] += kf*f[k]); fx.all += kf*rel;
     N += n;
   });
   r.fx = Object.fromEntries(Object.entries(fx).map(([k, x]) => [k, r.kids ? x/r.kids : 1]));
-  r.apps = r.click*s.apps/100;
   r.ratio = C ? N/C : 0;
   r.sexWM = dg.w.n/dg.m.n;
   return r;
@@ -495,6 +508,7 @@ function sexView(P){
 }
 
 function select(m){ cur = m; $("metro").value = m.name; resetSliders(); update(); }
+function resetClicks(){ const D = clickDefaults(profile()); ["his","her","apps"].forEach(k => $(k).value = Math.round(D[k])); }
 function resetSliders(){ const s = S(), b = blends(cur, s, profile()); if (s.edu !== 0) $("edu").value = Math.round(b.edu); $("values").value = Math.round(b.val); }
 $("metro").addEventListener("change", e => { const q = e.target.value.trim().toLowerCase();
   const m = byName.get(q) || (q && M.find(x => x.name.toLowerCase().includes(q)));
@@ -505,7 +519,7 @@ const saveProfile = () => { const p = profile(); if (!htSet) delete p.ht;
 document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => el.addEventListener("change", () => {
   if (!document.querySelector('input[name="seek"]:checked')) el.checked = true; // keep at least one
   if (!htSet) $("yHt").value = defaultHt();
-  saveProfile(); resetSliders(); update();
+  saveProfile(); resetSliders(); resetClicks(); update();
 }));
 $("yHt").addEventListener("change", () => htSet = true);
 ["yAge","yHt","yEdu","yJob","openP"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); update(); }));
@@ -525,7 +539,10 @@ function update(){
   $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : "Not married and not living with a partner. Nationally that's about half of women this age, and a few points more for men.";
   $("eduHint").innerHTML = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}: ${Math.round(b.edu)}%. ` + (s.edu > 0 && s.edu !== Math.round(b.edu) ? `<button type="button" data-r="edu">Reset</button>` : "");
   $("valuesHint").innerHTML = `Modeled for ${m.short}: ${Math.round(b.val)}% (2024 Harris share ${m.dem}%${m.demNote ? ", statewide" : ""}, ${m.none}% with no religion, ${m.adh}% in a congregation). ` + (s.values !== Math.round(b.val) ? `<button type="button" data-r="values">Reset</button>` : "");
-  document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { $(x.dataset.r).value = Math.round(x.dataset.r === "edu" ? b.edu : b.val); update(); });
+  const D = clickDefaults(P), rst = k => s[k] !== Math.round(D[k]) ? ` <button type="button" data-r="${k}">Reset</button>` : "";
+  $("hisHint").innerHTML = `Speed-dating data suggest about 35% for men and 25% for women judging the people they meet. Default for you: ${Math.round(D.his)}%.` + rst("his");
+  $("appsHint").innerHTML = `Share of all the singles in your pool on an app now. Pew found 28% of singles who are looking and 3% of those who aren't, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
+  document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(k === "edu" ? b.edu : k === "values" ? b.val : D[k]); update(); });
 
   const adj = {edu: s.edu === 0 ? 1 : s.edu/b.edu, val: b.val ? s.values/b.val : 1};
   const T = traitRel(s, P), f = pool(m, s, P, adj, T);
@@ -544,8 +561,8 @@ function update(){
 
   const fx = f.fx, xs = [["age", "your age"], ["ht", "height"], ["edu", "education"], ["job", "work"], ["kids", "kids"]]
     .filter(([k]) => Math.abs(fx[k] - 1) > .005).map(([k, l]) => `${l} ×${fmt2(fx[k])}`);
-  $("herHint").textContent = `For someone their own age, of average height, with a degree, a steady job and no kids. ` +
-    (xs.length ? `Your traits change it by ×${fmt2(fx.all)} (${xs.join(", ")}), to about ${Math.round(Math.min(95, s.her*fx.all))}%.` : "Your traits match that.");
+  $("herHint").innerHTML = `For someone their own age, of average height, with a degree, a steady job and no kids. Default for the ${who} you picked: ${Math.round(D.her)}%. ` +
+    (xs.length ? `Your traits change it by ×${fmt2(fx.all)} (${xs.join(", ")}), to about ${Math.round(Math.min(95, s.her*fx.all))}%.` : "Your traits match that.") + rst("her");
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   // Each step: [label, count, cut note, phase]
@@ -642,5 +659,6 @@ $("plot").addEventListener("click", e => {
 NARROW.addEventListener("change", update);
 if (!NARROW.matches) $("notes").open = true;
 ["scope","sort"].forEach(id => $(id).addEventListener("change", () => { shownCur = null; update(); }));
+resetClicks();
 select(cur);
 </script>
