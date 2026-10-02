@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+"""Embed ACS standard errors per metro in the atlas page, for the estimate's uncertainty range.
+
+Inputs, from the ACS 2019-23 table-based summary files (no API key needed):
+  https://www2.census.gov/programs-surveys/acs/summary_file/2023/table-based-SF/data/5YRData/
+  acsdt5y2023-b12002.dat  marital status by sex and age (estimates E### and 90% margins of error M###)
+  acsdt5y2023-b15001.dat  education by sex and age
+plus data/acs_variables_2023.csv for the variable labels and data/metro_acs_2023.csv
+for the CBSA code -> name match the other ACS data uses. The national files are large;
+keeping only the header and the lines starting with 310M (metros) is enough.
+
+Standard error = margin of error / 1.645. Single people in a band are a sum of cells,
+so their SE is the root sum of squares (the Census Bureau's approximation). The 25-34
+degree share's SE uses the Census formula for a proportion,
+  SE(p) = sqrt(SE(x)^2 - p^2 SE(X)^2) / X,  with + instead of - if the root is negative.
+
+Writes the `const ACSE = {...};` line in the page, as
+{metro: {w: [SE of single women per age band], m: [... men], dw: SE of women's degree %, dm: ...}}.
+
+Usage:
+  python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
+"""
+import argparse
+import csv
+import json
+import math
+import re
+import sys
+
+from acs_to_json import atlas_names, b12002_plan, b15001_plan, load_labels, norm, short_key
+
+Z90 = 1.645
+
+
+def read_sf(path):
+    """{CBSA code: {variable: (estimate, standard error)}} from a pipe-delimited summary file."""
+    out = {}
+    num = lambda v: float(v) if re.fullmatch(r"-?\d+(\.\d+)?", v or "") else 0.0
+    with open(path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f, delimiter="|"):
+            g = row["GEO_ID"]
+            if not g.startswith("310M"):
+                continue
+            rec = {}
+            for k, v in row.items():
+                m = re.fullmatch(r"(B\d+)_E(\d+)", k)
+                if m:
+                    var = f"{m.group(1)}_{m.group(2)}"
+                    rec[var] = (num(v), max(0.0, num(row.get(f"{m.group(1)}_M{m.group(2)}"))) / Z90)
+            out[g[-5:]] = rec
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("b12002")
+    ap.add_argument("b15001")
+    ap.add_argument("--labels", default="data/acs_variables_2023.csv")
+    ap.add_argument("--names", default="data/metro_acs_2023.csv", help="CSV with GEOID and NAME per CBSA")
+    ap.add_argument("--page", default="atlas/index.html")
+    a = ap.parse_args()
+
+    labels = load_labels(a.labels)
+    plan, bands = b12002_plan(labels)
+    total25, deg25 = b15001_plan(labels)
+    idx = {band: i for i, band in enumerate(bands)}
+    mar, edu = read_sf(a.b12002), read_sf(a.b15001)
+
+    atlas = atlas_names(a.page)
+    names = {norm(n): n for n in atlas}
+    short = {}
+    for n in atlas:
+        short.setdefault(short_key(n), []).append(n)
+    code_to_name = {}
+    with open(a.names, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            n = names.get(norm(row["NAME"])) or (lambda c: c[0] if len(c) == 1 else None)(short.get(short_key(row["NAME"]), []))
+            if n:
+                code_to_name[row["GEOID"].zfill(5)] = n
+
+    out = {}
+    for code, name in code_to_name.items():
+        if code not in mar or code not in edu:
+            continue
+        var2 = {s: [0.0] * len(bands) for s in ("w", "m")}
+        for var, (sex, band, single) in plan.items():
+            if single:
+                var2[sex][idx[band]] += mar[code][var][1] ** 2
+        rec = {s: [round(math.sqrt(v)) for v in var2[s]] for s in ("w", "m")}
+        for s in ("w", "m"):
+            X, seX = edu[code][total25[s]]
+            x = sum(edu[code][v][0] for v in deg25[s])
+            sex_ = math.sqrt(sum(edu[code][v][1] ** 2 for v in deg25[s]))
+            p = x / X if X else 0
+            inner = sex_ ** 2 - p ** 2 * seX ** 2
+            se = math.sqrt(inner if inner >= 0 else sex_ ** 2 + p ** 2 * seX ** 2) / X if X else 0
+            rec["d" + s] = round(100 * se, 2)
+        out[name] = rec
+
+    missing = [n for n in atlas if n not in out]
+    if missing:
+        sys.exit("No ACS standard errors for:\n  " + "\n  ".join(missing))
+    line = "const ACSE = " + json.dumps({n: out[n] for n in atlas}, ensure_ascii=False, separators=(",", ":")) + ";"
+    page = open(a.page, encoding="utf-8").read()
+    if re.search(r"^const ACSE = .*;$", page, flags=re.M):
+        page = re.sub(r"^const ACSE = .*;$", lambda _: line, page, count=1, flags=re.M)
+    else:
+        page = re.sub(r"^(const ACS = .*;)$", lambda m: m.group(1) + "\n" + line, page, count=1, flags=re.M)
+    open(a.page, "w", encoding="utf-8").write(page)
+    print(f"Wrote ACSE for {len(out)} metros ({len(line) // 1024} KB)")
+
+
+if __name__ == "__main__":
+    main()
