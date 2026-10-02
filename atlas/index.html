@@ -32,8 +32,11 @@ p{margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .chips button:hover{border-color:var(--accent)}
-.grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-areas:"form result" "form more";gap:20px;align-items:start}
+.grid > .panel{grid-area:form}
+.grid > .result{grid-area:result}
+.grid > .more{grid-area:more}
+@media (max-width:860px){.grid{grid-template-columns:1fr;grid-template-areas:"result" "form" "more"}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px}
 .gt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .ctrl{display:grid;gap:3px}
@@ -42,8 +45,8 @@ p{margin:0}
 .ctrl small{color:var(--muted);font-size:12.5px;line-height:1.4}
 .ctrl small button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 input[type=range]{width:100%;accent-color:var(--accent)}
-.main{display:grid;gap:20px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.result,.more{display:grid;gap:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat.burden .n{color:var(--hot)}
 .mini{display:none}
 @media (max-width:860px){
@@ -51,10 +54,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   .mini b{font-family:var(--mono);font-weight:500;color:var(--hot)}
   .mini span:first-child{font-weight:600}
 }
-@media (max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat .n{font-size:30px}.stat:last-child:nth-child(odd){grid-column:1/-1}}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:2px}
-.stat.key{background:var(--hot-soft);border-color:transparent}
-.stat .n{font-family:var(--display);font-size:36px;line-height:1.1;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child:nth-child(odd){grid-column:1/-1}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;gap:2px;align-content:start}
+.stat .n{font-family:var(--display);font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
 .stat .l{font-size:13px;color:var(--muted)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -99,7 +101,28 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .plot circle.big{fill:var(--accent);fill-opacity:.8}
 .plot circle.on{fill:var(--hot);fill-opacity:1;stroke:var(--surface);stroke-width:2}
 .plot text.lbl{fill:var(--ink);font-weight:600;font-size:12px}
-.readout{background:var(--accent-soft);border-radius:10px;padding:14px 18px;display:grid;gap:6px}
+.hero{background:var(--hot-soft);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
+.hero .top{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.hero .big{font-family:var(--display);font-size:clamp(56px,10vw,80px);line-height:1;color:var(--hot);font-variant-numeric:tabular-nums}
+.hero .what{font-size:17px;font-weight:600;max-width:24ch;line-height:1.3}
+.hero .rng{font-size:13.5px;color:var(--muted)}
+.hero p{max-width:62ch}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-size:13.5px;font-weight:500;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.ptitle{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 10px}
+.ptitle h2{font-size:20px;white-space:nowrap}
+.ptitle .btn{white-space:nowrap;padding:4px 10px;font-size:12.5px}
+@media (min-width:861px){#toRefine{display:none}}
+.sec{border-top:1px solid var(--line);padding-top:12px}
+.sec > summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sec > summary::-webkit-details-marker{display:none}
+.sec > summary::after{content:"+";font-size:18px;letter-spacing:0;color:var(--accent)}
+.sec[open] > summary::after{content:"−"}
+.sec > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.sec .body{display:grid;gap:16px;padding-top:14px}
+.chk input:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .notes{color:var(--muted);font-size:13.5px;display:block}
 .notes h2{color:var(--ink);font-size:19px}
 .notes summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
@@ -145,11 +168,11 @@ code{font-family:var(--mono);font-size:12.5px}
 <div class="wrap">
   <header style="display:grid;gap:10px">
     <h1>Metro Dating Pool Atlas</h1>
-    <p class="lede">Pick one of the 387 U.S. metro areas and say who you are and who you date. The page estimates how many people in that metro could be real matches if you want a secular-leaning, progressive, college-educated partner. It also shows how many other people are looking for the same partners, and where the metro ranks against the rest.</p>
+    <p class="lede">How many people in your metro could realistically be a match, if you want a secular-leaning, progressive partner? Pick one of 387 U.S. metros for an estimate, then refine it to fit you.</p>
     <span class="status" id="status"><i></i><span id="statusT"></span></span>
   </header>
 
-  <div class="mini" aria-hidden="true"><span id="miniM"></span><span><b id="miniP"></b> possibilities</span><span>ratio <b id="miniR"></b></span></div>
+  <div class="mini" aria-hidden="true"><span id="miniM"></span><span><b id="miniP"></b> possibilities</span><span><b id="miniR"></b> per competitor</span></div>
 
   <div class="pick">
     <input id="metro" list="metroList" autocomplete="off" aria-label="Metro area" placeholder="Type a metro, e.g. Memphis">
@@ -158,8 +181,9 @@ code{font-family:var(--mono);font-size:12.5px}
   </div>
 
   <div class="grid">
-    <form class="panel" onsubmit="return false">
-      <div class="gt">About you</div>
+    <form class="panel" id="refine" onsubmit="return false" aria-labelledby="refineT">
+      <div class="ptitle"><h2 id="refineT">Refine your estimate</h2><button type="button" class="btn" id="resetAll">Reset to defaults</button></div>
+      <details class="sec" open><summary>About you</summary><div class="body">
       <div class="fq" role="radiogroup" aria-labelledby="youL"><span id="youL">You are</span>
         <div class="seg">
           <label><input type="radio" name="you" id="you-m" value="m" checked><span>A man</span></label>
@@ -187,35 +211,44 @@ code{font-family:var(--mono);font-size:12.5px}
         </div>
       </div>
       <label class="chk"><input type="checkbox" id="openP" checked> Open to partners who have kids</label>
-      <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Who you're looking for</div>
+      </div></details>
+      <details class="sec" open><summary>Who you're looking for</summary><div class="body">
       <div class="ctrl"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
       <div class="ctrl"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
       <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
       <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
       <div class="ctrl"><div class="lbl">Secular-leaning and progressive <output id="valuesO"></output></div><small id="valuesHint"></small></div>
-      <div class="gt" style="border-top:1px solid var(--line);padding-top:14px">Whether it clicks</div>
+      </div></details>
+      <details class="sec" open><summary>Whether it clicks</summary><div class="body">
       <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
       <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
       <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
+      </div></details>
     </form>
 
-    <section class="main" aria-live="polite">
+    <section class="result">
+      <div class="hero">
+        <div class="top"><span class="big" id="sPool">…</span><span class="what" id="sPoolL">real possibilities</span></div>
+        <span class="rng" id="sRange"></span>
+        <p id="readout" aria-live="polite"></p>
+        <div class="acts"><button type="button" class="btn" id="share">Copy link to this result</button><a class="btn" href="#refine" id="toRefine">Refine your estimate</a></div>
+      </div>
       <div class="stats">
-        <div class="stat key"><span class="n" id="sPool">…</span><span class="l">real possibilities in the metro</span></div>
-        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of those on the apps now</span></div>
-        <div class="stat"><span class="n" id="sRank">…</span><span class="l">rank among 387 metros by pool size</span></div>
-        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">competition ratio</span></div>
+        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of them on the apps right now</span></div>
+        <div class="stat"><span class="n" id="sRank">…</span><span class="l">of 387 metros by number of possibilities</span></div>
+        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
         <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
       </div>
 
-      <div class="readout" id="readout"></div>
-
       <div class="card">
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
+        <p class="note" id="funnelSub"></p>
         <div class="phases" id="phases"></div>
         <div class="fun" id="funnel"></div>
       </div>
+    </section>
 
+    <section class="more">
       <div class="card" id="cmp">
         <div class="head">
           <h2>Compared with other metros</h2>
@@ -223,11 +256,11 @@ code{font-family:var(--mono);font-size:12.5px}
             <label for="scope">Show</label>
             <select id="scope"><option value="25">25 largest metros</option><option value="50" selected>50 largest metros</option><option value="100">100 largest metros</option><option value="387">All 387 metros</option><option value="near">Similar size (±40%)</option></select>
             <label for="sort">Sort by</label>
-            <select id="sort"><option value="pool" selected>Pool size</option><option value="ratio">Competition ratio</option><option value="sex">Sex ratio of single grads</option><option value="rent">Housing cost</option></select>
+            <select id="sort"><option value="pool" selected>Most possibilities</option><option value="ratio">Least competition</option><option value="sex">Gender balance</option><option value="rent">Cheapest rent</option></select>
           </div>
         </div>
         <p class="note" id="listNote"></p>
-        <div class="lhead" aria-hidden="true"><span>#</span><span>Metro</span><span class="cbh"></span><span>Pool</span><span id="ratioH" class="rh">Ratio</span><span class="hh">Rent</span><span class="xh">vs you</span></div>
+        <div class="lhead" aria-hidden="true"><span>#</span><span>Metro</span><span class="cbh"></span><span>Pool</span><span id="ratioH" class="rh">Odds</span><span class="hh">Rent</span><span class="xh">vs you</span></div>
         <div class="list" id="list"></div>
       </div>
 
@@ -244,6 +277,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
       <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
       <p>If a metro had no ACS row, the page would fall back to 50% single for women (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
+      <p>The range under the main number runs from about 0.6 to 1.5 times the estimate, or 0.5 to 1.8 times in metros under 250,000 people, where ACS margins of error are wider. It isn't a statistical interval. Each step in the funnel is an estimate, and the range is a rough sense of how far they could be off together.</p>
       <p>Not every single person is available or looking. In Pew's 2022 survey, 20% of people who were neither married nor living with a partner were in a committed relationship (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">topline, p. 64</a>), and Pew doesn't break that out by age, so the page removes 20% at every age. Of the rest, Pew's 2019 survey found 67% of men and 61% of women under 40 looking for a relationship or dates, against 55% of men and only 29% of women 40 and older (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf">report, p. 18</a>). By 2022 the share looking had fallen from 61% to 50% for single men and from 38% to 35% for single women (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so the page scales each age split by that drop: 55% and 45% for men, 56% and 27% for women. Nonbinary people get the average. The same step applies to the competition, since people who aren't looking aren't competing.</p>
       <p>The competition ratio divides the single, looking, degree-holding people of the genders you picked by every single, looking, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single, looking, degree-holding women per man. Because far fewer women than men over 40 are looking, it tilts toward men at older ages. Unchecking the degree filter drops the degree step from your pool and the competition alike.</p>
       <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular.</p>
@@ -402,6 +436,11 @@ const byName = new Map(M.map(m => [m.name.toLowerCase(), m]));
 const $ = id => document.getElementById(id);
 const fmt = n => n >= 100 ? Math.round(n).toLocaleString("en-US") : n >= 10 ? String(Math.round(n)) : n.toFixed(1);
 const fmt2 = n => n.toFixed(2);
+const fmt1 = n => n.toFixed(1);
+// Round to two significant figures for the range under the main number
+const nice = n => { if (n < 10) return Math.round(n); const q = 10**(Math.floor(Math.log10(n)) - 1); return Math.round(n/q)*q; };
+// Judgment range for stacked estimates: wider where ACS margins of error are wider
+const spread = m => m.pop < 250000 ? [.5, 1.8] : [.6, 1.5];
 const pct = n => fmt(n) + "%";
 const nACS = M.filter(m => m.acs).length;
 const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
@@ -448,6 +487,18 @@ try {
     if (typeof p.degOnly === "boolean") $("degOnly").checked = p.degOnly;
   }
 } catch(e){}
+// A shared link carries the metro and every setting in the hash, and wins over the saved profile
+const HQ = (() => { try { return new URLSearchParams(location.hash.slice(1)); } catch(e){ return new URLSearchParams(); } })();
+const hNum = (k, lo, hi) => { const v = +HQ.get(k); return HQ.has(k) && v >= lo && v <= hi ? v : null; };
+if (HQ.has("you") && GK.includes(HQ.get("you"))) $("you-" + HQ.get("you")).checked = true;
+if (HQ.has("seek")){ const sk = GK.filter(t => HQ.get("seek").includes(t)); if (sk.length) GK.forEach(t => $("seek-" + t).checked = sk.includes(t)); }
+if (hNum("age", 21, 65) !== null) $("yAge").value = hNum("age", 21, 65);
+if (HEIGHTS.includes(hNum("ht", 0, 999))){ $("yHt").value = hNum("ht", 0, 999); htSet = true; }
+if (["ba","no"].includes(HQ.get("edu"))) $("yEdu").value = HQ.get("edu");
+if (["job","less","none"].includes(HQ.get("job"))) $("yJob").value = HQ.get("job");
+if (["any","want","dont","have"].includes(HQ.get("kids"))) $("kids-" + HQ.get("kids")).checked = true;
+if (["0","1"].includes(HQ.get("openP"))) $("openP").checked = HQ.get("openP") === "1";
+if (["0","1"].includes(HQ.get("deg"))) $("degOnly").checked = HQ.get("deg") === "1";
 if (!htSet) $("yHt").value = defaultHt();
 
 $("metroList").innerHTML = M.map(m => `<option value="${m.name}">`).join("");
@@ -528,6 +579,26 @@ $("metro").addEventListener("change", e => { const q = e.target.value.trim().toL
   const m = byName.get(q) || (q && M.find(x => x.name.toLowerCase().includes(q)));
   if (m) select(m); else e.target.value = cur.name; });
 
+// Keep the hash in step with the page so the address bar always holds a link to this result
+let hashT = 0;
+function writeHash(s, P){
+  clearTimeout(hashT);
+  hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids,
+    openP:+P.openP, deg:+P.degOnly, ageMin:s.ageMin, ageMax:s.ageMax, his:s.his, her:s.her, apps:s.apps});
+    try { history.replaceState(null, "", "#" + q); } catch(e){} }, 250);
+}
+$("share").addEventListener("click", () => {
+  const url = location.href, btn = $("share"), done = t => { btn.textContent = t; setTimeout(() => btn.textContent = "Copy link to this result", 2000); };
+  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => done("Link copied"), () => { window.prompt("Copy this link", url); });
+});
+$("resetAll").addEventListener("click", () => {
+  $("you-m").checked = true; GK.forEach(t => $("seek-" + t).checked = t === "w");
+  $("yAge").value = 30; htSet = false; $("yHt").value = defaultHt(); $("yEdu").value = "ba"; $("yJob").value = "job";
+  $("kids-any").checked = true; $("openP").checked = true; $("degOnly").checked = true;
+  $("ageMin").value = 25; $("ageMax").value = 35;
+  saveProfile(); resetClicks(); update();
+});
+
 const saveProfile = () => { const p = profile(); if (!htSet) delete p.ht;
   try { localStorage.setItem("atlas.profile", JSON.stringify(p)); } catch(e){} };
 document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => el.addEventListener("change", () => {
@@ -562,20 +633,25 @@ function update(){
   const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
+  const [lo, hi] = spread(m);
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
-  $("sRatio").textContent = fmt2(f.ratio);
+  $("sPoolL").textContent = `real possibilities in ${m.short}`;
+  $("sRange").textContent = f.click < 5 ? "Likely fewer than 10" : `Likely between ${fmt(nice(f.click*lo))} and ${fmt(nice(f.click*hi))}. Every step is an estimate.`;
+  $("sRatio").textContent = fmt1(f.ratio);
   const rs = rentShare(m, P), pay = P.edu === "ba" ? "pay for someone with a bachelor's" : "pay for someone with some college";
   const byRent = all.filter(a => a.rent === a.rent).sort((a,b) => a.rent - b.rent), hRank = byRent.findIndex(a => a.m === m) + 1;
   $("sRent").textContent = rs === rs ? rs + "%" : "n/a";
   $("sRentC").classList.toggle("burden", rs > BURDEN);
-  $("sRentL").textContent = rs === rs ? `of ${P.edu === "ba" ? "a grad's" : "typical"} pay for a 1-bed at $${fmt(m.house[0])}/mo` : "no rent data for this metro";
-  $("miniM").textContent = m.short; $("miniP").textContent = fmt(f.click); $("miniR").textContent = fmt2(f.ratio);
-  $("sRatioL").textContent = `${who === "people" ? "possible partners" : who} per person looking for them (#${rRank} of 387)`;
+  $("sRentL").textContent = rs === rs ? `of ${P.edu === "ba" ? "a grad's" : "typical"} pay for a 1-bed at $${fmt(m.house[0])}/mo, #${hRank} of 387 for affordability` : "no rent data for this metro";
+  $("miniM").textContent = m.short; $("miniP").textContent = fmt(f.click); $("miniR").textContent = fmt1(f.ratio);
+  $("sRatioL").textContent = `${who === "people" ? "possible partners" : who} for every person looking for them, #${rRank} of 387`;
 
-  const fx = f.fx, xs = [["age", "your age"], ["ht", "height"], ["edu", "education"], ["job", "work"], ["kids", "kids"]]
-    .filter(([k]) => Math.abs(fx[k] - 1) > .005).map(([k, l]) => `${l} ×${fmt2(fx[k])}`);
+  const fx = f.fx, xs = [["age", "your age"], ["ht", "your height"], ["edu", "your education"], ["job", "your work situation"], ["kids", "having kids"]]
+    .filter(([k]) => Math.abs(fx[k] - 1) > .005).map(([, l]) => l);
+  const chg = Math.round((fx.all - 1)*100), tl = xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1] : xs[0];
   $("herHint").innerHTML = `For someone their own age, of average height, with a degree, a steady job and no kids. Default for the ${who} you picked: ${Math.round(D.her)}%. ` +
-    (xs.length ? `Your traits change it by ×${fmt2(fx.all)} (${xs.join(", ")}), to about ${Math.round(Math.min(95, s.her*fx.all))}%.` : "Your traits match that.") + rst("her");
+    (xs.length ? (chg === 0 ? `${tl[0].toUpperCase() + tl.slice(1)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
+      `${tl[0].toUpperCase() + tl.slice(1)} ${chg < 0 ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it by about ${Math.abs(chg)}%, to about ${Math.round(Math.min(95, s.her*fx.all))}%.`) : "Your traits match that.") + rst("her");
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   // Each step: [label, count, cut note, phase]
@@ -591,6 +667,7 @@ function update(){
     ["Mutual attraction", f.click, pc(f.click, f.kids), 3],
     ["On the apps now", f.apps, pc(f.apps, f.click), 3]];
   $("funnelTitle").textContent = `The funnel in ${m.short}`;
+  $("funnelSub").textContent = `How ${fmt(m.pop)} people narrow to ${fmt(f.click)} possibilities.`;
   // Widths on a log scale from 1 person to the whole metro, so every stage stays visible
   const lmax = Math.log10(m.pop), wd = v => Math.max(4, Math.log10(Math.max(1, v))/lmax*100);
   const end = PHASES.map((_, p) => steps.filter(st => st[3] === p).pop());
@@ -604,16 +681,9 @@ function update(){
   }).join("");
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
-  const bigger = byPool.filter(a => a.v > f.click * 2).length;
   const edu = s.deg ? "single, looking, degree-holding" : "single, looking";
-  $("readout").innerHTML = `<p>In the ${m.name} metro, about <strong>${fmt(f.click)}</strong> ${who} fit these settings, and about <strong>${fmt(f.apps)}</strong> of them are likely on the apps right now. That ranks <strong>#${rank}</strong> of 387 metros, and ${bigger} metros have at least twice as many.</p>` +
-    (peer && peer.v > f.click ? `<p>Among metros of similar size, ${peer.m.short} does best, with about <strong>${fmt(peer.v/f.click)}×</strong> as many possibilities under the same settings. ` : `<p>No metro of similar size beats it. `) +
-    `The biggest pool overall is ${byPool[0].m === m ? "this one" : `${byPool[0].m.short}, at about <strong>${fmt(byPool[0].v/f.click)}×</strong>`}.</p>` +
-    `<p>There are <strong>${fmt2(f.ratio)}</strong> ${edu} ${who} aged ${s.ageMin} to ${s.ageMax} for each ${edu} person that age who is open to dating them. That ranks <strong>#${rRank}</strong> for competition. Counting only women and men, it's <strong>${fmt2(sv.inv ? 1/f.sexWM : f.sexWM)}</strong> ${sv.label}. ${byRatio[0].m === m ? "No metro has better odds." : `The best odds are in ${byRatio[0].m.short}, at ${fmt2(byRatio[0].ratio)}.`}${m.acs ? "" : " Without ACS data these ratios barely differ between metros, because only the local degree gap moves them."}</p>` + (rs === rs ? (() => {
-      const top = byPool.slice(0, 10).filter(a => a.rent === a.rent), best = top.reduce((b, a) => a.rent < b.rent ? a : b, top[0]);
-      return `<p>Someone moving into a 1-bedroom here now pays about <strong>$${fmt(m.house[0])}</strong> a month, <strong>${rs}%</strong> of the typical ${pay}. ` +
-        `That's ${rs > BURDEN ? "over" : "under"} the 30% line HUD uses for cost-burdened renters, and ranks <strong>#${hRank}</strong> of 387 for affordability. ` +
-        (best.m === m ? "No metro with a top-10 pool is cheaper." : `Of the 10 metros with the biggest pools, ${best.m.short} is the most affordable, at ${best.rent}%.`) + `</p>`; })() : "");
+  $("readout").innerHTML = `About <strong>${fmt(f.click)}</strong> ${who} in the ${m.name} metro fit what you're looking for, and about <strong>${fmt(f.apps)}</strong> of them are on the apps right now. ` +
+    (peer && peer.v > f.click ? `Among metros of similar size, ${peer.m.short} has about <strong>${fmt(peer.v/f.click)}×</strong> as many.` : byPool[0].m === m ? "No metro has more." : `No metro of similar size has more. ${byPool[0].m.short} has the most, about <strong>${fmt(byPool[0].v/f.click)}×</strong> as many.`);
 
   const scope = $("scope").value, sort = $("sort").value;
   let set = scope === "near" ? new Set(M.filter(x => near(x, m))) : new Set(TOP.slice(0, +scope));
@@ -625,19 +695,20 @@ function update(){
   const maxK = Math.max(...shown.map(a => a[key] || 0));
   $("cmp").classList.toggle("byrent", sort === "rent");
   const rcol = sort === "sex" ? "sex" : "ratio";
-  $("ratioH").textContent = sort === "sex" ? (sv.inv ? "M per W" : "W per M") : "Ratio";
+  $("ratioH").textContent = sort === "sex" ? (sv.inv ? "M per W" : "W per M") : "Odds";
   $("listNote").textContent = sort === "pool"
-    ? `Ranked by estimated possibilities, using your sliders for age, singlehood and chemistry. Each metro uses its own population, degree share and values estimate. The ratio column is ${who} per person looking for them, and the last column shows how many times bigger each pool is than yours. Tap or click a row to switch to that metro.`
+    ? `Ranked by estimated possibilities, using your settings for age and chemistry. Each metro uses its own population, degree share and values estimate. Odds is how many ${who} there are for every person looking for them, and the last column shows how many times bigger each pool is than yours. Tap or click a row to switch to that metro.`
     : sort === "ratio"
-    ? `Ranked by competition ratio: ${edu} ${who} in your age range for every ${edu} person of any gender open to dating them. Higher is better for you. Tap or click a row to switch.`
+    ? `Ranked by least competition: how many ${edu} ${who} in your age range there are for every ${edu} person of any gender open to dating them. Higher is better for you. Tap or click a row to switch.`
     : sort === "rent"
     ? `Ranked by housing cost, cheapest first: a recent mover's 1-bedroom rent as a share of the typical ${pay} in that metro. Above 30% is cost-burdened by HUD's standard. Tap or click a row to switch.`
-    : `Ranked by the plain sex ratio: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
-  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : "competition ratio"} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : `, ${fmt(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : fmt(a.v/f.click) + "×"}</span></button>`).join("");
+    : `Ranked by gender balance: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
+  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : `, ${fmt(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : fmt(a.v/f.click) + "×"}</span></button>`).join("");
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
   plot(m, s, P);
+  writeHash(s, P);
 }
 
 function plot(m, s, P){
@@ -655,7 +726,7 @@ function plot(m, s, P){
   const cx = X(m.pop), cy = Y(fit.get(m)), right = cx > W - (nw ? 90 : 140);
   const on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`;
   PTS = M.filter(x => x !== m).map(x => [x, X(x.pop), Y(fit.get(x))]);
-  $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of metro population against values fit">${g}${dots}${on}</svg>`;
+  $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and a values fit of ${Math.round(fit.get(m))}%.">${g}${dots}${on}</svg>`;
 }
 
 SLIDERS.forEach(k => $(k).addEventListener("input", update));
@@ -672,7 +743,10 @@ $("plot").addEventListener("click", e => {
 });
 NARROW.addEventListener("change", update);
 if (!NARROW.matches) $("notes").open = true;
+else document.querySelectorAll("#refine .sec").forEach(d => d.open = false);
 ["scope","sort"].forEach(id => $(id).addEventListener("change", () => { shownCur = null; update(); }));
 resetClicks();
+SLIDERS.forEach(k => { const el = $(k); if (hNum(k, +el.min, +el.max) !== null) el.value = hNum(k, +el.min, +el.max); });
+if (HQ.has("m") && byName.has(HQ.get("m").toLowerCase())) cur = byName.get(HQ.get("m").toLowerCase());
 select(cur);
 </script>
