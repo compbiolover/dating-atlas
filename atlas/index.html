@@ -822,7 +822,15 @@ function drawFunnel(){
   const svg = $("fshape"); svg.style.left = (s0.left - fb.left) + "px";
   svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   const rows = segs.map((el, i) => { const r = el.getBoundingClientRect(); return {...FSTEPS[i], t: r.top - fb.top, b: r.bottom - fb.top, w: Math.max(6, FSTEPS[i].w/100*W)}; });
-  const k = [[rows[0].t, rows[0].w], ...rows.map(r => [(r.t + r.b)/2, r.w]), [rows[rows.length - 1].b, rows[rows.length - 1].w*.85]];
+  // Smooth the step widths into one gentle taper: a Gaussian-weighted local-linear fit through the row middles,
+  // sampled at a fixed number of points (so the outline animates between settings) and kept non-increasing
+  const pts = [[rows[0].t, rows[0].w], ...rows.map(r => [(r.t + r.b)/2, r.w]), [rows[rows.length - 1].b, rows[rows.length - 1].w*.85]];
+  const y0 = pts[0][0], y1 = pts[pts.length - 1][0], bw = 1.1*(y1 - y0)/rows.length, NK = 36;
+  const fit = y => { let S = 0, Sx = 0, Sy = 0, Sxx = 0, Sxy = 0;
+    pts.forEach(([py, pw]) => { const q = Math.exp(-(((py - y)/bw)**2)/2), dx = py - y; S += q; Sx += q*dx; Sy += q*pw; Sxx += q*dx*dx; Sxy += q*dx*pw; });
+    const det = S*Sxx - Sx*Sx; return det > 1e-9 ? (Sy*Sxx - Sx*Sxy)/det : Sy/S; };
+  const k = []; let wPrev = Infinity;
+  for (let i = 0; i < NK; i++){ const y = y0 + (y1 - y0)*i/(NK - 1); wPrev = Math.max(4, Math.min(wPrev, fit(y), W)); k.push([y, wPrev]); }
   // Monotone cubic (Fritsch-Carlson) through the knots, so the edge tapers without bulges; flat at the top
   const n = k.length, dl = k.slice(1).map(([y, w], i) => (w - k[i][1])/(y - k[i][0])), m = k.map((_, i) =>
     i === 0 ? 0 : i === n - 1 ? dl[n - 2] : dl[i-1]*dl[i] <= 0 ? 0 : 2/(1/dl[i-1] + 1/dl[i]));
