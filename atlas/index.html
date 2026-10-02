@@ -66,19 +66,24 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block}
 .phases .ph b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
 .phases .arr{color:var(--dot)}
-.fun{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) max-content;column-gap:14px;row-gap:3px;align-items:center}
-.fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right}
+.funwrap{position:relative}
+.fun{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) max-content;column-gap:14px;row-gap:0;align-items:center;position:relative;z-index:1}
+.fshape{position:absolute;top:0;pointer-events:none;overflow:visible}
+.fshape path{transition:d .45s cubic-bezier(.2,.7,.2,1)}
+.fshape .div{stroke:var(--surface);stroke-width:1.5;stroke-opacity:.6}
+.fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right;padding:4px 0}
 .fun .cut{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-.fun .seg{height:38px;background:var(--c);clip-path:var(--clip);transition:clip-path .35s ease}
+.fun .seg{min-height:40px;align-self:stretch}
 .fun .c{font-family:var(--mono);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
 .fun .last .lab,.fun .last.c{font-weight:600}
 .fun .last.c{color:var(--hot)}
 .fun .ptag{grid-column:1/-1;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:8px}
 .fun .ptag:first-child{padding-top:0}
 @media (max-width:560px){
-  .fun{grid-template-columns:minmax(0,1fr) max-content;column-gap:10px}
-  .fun .lab{grid-column:1/-1;text-align:left;display:flex;gap:8px;align-items:baseline;padding-top:4px}
-  .fun .seg{height:26px}
+  .fun{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) max-content;column-gap:10px}
+  .fun .lab{font-size:12.5px}
+  .fun .cut{font-size:11px}
+  .fun .c{font-size:12.5px}
 }
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
 .tools select{font:inherit;font-size:13px;padding:4px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
@@ -158,7 +163,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .notes p + p{margin-top:12px}
 .notes a{color:var(--accent)}
 code{font-family:var(--mono);font-size:12.5px}
-@media (prefers-reduced-motion:reduce){.fun .seg{transition:none}}
+@media (prefers-reduced-motion:reduce){.fshape path{transition:none}}
 .crow,.lhead{grid-template-columns:28px minmax(0,180px) minmax(0,1fr) 58px 52px 44px 52px}
 .crow .h{font-family:var(--mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
 .crow .h.hi{color:var(--hot)}
@@ -272,7 +277,7 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
         <p class="note" id="funnelSub"></p>
         <div class="phases" id="phases"></div>
-        <div class="fun" id="funnel"></div>
+        <div class="funwrap"><div class="fun" id="funnel"></div><svg class="fshape" id="fshape" aria-hidden="true"><defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0"></linearGradient><clipPath id="fclip"><path id="fclipP"/></clipPath></defs><path id="fbody" fill="url(#fgrad)"/><g id="fdiv" clip-path="url(#fclip)"></g></svg></div>
       </div>
     </section>
 
@@ -765,13 +770,14 @@ function update(){
   const lmax = Math.log10(m.pop), wd = v => Math.max(4, Math.log10(Math.max(1, v))/lmax*100);
   const end = PHASES.map((_, p) => steps.filter(st => st[3] === p).pop());
   $("phases").innerHTML = PHASES.map((ph, p) => `<span class="ph"><i style="background:${ph.c}"></i>${ph.name} <b>${fmt(end[p][1])}</b></span>`).join('<span class="arr" aria-hidden="true">→</span>');
+  FSTEPS = steps.map(st => ({w: wd(st[1]), c: PHASES[st[3]].c, ph: st[3]}));
   $("funnel").innerHTML = steps.map((st, i) => {
-    const top = wd(st[1]), bot = i < steps.length - 1 ? wd(steps[i+1][1]) : top*.92, last = i === steps.length - 1 ? " last" : "";
-    const clip = `polygon(${50 - top/2}% 0, ${50 + top/2}% 0, ${50 + bot/2}% 100%, ${50 - bot/2}% 100%)`;
+    const last = i === steps.length - 1 ? " last" : "";
     const tag = i === 0 || st[3] !== steps[i-1][3] ? `<div class="ptag">${PHASES[st[3]].name}</div>` : "";
     return `${tag}<div class="lab${last}"><span>${st[0]}</span><span class="cut">${st[2] && st[2][0] === "×" ? "keeps " + st[2].slice(1) : st[2]}</span></div>` +
-      `<div class="seg" aria-hidden="true" style="--c:${PHASES[st[3]].c};--clip:${clip}"></div><div class="c${last}">${fmt(st[1])}</div>`;
+      `<div class="seg" aria-hidden="true"></div><div class="c${last}">${fmt(st[1])}</div>`;
   }).join("");
+  drawFunnel();
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const edu = s.deg ? "single, looking, degree-holding" : "single, looking";
@@ -804,6 +810,50 @@ function update(){
   plot(m, s, P);
   writeHash(s, P);
 }
+
+// The funnel is one continuous shape behind the rows: each step's width sits at its row's middle, joined by
+// curves with vertical tangents, filled with a gradient that blends from one phase color to the next
+let FSTEPS = [];
+function drawFunnel(){
+  const fun = $("funnel"), segs = [...fun.querySelectorAll(".seg")];
+  if (!segs.length || segs.length !== FSTEPS.length) return;
+  const fb = fun.getBoundingClientRect(), s0 = segs[0].getBoundingClientRect(), W = s0.width, H = fb.height, cx = W/2;
+  if (!W) return;
+  const svg = $("fshape"); svg.style.left = (s0.left - fb.left) + "px";
+  svg.setAttribute("width", W); svg.setAttribute("height", H); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const rows = segs.map((el, i) => { const r = el.getBoundingClientRect(); return {...FSTEPS[i], t: r.top - fb.top, b: r.bottom - fb.top, w: Math.max(6, FSTEPS[i].w/100*W)}; });
+  // Smooth the step widths into one gentle taper: a Gaussian-weighted local-linear fit through the row middles,
+  // sampled at a fixed number of points (so the outline animates between settings) and kept non-increasing
+  const pts = [[rows[0].t, rows[0].w], ...rows.map(r => [(r.t + r.b)/2, r.w]), [rows[rows.length - 1].b, rows[rows.length - 1].w*.85]];
+  const y0 = pts[0][0], y1 = pts[pts.length - 1][0], bw = 1.1*(y1 - y0)/rows.length, NK = 36;
+  const fit = y => { let S = 0, Sx = 0, Sy = 0, Sxx = 0, Sxy = 0;
+    pts.forEach(([py, pw]) => { const q = Math.exp(-(((py - y)/bw)**2)/2), dx = py - y; S += q; Sx += q*dx; Sy += q*pw; Sxx += q*dx*dx; Sxy += q*dx*pw; });
+    const det = S*Sxx - Sx*Sx; return det > 1e-9 ? (Sy*Sxx - Sx*Sxy)/det : Sy/S; };
+  const k = []; let wPrev = Infinity;
+  for (let i = 0; i < NK; i++){ const y = y0 + (y1 - y0)*i/(NK - 1); wPrev = Math.max(4, Math.min(wPrev, fit(y), W)); k.push([y, wPrev]); }
+  // Monotone cubic (Fritsch-Carlson) through the knots, so the edge tapers without bulges; flat at the top
+  const n = k.length, dl = k.slice(1).map(([y, w], i) => (w - k[i][1])/(y - k[i][0])), m = k.map((_, i) =>
+    i === 0 ? 0 : i === n - 1 ? dl[n - 2] : dl[i-1]*dl[i] <= 0 ? 0 : 2/(1/dl[i-1] + 1/dl[i]));
+  const f = v => v.toFixed(1), seg = (sg, i, j) => { const [y0, w0] = k[i], [y1, w1] = k[j], h = (y1 - y0)/3;
+    return `C${f(cx + sg*(w0 + m[i]*h)/2)},${f(y0 + h)} ${f(cx + sg*(w1 - m[j]*h)/2)},${f(y1 - h)} ${f(cx + sg*w1/2)},${f(y1)}`; };
+  // Down the left edge, across the bottom, back up the right edge
+  const down = k.slice(1).map((_, i) => seg(-1, i, i + 1)).join(" ");
+  const up = k.slice(1).map((_, i) => { const a = n - 1 - i, b = a - 1, [ya, wa] = k[a], [yb, wb] = k[b], h = (ya - yb)/3;
+    return `C${f(cx + (wa - m[a]*h)/2)},${f(ya - h)} ${f(cx + (wb + m[b]*h)/2)},${f(yb + h)} ${f(cx + wb/2)},${f(yb)}`; }).join(" ");
+  const d = `M${f(cx - k[0][1]/2)},${f(k[0][0])} ${down} L${f(cx + k[n-1][1]/2)},${f(k[n-1][0])} ${up} Z`;
+  $("fbody").setAttribute("d", d); $("fclipP").setAttribute("d", d);
+  const g = $("fgrad"); g.setAttribute("y2", H);
+  // Each row holds its phase color. The blue phases blend over the gap between them (through an OKLab midpoint);
+  // the turn into the orange "who clicks" phase is kept crisp, since blue to orange would pass through a muddy gray
+  const o = y => (Math.min(H, Math.max(0, y))/H).toFixed(4);
+  g.innerHTML = rows.map((r, i) => { const nx = rows[i+1];
+    return `<stop offset="${o(r.t + 6)}" style="stop-color:${r.c}"/><stop offset="${o(r.b - 6)}" style="stop-color:${r.c}"/>` +
+      (nx && nx.ph !== r.ph ? (nx.ph === 3 ? `<stop offset="${o((r.b + nx.t)/2 - 3)}" style="stop-color:${r.c}"/><stop offset="${o((r.b + nx.t)/2 + 3)}" style="stop-color:${nx.c}"/>`
+        : `<stop offset="${o((r.b + nx.t)/2)}" style="stop-color:color-mix(in oklab, ${r.c}, ${nx.c})"/>`) : ""); }).join("");
+  // A faint line between steps in the same phase; a phase change is marked by the color shift instead
+  $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => r.ph === rows[i+1].ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>` : "").join("");
+}
+new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 
 // Bubble map: one circle per metro at its Census center, area proportional to the people on the apps now
 let MAPPTS = [];
