@@ -47,6 +47,30 @@ p{margin:0}
 .ctrl small button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .result,.more{display:grid;gap:20px}
+.more.locked > :not(#moreGate){display:none}
+.more:not(.locked) #moreGate{display:none}
+.card.gate{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px}
+.gate .btn{flex:none;padding:9px 18px;font-size:14.5px}
+.gate h2{margin-bottom:4px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.linkbtn{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;justify-self:start}
+.linkbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.setup[hidden]{display:none}
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;gap:14px;max-width:640px}
+.setup-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.setup-top .linkbtn{text-transform:none;letter-spacing:0;font-weight:400}
+.setup h2{font-size:26px}
+.setup h2:focus{outline:none}
+.setup-body{display:grid;gap:16px;padding:4px 0}
+.setup-body .pick input{width:100%}
+.setup-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:6px;border-top:1px solid var(--line)}
+.setup-nav .btn{padding:8px 18px;font-size:14.5px}
+.setup-nav .btn[disabled]{visibility:hidden}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{display:none}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .stat.burden .n{color:var(--hot)}
 .mini{display:none}
@@ -197,9 +221,17 @@ code{font-family:var(--mono);font-size:12.5px}
     <span class="status" id="status"><i></i><span id="statusT"></span></span>
   </header>
 
+  <section class="setup" id="setup" hidden aria-labelledby="setupT">
+    <div class="setup-top"><span id="setupStep">Step 1 of 3</span><button type="button" class="linkbtn" id="setupSkip">Skip to the results</button></div>
+    <h2 id="setupT" tabindex="-1"></h2>
+    <p class="note" id="setupHelp"></p>
+    <div class="setup-body" id="setupBody"></div>
+    <div class="setup-nav"><button type="button" class="btn" id="setupBack">Back</button><span class="dots" id="setupDots" aria-hidden="true"></span><button type="button" class="btn primary" id="setupNext">Next</button></div>
+  </section>
+
   <div class="mini" aria-hidden="true"><span id="miniM"></span><span><b id="miniP"></b> possibilities</span><span><b id="miniR"></b> per competitor</span></div>
 
-  <div class="pick">
+  <div class="pick" id="g-pick">
     <input id="metro" list="metroList" autocomplete="off" aria-label="Metro area" placeholder="Type a metro, e.g. Memphis">
     <datalist id="metroList"></datalist>
     <div class="chips" id="quick"></div>
@@ -208,22 +240,23 @@ code{font-family:var(--mono);font-size:12.5px}
   <div class="grid">
     <form class="panel" id="refine" onsubmit="return false" aria-labelledby="refineT">
       <div class="ptitle"><h2 id="refineT">Refine your estimate</h2><button type="button" class="btn" id="resetAll">Reset to defaults</button></div>
+      <button type="button" class="linkbtn" id="rerunSetup">Walk me through the setup again</button>
       <details class="sec" open><summary>About you</summary><div class="body">
-      <div class="fq" role="radiogroup" aria-labelledby="youL"><span id="youL">You are</span>
+      <div class="fq" id="g-you" role="radiogroup" aria-labelledby="youL"><span id="youL">You are</span>
         <div class="seg">
           <label><input type="radio" name="you" id="you-m" value="m" checked><span>A man</span></label>
           <label><input type="radio" name="you" id="you-w" value="w"><span>A woman</span></label>
           <label><input type="radio" name="you" id="you-n" value="n"><span>Nonbinary</span></label>
         </div>
       </div>
-      <div class="fq" role="group" aria-labelledby="seekL"><span id="seekL">Looking for</span>
+      <div class="fq" id="g-seek" role="group" aria-labelledby="seekL"><span id="seekL">Looking for</span>
         <div class="seg">
           <label><input type="checkbox" name="seek" id="seek-w" value="w" checked><span>Women</span></label>
           <label><input type="checkbox" name="seek" id="seek-m" value="m"><span>Men</span></label>
           <label><input type="checkbox" name="seek" id="seek-n" value="n"><span>Nonbinary people</span></label>
         </div>
       </div>
-      <div class="ctrl"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"></div>
+      <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"></div>
       <div class="ctrl"><label for="yHt">Your height</label><select id="yHt"></select></div>
       <div class="ctrl"><label for="yEdu">Your education</label><select id="yEdu"><option value="ba">Bachelor's or higher</option><option value="no">No bachelor's</option></select></div>
       <div class="ctrl"><label for="yJob">Your work</label><select id="yJob"><option value="job">Steady job</option><option value="less">Steady job, but you earn much less than most of them</option><option value="none">No steady job</option></select></div>
@@ -238,20 +271,20 @@ code{font-family:var(--mono);font-size:12.5px}
       <label class="chk"><input type="checkbox" id="openP" checked> Open to partners who have kids</label>
       </div></details>
       <details class="sec" open><summary>Who you're looking for</summary><div class="body">
-      <div class="ctrl"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
-      <div class="ctrl"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
+      <div class="ctrl" id="g-amin"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
+      <div class="ctrl" id="g-amax"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
       <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
       <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
-      <div class="fq" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
+      <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
         <div class="seg">
           <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive and secular</span></label>
           <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative and Christian</span></label>
         </div>
       </div>
-      <div class="ctrl"><label for="pol">Politics</label><select id="pol"><option value="prog" selected>Progressive</option><option value="cons">Conservative</option><option value="any">Any politics</option></select></div>
-      <div class="ctrl"><label for="faith">Faith</label><select id="faith"><option value="secular" selected>Secular-leaning</option><option value="christian">Christian</option><option value="catholic">Catholic</option><option value="protestant">Protestant</option><option value="lds">Latter-day Saint</option><option value="jewish">Jewish</option><option value="muslim">Muslim</option><option value="hindu">Hindu</option><option value="buddhist">Buddhist</option><option value="pagan">Pagan or Wiccan</option><option value="any">Any faith or none</option></select></div>
+      <div class="ctrl" id="g-pol"><label for="pol">Politics</label><select id="pol"><option value="prog" selected>Progressive</option><option value="cons">Conservative</option><option value="any">Any politics</option></select></div>
+      <div class="ctrl" id="g-faith"><label for="faith">Faith</label><select id="faith"><option value="secular" selected>Secular-leaning</option><option value="christian">Christian</option><option value="catholic">Catholic</option><option value="protestant">Protestant</option><option value="lds">Latter-day Saint</option><option value="jewish">Jewish</option><option value="muslim">Muslim</option><option value="hindu">Hindu</option><option value="buddhist">Buddhist</option><option value="pagan">Pagan or Wiccan</option><option value="any">Any faith or none</option></select></div>
       <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive and secular-leaning</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
-      <div class="ctrl"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
+      <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
       </div></details>
       <details class="sec" open><summary>Whether it clicks</summary><div class="body">
       <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
@@ -282,7 +315,11 @@ code{font-family:var(--mono);font-size:12.5px}
       </div>
     </section>
 
-    <section class="more">
+    <section class="more locked" id="more">
+      <div class="card gate" id="moreGate">
+        <div><h2>How does your metro compare?</h2><p class="note">See every metro on a map, rank them, and read how the estimates work.</p></div>
+        <button type="button" class="btn primary" id="moreOpen">Compare with other metros</button>
+      </div>
       <div class="card" id="cmp">
         <div class="head"><h2>Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
         <div class="map" id="map"></div>
@@ -994,4 +1031,49 @@ resetClicks();
 SLIDERS.forEach(k => { const el = $(k); if (hNum(k, +el.min, +el.max) !== null) el.value = hNum(k, +el.min, +el.max); });
 if (HQ.has("m") && byName.has(HQ.get("m").toLowerCase())) cur = byName.get(HQ.get("m").toLowerCase());
 select(cur);
+
+// Guided setup for first visits: three short steps that borrow the page's own controls, then hand back to
+// the full page. Visitors with a saved profile or a shared link skip it.
+const store = {get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e){} }};
+const STEPS = [
+  {t:"Start with you", help:"Who you are sets who's likely to be open to dating you, and how your age plays into it.", ids:["g-you","g-age"]},
+  {t:"Who are you looking for?", help:"Pick the genders and ages you date, and the politics, faith and diet you want them to share. Quick picks fill in politics and faith.",
+   ids:["g-seek","g-amin","g-amax","g-preset","g-pol","g-faith","g-diet"]},
+  {t:"Where are you looking?", help:"Type one of 387 U.S. metros or tap a city. You can switch metros anytime.", ids:["g-pick"]}];
+let stepI = -1;
+const homes = new Map();  // borrowed element -> placeholder marking where it lives on the page
+function borrow(ids){
+  const body = $("setupBody"); body.innerHTML = "";
+  ids.forEach(id => { const el = $(id); if (!homes.has(el)){ const ph = document.createComment(id); el.before(ph); homes.set(el, ph); } body.appendChild(el); });
+}
+function giveBack(){ homes.forEach((ph, el) => ph.replaceWith(el)); homes.clear(); }
+function showStep(i){
+  giveBack(); stepI = i; const st = STEPS[i];
+  $("setupStep").textContent = `Step ${i + 1} of ${STEPS.length}`;
+  $("setupT").textContent = st.t; $("setupHelp").textContent = st.help;
+  borrow(st.ids);
+  $("setupBack").disabled = i === 0;
+  $("setupNext").textContent = i === STEPS.length - 1 ? "Show my results" : "Next";
+  $("setupDots").innerHTML = STEPS.map((_, j) => `<i class="${j <= i ? "on" : ""}"></i>`).join("");
+  $("setupT").focus();
+}
+function startSetup(){
+  document.body.classList.add("onboarding"); $("setup").hidden = false; showStep(0); window.scrollTo(0, 0);
+}
+function finishSetup(){
+  giveBack(); $("setup").hidden = true; document.body.classList.remove("onboarding");
+  store.set("atlas.onboarded", "1"); saveProfile(); update();
+  window.scrollTo(0, 0);
+}
+$("setupNext").addEventListener("click", () => stepI < STEPS.length - 1 ? showStep(stepI + 1) : finishSetup());
+$("setupBack").addEventListener("click", () => stepI > 0 && showStep(stepI - 1));
+$("setupSkip").addEventListener("click", finishSetup);
+$("rerunSetup").addEventListener("click", startSetup);
+if (!HQ.toString() && !store.get("atlas.profile") && !store.get("atlas.onboarded")) startSetup();
+
+// The comparison section (map, ranked list, scatter and methods) opens on request, and stays open after that
+function openMore(){ $("more").classList.remove("locked"); store.set("atlas.more", "1"); update(); }
+$("moreOpen").addEventListener("click", () => { openMore(); $("cmp").scrollIntoView({block:"start", behavior:"smooth"}); });
+if (store.get("atlas.more") || HQ.toString()) openMore();
 </script>
