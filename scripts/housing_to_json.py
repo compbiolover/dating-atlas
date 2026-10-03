@@ -22,12 +22,10 @@ Usage:
 """
 import argparse
 import csv
-import json
 import re
 import sys
-from collections import defaultdict
 
-from acs_to_json import atlas_names, norm, short_key
+from acs_to_json import atlas_names, embed, matcher
 
 
 def read_sf(path, cols):
@@ -58,17 +56,12 @@ def main():
     recent_ratio = movers["0100000US"]["B25113_E002"] / movers["0100000US"]["B25113_E001"]
 
     atlas = atlas_names(a.page)
-    names = {norm(n): n for n in atlas}
-    short = defaultdict(list)
-    for n in atlas:
-        short[short_key(n)].append(n)
+    match = matcher(atlas)
 
     rows, fallback = [], []
     with open(a.names, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            name = names.get(norm(row["NAME"]))
-            if not name and len(short[short_key(row["NAME"])]) == 1:
-                name = short[short_key(row["NAME"])][0]
+            name = match(row["NAME"])
             geo = "310M700US" + row["GEOID"]
             if not name or geo not in rent or geo not in earn:
                 continue
@@ -98,13 +91,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    html = open(a.page, encoding="utf-8").read()
-    line = "const HOUSE = " + json.dumps({r["metro"]: [r["rent_1br"], r["earn_ba"], r["earn_some_college"]] for r in rows},
-                                         ensure_ascii=False, separators=(",", ":")) + ";"
-    html, n = re.subn(r"^const HOUSE = .*;$", lambda _: line, html, count=1, flags=re.M)
-    if not n:
-        sys.exit(f"No 'const HOUSE = ...;' line in {a.page}")
-    open(a.page, "w", encoding="utf-8").write(html)
+    embed(a.page, "HOUSE", {r["metro"]: [r["rent_1br"], r["earn_ba"], r["earn_some_college"]] for r in rows})
     print(f"Wrote data/metro_housing.csv and embedded into {a.page}")
 
 

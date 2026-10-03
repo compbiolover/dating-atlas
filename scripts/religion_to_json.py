@@ -22,13 +22,12 @@ Usage:
 """
 import argparse
 import csv
-import json
 import re
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
 
-from acs_to_json import atlas_names, norm, short_key
+from acs_to_json import atlas_names, embed, matcher, norm
 
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
@@ -53,25 +52,30 @@ CT_REGION = {
 }
 
 
-def unaffiliated(prri_csv, delin_xlsx, atlas):
-    """{atlas metro: population-weighted PRRI unaffiliated %} from county estimates."""
+def metro_means(prri_csv, delin_xlsx, atlas, columns):
+    """{atlas metro: {key: population-weighted %}} from PRRI county estimates, where columns maps each
+    output key to the PRRI columns summed for it. Counties are rolled up with the 2023 delineations."""
     with open(prri_csv, newline="", encoding="utf-8") as f:
-        county = {r["fipsstcnty"].zfill(5): (float(r["Population"]), float(r["unaffiliated"])) for r in csv.DictReader(f)}
+        county = {r["fipsstcnty"].zfill(5): (float(r["Population"]), {k: sum(float(r[c]) for c in cols) for k, cols in columns.items()})
+                  for r in csv.DictReader(f)}
     counties = {}
     for r in sheets(delin_xlsx)["List 1"]:
         if r.get("Metropolitan/Micropolitan Statistical Area") == "Metropolitan Statistical Area":
             fips = r["FIPS State Code"] + r["FIPS County Code"]
             counties.setdefault(norm(r["CBSA Title"]), []).extend(CT_REGION.get(fips, [fips]))
-    by_short = {}
-    for k in counties:
-        by_short.setdefault(short_key(k), []).append(k)
+    match = matcher(list(counties))
     out = {}
     for name in atlas:
-        key = norm(name) if norm(name) in counties else (lambda c: c[0] if len(c) == 1 else None)(by_short.get(short_key(name), []))
-        rows = [county[c] for c in counties.get(key, []) if c in county]
+        rows = [county[c] for c in dict.fromkeys(counties.get(match(name), [])) if c in county]
         if rows:
-            out[name] = sum(p * u for p, u in rows) / sum(p for p, _ in rows)
+            tot = sum(p for p, _ in rows)
+            out[name] = {k: sum(p * v[k] for p, v in rows) / tot for k in columns}
     return out
+
+
+def unaffiliated(prri_csv, delin_xlsx, atlas):
+    """{atlas metro: population-weighted PRRI unaffiliated %} from county estimates."""
+    return {n: v["u"] for n, v in metro_means(prri_csv, delin_xlsx, atlas, {"u": ["unaffiliated"]}).items()}
 
 
 def sheets(path):
@@ -109,10 +113,7 @@ def main():
     wb = sheets(a.xlsx)
     metro = {r["CBSA Code"]: r for r in wb["2020 Metro Summary"] if r.get("CBSA Code") and r.get("Metro Name")}
     county = {r["FIPS"]: r for r in wb["2020 County Summary"] if r.get("FIPS") and r.get("County Name")}
-    by_name = {norm(r["Metro Name"]): r for r in metro.values()}
-    by_short = {}
-    for r in metro.values():
-        by_short.setdefault(short_key(r["Metro Name"]), []).append(r)
+    match = matcher({r["Metro Name"]: r for r in metro.values()})
 
     atlas = atlas_names(a.page)
     unaff = unaffiliated(a.prri, a.delineation, atlas)
@@ -123,7 +124,7 @@ def main():
             r = (metro if kind == "metro" else county).get(code)
             src = r and (r.get("Metro Name") or f"{r['County Name']}, {r['State Name']}")
         else:
-            r = by_name.get(norm(name)) or (lambda c: c[0] if len(c) == 1 else None)(by_short.get(short_key(name), []))
+            r = match(name)
             src = r and r["Metro Name"]
         if not r or name not in unaff:
             missing.append(name)
@@ -139,12 +140,7 @@ def main():
         w.writeheader()
         w.writerows(rows)
 
-    html = open(a.page, encoding="utf-8").read()
-    line = "const REL = " + json.dumps({r["metro"]: [r["adherent_pct"], r["prri_unaffiliated_pct"]] for r in rows}, ensure_ascii=False, separators=(",", ":")) + ";"
-    html, n = re.subn(r"^const REL = .*;$", lambda _: line, html, count=1, flags=re.M)
-    if not n:
-        sys.exit(f"No 'const REL = ...;' line in {a.page}")
-    open(a.page, "w", encoding="utf-8").write(html)
+    embed(a.page, "REL", {r["metro"]: [r["adherent_pct"], r["prri_unaffiliated_pct"]] for r in rows})
     print(f"{len(rows)} metros matched; wrote {a.out} and embedded into {a.page}")
 
 
