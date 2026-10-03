@@ -22,6 +22,8 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:0 16px}
 .wrap{max-width:1120px;margin:0 auto;padding-block:36px 64px;display:grid;gap:24px}
+[hidden]{display:none!important}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
 h1{font-family:var(--display);font-weight:500;font-size:clamp(30px,4.6vw,46px);line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
 h1 .tm{font-family:var(--body);font-size:.38em;font-weight:500;vertical-align:super;margin-left:.08em;color:var(--muted)}
 h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0;text-wrap:balance}
@@ -29,7 +31,7 @@ p{margin:0}
 .lede{color:var(--muted);max-width:66ch;font-size:16px}
 .pick{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .pick input{font:inherit;font-size:17px;font-weight:600;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:min(100%,440px)}
-.pick input:focus-visible,button:focus-visible,input[type=range]:focus-visible,select:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+:is(button,a,input,select,summary):focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .chips button:hover{border-color:var(--accent)}
@@ -41,29 +43,23 @@ p{margin:0}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
 .metrics{grid-template-rows:auto 1fr}
 .vtabs{display:none}
-.metrics .stats{grid-template-columns:1fr 1fr;grid-auto-rows:1fr}
-.metrics .stat{background:var(--bg);border-color:transparent;align-content:center;padding:14px 16px}
-.metrics .stat .n{font-size:44px}
-.metrics .stat .l{font-size:14px}
-.card.refinebox{padding:0;gap:0;display:block}
+.refinebox{padding:0;display:block}
 .refinebox > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:14px 20px;cursor:pointer;list-style:none}
 .refinebox > summary::-webkit-details-marker{display:none}
-.refinebox > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px;border-radius:10px}
+.refinebox > summary:focus-visible{border-radius:10px}
 .rb-l{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .rb-s{flex:1 1 320px;font-size:14.5px}
 .rb-e{color:var(--accent);font-size:14px;font-weight:600;text-decoration:underline}
 .rb-e::after{content:"Edit"}
 .refinebox[open] .rb-e::after{content:"Close"}
-.card.ranked{display:block}
-.refinebox .panel{border:0;border-top:1px solid var(--line);border-radius:0;background:none;padding:16px 20px 20px}
+.ranked{display:block}
 @media (min-width:901px){
   .refinebox .panel{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:28px;align-items:start}
   .refinebox .ptitle,.refinebox #rerunSetup{grid-column:1/-1}
   .refinebox .sec{border-top:0;padding-top:0}
 }
 
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px}
-.gt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel{display:grid;gap:16px;border-top:1px solid var(--line);padding:16px 20px 20px}
 .ctrl{display:grid;gap:3px}
 .ctrl label,.ctrl .lbl{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:500}
 .ctrl output{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -74,8 +70,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
 .btn.primary:hover{filter:brightness(1.08)}
 .linkbtn{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;justify-self:start}
-.linkbtn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
-.setup[hidden]{display:none}
 .setup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;gap:14px;max-width:640px}
 .setup-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .setup-top .linkbtn{text-transform:none;letter-spacing:0;font-weight:400}
@@ -90,7 +84,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .dots i.on{background:var(--accent)}
 body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{display:none}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px}
 .stat.burden .n{color:var(--hot)}
 .mini{display:none}
 @media (max-width:860px){
@@ -98,11 +92,9 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
   .mini b{font-family:var(--mono);font-weight:500;color:var(--hot)}
   .mini span:first-child{font-weight:600}
 }
-@media (max-width:560px){.stats{grid-template-columns:1fr 1fr}.stat:last-child:nth-child(odd){grid-column:1/-1}}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;gap:2px;align-content:start}
-.stat .n{font-family:var(--display);font-size:26px;line-height:1.15;font-variant-numeric:tabular-nums}
-.stat .l{font-size:13px;color:var(--muted)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.stat{background:var(--bg);border:1px solid transparent;border-radius:10px;padding:14px 16px;display:grid;gap:2px;align-content:center}
+.stat .n{font-family:var(--display);font-size:44px;line-height:1.15;font-variant-numeric:tabular-nums}
+.stat .l{font-size:14px;color:var(--muted)}
 .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .head small,.note{color:var(--muted);font-size:12.5px}
 .phases{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;font-size:12.5px;color:var(--muted)}
@@ -117,7 +109,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .fshape .div{stroke:var(--surface);stroke-width:1.5;stroke-opacity:.6}
 .fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right;padding:4px 0}
 .fun .cut{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-.fun .seg{min-height:40px;align-self:stretch}
+.fun .fseg{min-height:40px;align-self:stretch}
 .fun .c{font-family:var(--mono);font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
 .fun .last .lab,.fun .last.c{font-weight:600}
 .fun .last.c{color:var(--hot)}
@@ -159,7 +151,6 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .tip b{font-weight:600}
 .ranked > summary{cursor:pointer;color:var(--accent);font-size:15px;font-weight:600}
 .ranked[open] > summary{margin-bottom:4px}
-.ranked > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .ranked .body{display:grid;gap:12px}
 .plot{overflow-x:auto}
 .plot svg{display:block;width:100%;min-width:520px;height:auto}
@@ -178,7 +169,6 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .btn{font:inherit;font-size:13.5px;font-weight:500;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
 .btn:hover{border-color:var(--accent)}
-.btn:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .ptitle{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 10px}
 .ptitle h2{font-size:20px;white-space:nowrap}
 .ptitle .btn{white-space:nowrap;padding:4px 10px;font-size:12.5px}
@@ -188,9 +178,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .sec > summary::-webkit-details-marker{display:none}
 .sec > summary::after{content:"+";font-size:18px;letter-spacing:0;color:var(--accent)}
 .sec[open] > summary::after{content:"−"}
-.sec > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .sec .body{display:grid;gap:16px;padding-top:14px}
-.chk input:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .notes{color:var(--muted);font-size:13.5px;display:block}
 .notes h2{color:var(--ink);font-size:19px}
 .notes summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
@@ -198,7 +186,6 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .notes summary::after{content:"Show";font-size:13px;color:var(--accent);text-decoration:underline}
 .notes[open] summary::after{content:"Hide"}
 .notes[open] summary{margin-bottom:12px}
-.notes summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 @media (max-width:560px){
   .list{max-height:none;overflow:visible;padding-right:0}
   .plot svg{min-width:0}
@@ -230,23 +217,22 @@ code{font-family:var(--mono);font-size:12.5px}
 .ctrl select{font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
 .chk{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:400}
 .chk input{accent-color:var(--accent);margin:0}
-.ctrl .chk{justify-content:flex-start;font-size:13.5px;font-weight:400;margin-top:4px}
+.ctrl .chk{justify-content:flex-start;margin-top:4px}
 /* Phones: map and scatter share a slot behind tabs, and the funnel, numbers and header tighten up */
 @media (max-width:560px){
   .vtabs{display:flex;gap:6px;margin-bottom:-12px}
   .vtabs button{flex:1;font:inherit;font-size:14px;font-weight:600;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
   .vtabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
-  .vtabs button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
   .viz[data-tab="map"] > #plotCard,.viz[data-tab="plot"] > #cmp{display:none}
   .phases{display:none}
   .fun{grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr) max-content}
-  .fun .seg{min-height:30px}
+  .fun .fseg{min-height:30px}
   .fun .lab{padding:2px 0}
   .fun .ptag{padding-top:4px}
-  .metrics .stats{grid-auto-rows:auto;gap:8px}
-  .metrics .stat{padding:10px 12px}
-  .metrics .stat .n{font-size:26px}
-  .metrics .stat .l{font-size:12.5px}
+  .stats{grid-auto-rows:auto;gap:8px}
+  .stat{padding:10px 12px}
+  .stat .n{font-size:26px}
+  .stat .l{font-size:12.5px}
   .pick{display:grid;grid-template-columns:minmax(0,1fr)}
   .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;min-width:0}
   .chips::-webkit-scrollbar{display:none}
@@ -446,7 +432,7 @@ const GK = ["w","m","n"];
 // Funnel stages, from who lives there to who'd say yes
 const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 30%, var(--track))"},
   {name:"Who's available", c:"color-mix(in srgb, var(--accent) 60%, var(--track))"},
-  {name:"Who fits", c:"var(--accent)"}, {name:"Who clicks", c:"var(--hot)"}];
+  {name:"Who fits", c:"var(--accent)"}, {name:"Who clicks", c:"var(--hot)", sharp:true}];
 const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", share:.485}, n:{noun:"nonbinary people", one:"nonbinary person", share:.015}};
 // OPEN[a][b]: share of single people of gender a who are open to dating someone of gender b
 const OPEN = {w:{w:.14, m:.88, n:.10}, m:{w:.94, m:.07, n:.05}, n:{w:.60, m:.50, n:.60}};
@@ -514,7 +500,6 @@ const PARENTS = {w:.164, m:.039};           // single parents per single adult 2
 const Phi = z => { const t = 1/(1 + .3275911*Math.abs(z)/Math.SQRT2),
   e = 1 - ((((1.061405429*t - 1.453152027)*t + 1.421413741)*t - .284496736)*t + .254829592)*t*Math.exp(-z*z/2);
   return z >= 0 ? (1 + e)/2 : (1 - e)/2; };
-const hyp = (a, b) => Math.hypot(a, b);
 // Share of raters of gender r and age a who'd accept a partner aged y
 function ageOK(r, a, y){
   const d = y - a; if (Math.abs(d) < .5) return 1;
@@ -527,8 +512,8 @@ function ageOK(r, a, y){
 // gaps are left out: they would penalize tall men, which app data doesn't show. Men's aversion is much
 // weaker (SCAL 2022: 32% of men vs 56% of women), so it counts as half a rejection like the other penalties.
 function htOK(r, h){
-  if (r === "w"){ const [mu, sd] = HT.w; return Phi((h - mu - 3.72)/hyp(sd, 5.54)); }
-  const [mu, sd] = HT.m; return 1 - PENALTY*(1 - Phi((mu - h + .05)/hyp(sd, 7.29)));
+  if (r === "w"){ const [mu, sd] = HT.w; return Phi((h - mu - 3.72)/Math.hypot(sd, 5.54)); }
+  const [mu, sd] = HT.m; return 1 - PENALTY*(1 - Phi((mu - h + .05)/Math.hypot(sd, 7.29)));
 }
 // How your traits change raters' interest, relative to a same-age, average-height, degree-holding,
 // employed person without kids. Nonbinary raters get the average of women and men.
@@ -542,7 +527,7 @@ function traitRel(s, P){
       kid += P.kids === "have" ? 1 - PARENT_NO[a < 40 ? 0 : 1] : 1; n++; });
     const opp = (t === "w" && P.you === "m") || (t === "m" && P.you === "w");
     const avg = f => rs.reduce((q, r) => q + f(r), 0)/rs.length;
-    out[t] = {age: age/n, kids: kid/n, ht: opp ? htOK(t, P.ht)/htOK(t, Math.round(Math.round(HT[P.you][0]/2.54)*2.54)) : 1, // vs the menu height nearest average
+    out[t] = {age: age/n, kids: kid/n, ht: opp ? htOK(t, P.ht)/htOK(t, heightFor(P.you)) : 1, // vs the menu height nearest average
       edu: ba => P.edu === "ba" ? 1 : avg(r => 1 - PENALTY*(ba*EDU_PEN[r][0] + (1 - ba)*EDU_PEN[r][1])),
       job: ba => P.job === "job" ? 1 : P.job === "less" ? avg(r => 1 - LESS_MONEY[r]) : avg(r => 1 - PENALTY*(ba*JOB_PEN[r][0] + (1 - ba)*JOB_PEN[r][1]))};
   });
@@ -555,15 +540,19 @@ function wantSplit(g, age){
   const r = (1 - UNLIKELY_U50)/(w[0] + w[1]);
   return [w[0]*r, w[1]*r, UNLIKELY_U50];
 }
-// Share of single people of gender t in your age range whose kids situation fits yours
-function kidsFit(m, t, P, s){
-  // B11012 excludes cohabiting parents, so divide by singles with cohabiters removed, as the pool does
-  const a = m.acs, sg = g => a ? a["k"+g]/(bandSum(a[g], {ageMin:20, ageMax:64})*COHAB) : PARENTS[g];
-  const k = Math.min(.5, t === "n" ? (sg("w") + sg("m"))/2 : sg(t));
+// Share of childless singles of gender t in your age range whose plans fit yours
+function kidsWant(t, P, s){
   let fit = 0;
   for (let y = s.ageMin; y <= s.ageMax; y++){ const [yes, u, no] = wantSplit(t, y);
     fit += P.kids === "want" ? yes + u : P.kids === "dont" ? no + u : 1; }
-  return (1 - k)*fit/(s.ageMax - s.ageMin + 1) + k*(P.openP ? 1 : 0);
+  return fit/(s.ageMax - s.ageMin + 1);
+}
+// Share of single people of gender t in metro m whose kids situation fits yours
+function kidsFit(m, t, P, want){
+  // B11012 excludes cohabiting parents, so divide by singles with cohabiters removed, as the pool does
+  const a = m.acs, sg = g => a ? a["k"+g]/(bandSum(a[g], {ageMin:20, ageMax:64})*COHAB) : PARENTS[g];
+  const k = Math.min(.5, t === "n" ? (sg("w") + sg("m"))/2 : sg(t));
+  return (1 - k)*want + k*(P.openP ? 1 : 0);
 }
 
 const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
@@ -604,6 +593,10 @@ const rentShare = (m, P) => m.house ? Math.round(m.house[0]*12/m.house[P.edu ===
 const BURDEN = 30; // HUD counts renters paying more than 30% of income as cost-burdened
 const byName = new Map(M.map(m => [m.name.toLowerCase(), m]));
 const $ = id => document.getElementById(id);
+const cap = t => t[0].toUpperCase() + t.slice(1);
+// localStorage can be missing or blocked; reads then return null and writes do nothing
+const store = {get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e){} }};
 const fmt = n => n >= 100 ? Math.round(n).toLocaleString("en-US") : n >= 10 ? String(Math.round(n)) : n.toFixed(1);
 const fmt2 = n => n.toFixed(2);
 const fmt1 = n => n.toFixed(1);
@@ -633,12 +626,11 @@ function singlesRelSE(m, g, s){
   if (!a || !e) return .1;
   if (g === "n") return (singlesRelSE(m, "w", s) + singlesRelSE(m, "m", s))/2;
   let v = 0, n = 0;
-  ACS.bands.forEach(([lo, hi], i) => { const ov = Math.min(hi, s.ageMax) - Math.max(lo, s.ageMin) + 1;
-    if (ov > 0){ const w = ov/(hi - lo + 1); v += (w*e[g][i])**2; n += w*a[g][i]; } });
+  bandWeights(s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
   return n ? Math.sqrt(v)/n : .1;
 }
 function interval(m, s, P, f){
-  const parts = f.parts || [];
+  const parts = f.parts;
   if (!parts.length || !f.click) return null;
   const e = ACSE[m.name], fs = P.faith in FAITH_COL && m.faith ? m.faith[FAITH_COL[P.faith]]/100 : .5;
   const frSD = P.faith === "pagan" ? UNC.pagan : P.faith in FAITH_COL ? Math.max(.08, Math.sqrt((1 - fs)/(fs*400))) : 0;
@@ -647,25 +639,27 @@ function interval(m, s, P, f){
     os: Math.hypot(Math.sqrt((1 - OPEN[t][P.you])/(OPEN[t][P.you]*1000)), UNC.openAdapt)}));
   const vf = parts.map(({t}) => valFit(m, t, P));
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
-  // One pass computes the total for every draw with all groups varying, and with each group varying alone
-  const keys = Object.keys(UGROUPS), tot = new Float64Array(NSIM), solo = Object.fromEntries(keys.map(k => [k, new Float64Array(NSIM)]));
+  // One pass computes the total for every draw with all groups varying, and with each group varying alone.
+  // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
+  const keys = Object.keys(UGROUPS), K = keys.length, tot = new Float64Array(NSIM), solo = keys.map(() => new Float64Array(NSIM));
+  const Q = {...VQ}, fac = new Float64Array(K), one = new Float64Array(K);
   for (let d = 0; d < NSIM; d++){
     const z = i => ZS[d*DIMS + i];
-    const Q = {off: VQ.off + UNC.off*z(0), sec: VQ.sec + UNC.sec*z(1), fr: frSD ? LN(frSD, z(2)) : 1, corr: CORR*LN(UNC.corr, z(3))};
-    const shared = {cohab: NR(UNC.cohab, z(4)), click: LN(UNC.his, z(5))*LN(UNC.her, z(6)), diet: (dietSD ? LN(dietSD, z(7)) : 1)*(dietPolSD ? LN(dietPolSD, z(8)) : 1)};
-    let all = 0; const one = Object.fromEntries(keys.map(k => [k, 0]));
+    Q.off = VQ.off + UNC.off*z(0); Q.sec = VQ.sec + UNC.sec*z(1); Q.fr = frSD ? LN(frSD, z(2)) : 1; Q.corr = CORR*LN(UNC.corr, z(3));
+    const cohab = NR(UNC.cohab, z(4)), click = LN(UNC.his, z(5))*LN(UNC.her, z(6)), diet = (dietSD ? LN(dietSD, z(7)) : 1)*(dietPolSD ? LN(dietPolSD, z(8)) : 1);
+    let all = 0; one.fill(0);
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
-      const fac = {census: shared.cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1), look: LN(UNC.look, z(b+2)), open: NR(g.os, z(b+3)),
-        values: vf[j] ? Math.min(1, valFit(m, p.t, P, Q))/vf[j] : 1, diet: shared.diet, kids: NR(UNC.kids, z(b+4)), click: shared.click};
-      let prod = 1; keys.forEach(k => { prod *= fac[k]; one[k] += p.ck*fac[k]; });
+      fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2)); fac[2] = NR(g.os, z(b+3));
+      fac[3] = vf[j] ? Math.min(1, valFit(m, p.t, P, Q))/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4)); fac[6] = click;
+      let prod = 1; for (let k = 0; k < K; k++){ prod *= fac[k]; one[k] += p.ck*fac[k]; }
       all += p.ck*prod; });
-    tot[d] = all; keys.forEach(k => solo[k][d] = one[k]);
+    tot[d] = all; for (let k = 0; k < K; k++) solo[k][d] = one[k];
   }
-  const q = (arr, p) => { const a = Array.from(arr).sort((x, y) => x - y); return a[Math.floor(p*(a.length - 1))]; };
+  tot.sort();
+  const q = p => tot[Math.floor(p*(NSIM - 1))];
   const lv = arr => { let s1 = 0, s2 = 0; arr.forEach(x => { const l = Math.log(Math.max(1e-9, x)); s1 += l; s2 += l*l; }); const n = arr.length; return Math.max(0, s2/n - (s1/n)**2); };
-  const vars = keys.map(k => [k, lv(solo[k])]), vt = vars.reduce((a, [, v]) => a + v, 0);
-  const [top, topV] = vars.reduce((b, x) => x[1] > b[1] ? x : b);
-  return {lo: q(tot, .1), hi: q(tot, .9), top, share: vt ? topV/vt : 0};
+  const vars = solo.map(lv), vt = vars.reduce((a, v) => a + v, 0), ti = vars.indexOf(Math.max(...vars));
+  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0};
 }
 const pct = n => fmt(n) + "%";
 const nACS = M.filter(m => m.acs).length;
@@ -694,46 +688,38 @@ const HEIGHTS = [];
 for (let i = 58; i <= 80; i++){ const cm = Math.round(i*2.54); HEIGHTS.push(cm);
   $("yHt").insertAdjacentHTML("beforeend", `<option value="${cm}">${Math.floor(i/12)}′${i%12}″ (${cm} cm)</option>`); }
 let htSet = false; // until you pick a height, it follows the average for your gender
-const defaultHt = () => { const you = document.querySelector('input[name="you"]:checked').value, mu = you === "n" ? (HT.w[0] + HT.m[0])/2 : HT[you][0];
+const heightFor = you => { const mu = you === "n" ? (HT.w[0] + HT.m[0])/2 : HT[you][0];
   return HEIGHTS.reduce((b, c) => Math.abs(c - mu) < Math.abs(b - mu) ? c : b); };
-try {
-  const p = JSON.parse(localStorage.getItem("atlas.profile") || "null");
-  const seek = p && Array.isArray(p.seek) ? GK.filter(t => p.seek.includes(t)) : [];
-  if (GK.includes(p && p.you) && seek.length){
-    $("you-" + p.you).checked = true;
-    GK.forEach(t => $("seek-" + t).checked = seek.includes(t));
-  }
-  if (p){
-    if (p.age >= 21 && p.age <= 65) $("yAge").value = p.age;
-    if (HEIGHTS.includes(p.ht)) { $("yHt").value = p.ht; htSet = true; }
-    if (["ba","no"].includes(p.edu)) $("yEdu").value = p.edu;
-    if (["job","less","none"].includes(p.job)) $("yJob").value = p.job;
-    if (["any","want","dont","have"].includes(p.kids)) $("kids-" + p.kids).checked = true;
-    if (typeof p.openP === "boolean") $("openP").checked = p.openP;
-    if (typeof p.degOnly === "boolean") $("degOnly").checked = p.degOnly;
-    if (p.pol in POLS) $("pol").value = p.pol;
-    if (p.faith in FAITHS) $("faith").value = p.faith;
-    if (p.diet in DIETS) $("diet").value = p.diet;
-  }
-} catch(e){}
+const defaultHt = () => heightFor(document.querySelector('input[name="you"]:checked').value);
+// One loader for every setting, from the saved profile or a shared link. get(key) returns a string or null.
+function applySettings(get){
+  const one = (k, ok, set) => { const v = get(k); if (v != null && ok(v)) set(v); };
+  const inList = list => v => list.includes(v), num = (lo, hi) => v => v !== "" && +v >= lo && +v <= hi, bool = inList(["0","1"]);
+  one("you", inList(GK), v => $("you-" + v).checked = true);
+  one("seek", v => GK.some(t => v.includes(t)), v => GK.forEach(t => $("seek-" + t).checked = v.includes(t)));
+  one("age", num(21, 65), v => $("yAge").value = v);
+  one("ht", v => HEIGHTS.includes(+v), v => { $("yHt").value = v; htSet = true; });
+  one("edu", inList(["ba","no"]), v => $("yEdu").value = v);
+  one("job", inList(["job","less","none"]), v => $("yJob").value = v);
+  one("kids", inList(["any","want","dont","have"]), v => $("kids-" + v).checked = true);
+  one("openP", bool, v => $("openP").checked = v === "1");
+  one("deg", bool, v => $("degOnly").checked = v === "1");
+  one("pol", v => v in POLS, v => $("pol").value = v);
+  one("faith", v => v in FAITHS, v => $("faith").value = v);
+  one("diet", v => v in DIETS, v => $("diet").value = v);
+}
+const saved = (() => { try { return JSON.parse(store.get("atlas.profile") || "null"); } catch(e){ return null; } })();
+if (saved) applySettings(k => { const v = saved[k === "deg" ? "degOnly" : k];
+  return v == null ? null : Array.isArray(v) ? v.join("") : typeof v === "boolean" ? (v ? "1" : "0") : String(v); });
 // A shared link carries the metro and every setting in the hash, and wins over the saved profile
 const HQ = (() => { try { return new URLSearchParams(location.hash.slice(1)); } catch(e){ return new URLSearchParams(); } })();
 const hNum = (k, lo, hi) => { const v = +HQ.get(k); return HQ.has(k) && v >= lo && v <= hi ? v : null; };
-if (HQ.has("you") && GK.includes(HQ.get("you"))) $("you-" + HQ.get("you")).checked = true;
-if (HQ.has("seek")){ const sk = GK.filter(t => HQ.get("seek").includes(t)); if (sk.length) GK.forEach(t => $("seek-" + t).checked = sk.includes(t)); }
-if (hNum("age", 21, 65) !== null) $("yAge").value = hNum("age", 21, 65);
-if (HEIGHTS.includes(hNum("ht", 0, 999))){ $("yHt").value = hNum("ht", 0, 999); htSet = true; }
-if (["ba","no"].includes(HQ.get("edu"))) $("yEdu").value = HQ.get("edu");
-if (["job","less","none"].includes(HQ.get("job"))) $("yJob").value = HQ.get("job");
-if (["any","want","dont","have"].includes(HQ.get("kids"))) $("kids-" + HQ.get("kids")).checked = true;
-if (["0","1"].includes(HQ.get("openP"))) $("openP").checked = HQ.get("openP") === "1";
-if (["0","1"].includes(HQ.get("deg"))) $("degOnly").checked = HQ.get("deg") === "1";
-if (HQ.get("pol") in POLS) $("pol").value = HQ.get("pol");
-if (HQ.get("faith") in FAITHS) $("faith").value = HQ.get("faith");
-if (HQ.get("diet") in DIETS) $("diet").value = HQ.get("diet");
+applySettings(k => HQ.get(k));
 if (!htSet) $("yHt").value = defaultHt();
 
 $("metroList").innerHTML = M.map(m => `<option value="${m.name}">`).join("");
+$("statusT").textContent = nACS ? `Singles and degrees from the 2019 to 2023 ACS for ${nACS} of 387 metros` : "Singles and degrees are modeled estimates";
+$("status").classList.toggle("live", !!nACS);
 const QUICK = ["Memphis","Chattanooga","Nashville-Davidson","Atlanta","Philadelphia","Boston","Chicago","Seattle","Denver","Minneapolis"];
 QUICK.forEach(s => { const m = M.find(x => x.short === s); if (!m) return;
   const b = document.createElement("button"); b.type = "button"; b.textContent = s.replace("-Davidson",""); b.onclick = () => select(m); $("quick").appendChild(b); });
@@ -742,11 +728,9 @@ function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] =
   if (s.ageMax <= s.ageMin){ s.ageMax = s.ageMin + 1; $("ageMax").value = s.ageMax; } return s; }
 
 // Sum ACS band counts over the age range, splitting bands that straddle an edge
+const bandWeights = s => ACS.bands.map(([lo, hi]) => Math.max(0, Math.min(hi, s.ageMax) - Math.max(lo, s.ageMin) + 1)/(hi - lo + 1));
 function bandSum(arr, s){
-  return ACS.bands.reduce((t, [lo, hi], i) => {
-    const ov = Math.min(hi, s.ageMax) - Math.max(lo, s.ageMin) + 1;
-    return ov > 0 ? t + arr[i]*ov/(hi - lo + 1) : t;
-  }, 0);
+  return bandWeights(s).reduce((t, w, i) => t + arr[i]*w, 0);
 }
 
 // People of gender g in the age range, and how many of them are single
@@ -776,9 +760,9 @@ function blends(m, s, P){
 
 // The full funnel for one metro
 function pool(m, s, P, T){
-  const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, diet:0, kids:0, click:0, apps:0}, dg = {}, D = clickDefaults(P);
+  const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, diet:0, kids:0, click:0, apps:0, parts:[]}, dg = {}, D = T.D;
   const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0};
-  GK.forEach(g => { const b = base(m, g, s), lk = b.single*lookFit(g, s); dg[g] = {b, lk, n: lk*(s.deg ? m.deg[g]/100 : 1)}; });
+  GK.forEach(g => { const b = base(m, g, s), lk = b.single*T.look[g]; dg[g] = {b, lk, n: lk*(s.deg ? m.deg[g]/100 : 1)}; });
   // Competitors: everyone open to at least one of the genders you're looking for, counted once.
   // OPEN only gives rates per gender, so openness to each is treated as independent.
   let N = 0, C = 0;
@@ -786,10 +770,10 @@ function pool(m, s, P, T){
   P.seek.forEach(t => {
     const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
-    const v = o*valFit(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, s);
+    const v = o*valFit(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, T.want[t]);
     const tr = T[t], ba = s.deg ? 1 : m.deg[t]/100, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
-    (r.parts = r.parts || []).push({t, ck, v});
+    r.parts.push({t, ck, v});
     r.vals += v; r.diet += dt; r.kids += kf; r.click += ck; r.apps += ck*Math.min(.9, s.apps*appsRate(t, P)/D.apps/100);
     Object.keys(f).forEach(k => fx[k] += kf*f[k]); fx.all += kf*rel;
     N += n;
@@ -825,23 +809,18 @@ $("share").addEventListener("click", () => {
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => done("Link copied"), () => { window.prompt("Copy this link", url); });
 });
 $("resetAll").addEventListener("click", () => {
-  $("you-m").checked = true; GK.forEach(t => $("seek-" + t).checked = t === "w");
-  $("yAge").value = 30; htSet = false; $("yHt").value = defaultHt(); $("yEdu").value = "ba"; $("yJob").value = "job";
-  $("kids-any").checked = true; $("openP").checked = true; $("degOnly").checked = true;
-  Object.entries(PRESETS.mine).forEach(([k, v]) => $(k).value = v); $("diet").value = "any";
-  $("ageMin").value = 25; $("ageMax").value = 35;
+  $("refine").reset(); htSet = false; $("yHt").value = defaultHt();  // the form's own defaults are the default profile
   saveProfile(); resetClicks(); update();
 });
 
-const saveProfile = () => { const p = profile(); if (!htSet) delete p.ht;
-  try { localStorage.setItem("atlas.profile", JSON.stringify(p)); } catch(e){} };
+const saveProfile = () => { const p = profile(); if (!htSet) delete p.ht; store.set("atlas.profile", JSON.stringify(p)); };
 document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => el.addEventListener("change", () => {
   if (!document.querySelector('input[name="seek"]:checked')) el.checked = true; // keep at least one
   if (!htSet) $("yHt").value = defaultHt();
   saveProfile(); resetClicks(); update();
 }));
 $("yHt").addEventListener("change", () => htSet = true);
-["yAge","yHt","yEdu","yJob","openP","degOnly","pol","faith","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); update(); }));
+["yAge","yHt","yEdu","yJob","openP","degOnly","pol","faith","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
   Object.entries(PRESETS[el.value]).forEach(([k, v]) => $(k).value = v); saveProfile(); update(); }));
@@ -850,18 +829,16 @@ function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
   $("ageMinO").textContent = s.ageMin; $("ageMaxO").textContent = s.ageMax; $("yAgeO").textContent = P.age;
   SLIDERS.slice(2).forEach(k => $(k+"O").textContent = s[k] + "%");
-  $("statusT").textContent = nACS ? `Singles and degrees from the 2019 to 2023 ACS for ${nACS} of 387 metros` : "Singles and degrees are modeled estimates";
-  $("status").classList.toggle("live", !!nACS);
 
   const b = blends(m, s, P);
   const sg = P.seek.reduce((t, g) => { const x = base(m, g, s); return [t[0] + x.single, t[1] + x.age]; }, [0, 0]);
   $("singleO").textContent = Math.round(sg[0]/sg[1]*100) + "%";
   $("singleHint").textContent = m.acs ? `From ACS counts of never-married, divorced and widowed people in ${m.short}, less about 15% who live with a partner.` : `Modeled for ${who} aged ${s.ageMin} to ${s.ageMax}: not married and not living with a partner, about half of women this age and a few points more for men.`;
-  $("eduO").textContent = Math.round(b.edu) + "%"; $("valuesO").textContent = (b.val < 10 ? b.val.toFixed(1) : Math.round(b.val)) + "%";
+  $("eduO").textContent = Math.round(b.edu) + "%"; $("valuesO").textContent = pct(b.val);
   $("eduHint").textContent = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}.${s.deg ? "" : " Not used as a filter."}`;
   Object.entries(PRESETS).forEach(([k, v]) => $("preset-" + k).checked = Object.entries(v).every(([f, x]) => P[f] === x));
   $("valuesL").textContent = valuesLabel(P) || "Any politics or faith";
-  $("rbSum").textContent = `${G[P.you].one[0].toUpperCase() + G[P.you].one.slice(1)}, ${P.age} · ${who[0].toUpperCase() + who.slice(1)} ${s.ageMin} to ${s.ageMax} · ` +
+  $("rbSum").textContent = `${cap(G[P.you].one)}, ${P.age} · ${cap(who)} ${s.ageMin} to ${s.ageMax} · ` +
     `${valuesLabel(P) || "Any politics or faith"}${P.diet !== "any" ? " · " + DIETS[P.diet] : ""}${s.deg ? "" : " · Any education"}`;
   const vote = `the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""})`, F = m.faith;
   const faithNote = P.faith === "secular" ? `${m.none}% with no religion and ${m.adh}% in a congregation`
@@ -869,15 +846,18 @@ function update(){
     : F ? `PRRI's estimate that ${F[FAITH_COL[P.faith]]}% of adults here are ${FAITHS[P.faith]}` : "no PRRI estimate for this metro";
   const parts = [P.pol !== "any" ? vote : "", faithNote].filter(Boolean);
   $("valuesHint").textContent = parts.length ? `Modeled for ${m.short} from ${parts.join(" and ")}.` : `Not used as a filter.`;
-  $("dietHint").textContent = P.diet === "any" ? "Not used as a filter." : P.diet === "kosher" ? `About ${b.diet < 10 ? fmt1(b.diet) : Math.round(b.diet)}% of them. 17% of Jewish Americans keep kosher at home.`
-    : P.diet === "halal" ? `About ${b.diet < 10 ? fmt1(b.diet) : Math.round(b.diet)}% of them. 83% of Muslim Americans only buy halal or prefer it.`
-    : `About ${b.diet < 10 ? fmt1(b.diet) : Math.round(b.diet)}% of them, from national rates by gender${P.pol !== "any" ? " and politics" : ""}.${P.diet === "pesc" ? " Counts vegetarians too." : ""}`;
+  $("dietHint").textContent = P.diet === "any" ? "Not used as a filter." : P.diet === "kosher" ? `About ${pct(b.diet)} of them. 17% of Jewish Americans keep kosher at home.`
+    : P.diet === "halal" ? `About ${pct(b.diet)} of them. 83% of Muslim Americans only buy halal or prefer it.`
+    : `About ${pct(b.diet)} of them, from national rates by gender${P.pol !== "any" ? " and politics" : ""}.${P.diet === "pesc" ? " Counts vegetarians too." : ""}`;
   const D = clickDefaults(P), rst = k => s[k] !== Math.round(D[k]) ? ` <button type="button" data-r="${k}">Reset</button>` : "";
   $("hisHint").innerHTML = `Speed-dating data suggest about 35% for men and 25% for women judging the people they meet. Default for you: ${Math.round(D.his)}%.` + rst("his");
   $("appsHint").innerHTML = `Share of singles looking to date who are on an app now. Pew found 28% in 2022, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
   document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(D[k]); update(); });
 
-  const T = traitRel(s, P), f = pool(m, s, P, T);
+  // Everything the pool needs that doesn't depend on the metro, computed once per update
+  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
+  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); });
+  const f = pool(m, s, P, T);
   const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, apps:r.apps, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
@@ -899,13 +879,13 @@ function update(){
     .filter(([k]) => Math.abs(fx[k] - 1) > .005).map(([, l]) => l);
   const chg = Math.round((fx.all - 1)*100), tl = xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1] : xs[0];
   $("herHint").innerHTML = `For someone their own age, of average height, with a degree, a steady job and no kids. Default for the ${who} you picked: ${Math.round(D.her)}%. ` +
-    (xs.length ? (chg === 0 ? `${tl[0].toUpperCase() + tl.slice(1)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
-      `${tl[0].toUpperCase() + tl.slice(1)} ${chg < 0 ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it by about ${Math.abs(chg)}%, to about ${Math.round(Math.min(95, s.her*fx.all))}%.`) : "Your traits match that.") + rst("her");
+    (xs.length ? (chg === 0 ? `${cap(tl)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
+      `${cap(tl)} ${chg < 0 ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it by about ${Math.abs(chg)}%, to about ${Math.round(Math.min(95, s.her*fx.all))}%.`) : "Your traits match that.") + rst("her");
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   // Each step: [label, count, cut note, phase]
   const steps = [["Everyone in the metro", m.pop, "", 0],
-    ...(P.seek.length < 3 ? [[who[0].toUpperCase() + who.slice(1), f.total, pc(f.total, m.pop), 0]] : []),
+    ...(P.seek.length < 3 ? [[cap(who), f.total, pc(f.total, m.pop), 0]] : []),
     [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`, 0],
     ["Single", f.single, pc(f.single, f.age), 1],
     ["Unattached and looking to date", f.look, pc(f.look, f.single), 1],
@@ -927,7 +907,7 @@ function update(){
     const last = i === steps.length - 1 ? " last" : "";
     const tag = i === 0 || st[3] !== steps[i-1][3] ? `<div class="ptag">${PHASES[st[3]].name}</div>` : "";
     return `${tag}<div class="lab${last}"><span>${st[0]}</span><span class="cut">${st[2] && st[2][0] === "×" ? "keeps " + st[2].slice(1) : st[2]}</span></div>` +
-      `<div class="seg" aria-hidden="true"></div><div class="c${last}">${fmt(st[1])}</div>`;
+      `<div class="fseg" aria-hidden="true"></div><div class="c${last}">${fmt(st[1])}</div>`;
   }).join("");
   drawFunnel();
 
@@ -944,7 +924,7 @@ function update(){
   ordered.forEach((a, i) => a.rk = i + 1);
   const shown = ordered.filter(a => set.has(a.m));
   const maxK = Math.max(...shown.map(a => a[key] || 0));
-  $("cmp").classList.toggle("byrent", sort === "rent");
+  $("ranked").classList.toggle("byrent", sort === "rent");
   const rcol = sort === "sex" ? "sex" : "ratio";
   $("ratioH").textContent = sort === "sex" ? (sv.inv ? "M per W" : "W per M") : "Odds";
   $("listNote").textContent = sort === "pool"
@@ -958,8 +938,8 @@ function update(){
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
-  usMap(m, all, who);
-  plot(m, s, P);
+  LAST = {m, all, who, s, P};
+  drawCharts();
   writeHash(s, P);
 }
 
@@ -967,7 +947,7 @@ function update(){
 // curves with vertical tangents, filled with a gradient that blends from one phase color to the next
 let FSTEPS = [];
 function drawFunnel(){
-  const fun = $("funnel"), segs = [...fun.querySelectorAll(".seg")];
+  const fun = $("funnel"), segs = [...fun.querySelectorAll(".fseg")];
   if (!segs.length || segs.length !== FSTEPS.length) return;
   const fb = fun.getBoundingClientRect(), s0 = segs[0].getBoundingClientRect(), W = s0.width, H = fb.height, cx = W/2;
   if (!W) return;
@@ -990,17 +970,16 @@ function drawFunnel(){
     return `C${f(cx + sg*(w0 + m[i]*h)/2)},${f(y0 + h)} ${f(cx + sg*(w1 - m[j]*h)/2)},${f(y1 - h)} ${f(cx + sg*w1/2)},${f(y1)}`; };
   // Down the left edge, across the bottom, back up the right edge
   const down = k.slice(1).map((_, i) => seg(-1, i, i + 1)).join(" ");
-  const up = k.slice(1).map((_, i) => { const a = n - 1 - i, b = a - 1, [ya, wa] = k[a], [yb, wb] = k[b], h = (ya - yb)/3;
-    return `C${f(cx + (wa - m[a]*h)/2)},${f(ya - h)} ${f(cx + (wb + m[b]*h)/2)},${f(yb + h)} ${f(cx + wb/2)},${f(yb)}`; }).join(" ");
+  const up = k.slice(1).map((_, i) => seg(1, n - 1 - i, n - 2 - i)).join(" ");
   const d = `M${f(cx - k[0][1]/2)},${f(k[0][0])} ${down} L${f(cx + k[n-1][1]/2)},${f(k[n-1][0])} ${up} Z`;
   $("fbody").setAttribute("d", d); $("fclipP").setAttribute("d", d);
   const g = $("fgrad"); g.setAttribute("y2", H);
-  // Each row holds its phase color. The blue phases blend over the gap between them (through an OKLab midpoint);
-  // the turn into the orange "who clicks" phase is kept crisp, since blue to orange would pass through a muddy gray
+  // Each row holds its phase color. Phases blend over the gap between them (through an OKLab midpoint), except a
+  // phase marked sharp, where blending would pass through a muddy gray (blue into the orange "who clicks")
   const o = y => (Math.min(H, Math.max(0, y))/H).toFixed(4);
   g.innerHTML = rows.map((r, i) => { const nx = rows[i+1];
     return `<stop offset="${o(r.t + 6)}" style="stop-color:${r.c}"/><stop offset="${o(r.b - 6)}" style="stop-color:${r.c}"/>` +
-      (nx && nx.ph !== r.ph ? (nx.ph === 3 ? `<stop offset="${o((r.b + nx.t)/2 - 3)}" style="stop-color:${r.c}"/><stop offset="${o((r.b + nx.t)/2 + 3)}" style="stop-color:${nx.c}"/>`
+      (nx && nx.ph !== r.ph ? (PHASES[nx.ph].sharp ? `<stop offset="${o((r.b + nx.t)/2 - 3)}" style="stop-color:${r.c}"/><stop offset="${o((r.b + nx.t)/2 + 3)}" style="stop-color:${nx.c}"/>`
         : `<stop offset="${o((r.b + nx.t)/2)}" style="stop-color:color-mix(in oklab, ${r.c}, ${nx.c})"/>`) : ""); }).join("");
   // A faint line between steps in the same phase; a phase change is marked by the color shift instead
   $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => r.ph === rows[i+1].ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>` : "").join("");
@@ -1010,14 +989,21 @@ new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 // The map and scatter pick their label and dot sizes from the width they're drawn at, not the window
 const mapNarrow = () => NARROW.matches || ($("map").clientWidth || 975) < 700;
 const plotNarrow = () => NARROW.matches || ($("plot").clientWidth || 760) < 600;
-let sizeKey = "";
-new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; if (cur) update(); } }).observe($("viz"));
+let sizeKey = "", LAST = null;
+const shown = el => el.offsetParent !== null;
+function drawCharts(){
+  if (!LAST) return;
+  const {m, all, who, s, P} = LAST;
+  if (shown($("cmp"))) usMap(m, all, who);
+  if (shown($("plotCard"))) plot(m, s, P);
+}
+new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 
 // Phone tabs: show the map or the scatter, then redraw so the shown chart measures its real width
 document.querySelectorAll(".vtabs button").forEach(b => b.addEventListener("click", () => {
   $("viz").dataset.tab = b.dataset.t;
   document.querySelectorAll(".vtabs button").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false"));
-  update();
+  drawCharts();
 }));
 
 // Bubble map: one circle per metro at its Census center, area proportional to the people on the apps now
@@ -1034,7 +1020,9 @@ function usMap(m, all, who){
   let kx = 0; const keyDots = vals.map((v, i) => { const cx = kx + Math.max(kr[i], 22); kx = cx + Math.max(kr[i], 22) + 6;
     return `<circle cx="${cx}" cy="${kh - kr[i]}" r="${kr[i]}"/><text x="${cx}" y="${kh + 14}" text-anchor="middle">${fmt(v)}</text>`; }).join("");
   const lbl = me ? (() => { const right = me.x > 780; return `<circle class="on" cx="${me.x}" cy="${me.y}" r="${Math.max(me.r, 5*k).toFixed(1)}"/><text class="lbl" x="${right ? me.x - me.r - 6 : me.x + Math.max(me.r, 5*k) + 6}" y="${me.y + 5*k}" font-size="${14*k}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; })() : "";
-  $("map").innerHTML = `<svg viewBox="0 0 975 610" role="img" aria-label="Map of 387 U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro."><path class="land" d="${USMAP.nation}"/><path class="bord" d="${USMAP.borders}"/>${dots}${lbl}</svg><div class="tip" id="mapTip" hidden></div>`;
+  if (!$("mapDots")) $("map").innerHTML = `<svg viewBox="0 0 975 610" role="img" id="mapSvg"><path class="land" d="${USMAP.nation}"/><path class="bord" d="${USMAP.borders}"/><g id="mapDots"></g></svg><div class="tip" id="mapTip" hidden></div>`;
+  $("mapDots").innerHTML = dots + lbl;
+  $("mapSvg").setAttribute("aria-label", `Map of 387 U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro.`);
   $("mapKey").innerHTML = `<span>People on the apps now</span><svg width="${kx}" height="${kh + 18}" aria-hidden="true">${keyDots}</svg>`;
   const best = MAPPTS[0];
   $("mapNote").textContent = `Each circle is a metro, placed at its center. ${best.a.m === m ? `${m.short} has the most ${who} on the apps.` : `${best.a.m.short} has the most ${who} on the apps, about ${fmt(best.a.apps)}, against ${fmt(me ? me.a.apps : 0)} in ${m.short}.`} Tap or click a circle to switch metros.`;
@@ -1078,7 +1066,10 @@ function plot(m, s, P){
   $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and a values fit of ${Math.round(fit.get(m))}%.">${g}${dots}${on}</svg>`;
 }
 
-SLIDERS.forEach(k => $(k).addEventListener("input", update));
+// Dragging a slider fires input faster than a full update; coalesce to one update per frame
+let raf = 0;
+const schedule = () => { raf = raf || requestAnimationFrame(() => { raf = 0; update(); }); };
+SLIDERS.forEach(k => $(k).addEventListener("input", schedule));
 // One click handler each for the list rows and the scatter dots
 $("list").addEventListener("click", e => { const t = e.target.closest("[data-i]"); if (t) select(M[+t.dataset.i]); });
 // Dots are small on a phone, so a tap picks the nearest dot within reach
@@ -1100,8 +1091,6 @@ select(cur);
 
 // Guided setup for first visits: three short steps that borrow the page's own controls, then hand back to
 // the full page. Visitors with a saved profile or a shared link skip it.
-const store = {get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
-  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e){} }};
 const STEPS = [
   {t:"Start with you", help:"Who you are sets who's likely to be open to dating you, and how your age plays into it.", ids:["g-you","g-age"]},
   {t:"Who are you looking for?", help:"Pick the genders and ages you date, and the politics, faith and diet you want them to share. Quick picks fill in politics and faith.",
