@@ -18,7 +18,7 @@ You pick a metro and say who you are and who you're looking for. The page then s
 
 You can filter by politics (progressive, conservative or any), faith (secular-leaning, Christian, Catholic, Protestant, Latter-day Saint, Jewish, Muslim, Hindu, Buddhist, Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive and secular) or the opposite one (conservative and Christian).
 
-On a first visit, a three-step setup asks who you are, who you're looking for and where, then shows the result. The result leads with the funnel, the map and the scatter plot; the ranked list and the methods open when you ask for them. The page saves your settings in your browser and in its address, so a copied link reopens the same result and skips the setup.
+On a first visit, a three-step setup asks who you are, who you're looking for and where, then shows the result. The result shows the funnel, the map, the scatter plot and the key numbers in a 2×2 grid, with your search summarized in a bar you can open to edit. The ranked list and the methods open when you ask for them. The page saves your settings in your browser and in its address, so a copied link reopens the same result and skips the setup.
 
 ## How the estimate works
 

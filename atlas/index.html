@@ -33,12 +33,34 @@ p{margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .chips button:hover{border-color:var(--accent)}
-.grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-areas:"form result" "form more";gap:20px;align-items:start}
-.grid > .panel{grid-area:form}
-@media (min-width:861px){.grid > .panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain}}
-.grid > .result{grid-area:result}
-.grid > .more{grid-area:more}
-@media (max-width:860px){.grid{grid-template-columns:1fr;grid-template-areas:"result" "form" "more"}}
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.viz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:stretch}
+.viz > .card{align-content:start}
+.viz > #cmp{grid-template-rows:auto 1fr auto auto}
+#cmp .map{align-self:center}
+@media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
+.metrics{grid-template-rows:auto 1fr}
+.metrics .stats{grid-template-columns:1fr 1fr;grid-auto-rows:1fr}
+.metrics .stat{background:var(--bg);border-color:transparent;align-content:center;padding:14px 16px}
+.metrics .stat .n{font-size:44px}
+.metrics .stat .l{font-size:14px}
+.card.refinebox{padding:0;gap:0;display:block}
+.refinebox > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:14px 20px;cursor:pointer;list-style:none}
+.refinebox > summary::-webkit-details-marker{display:none}
+.refinebox > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px;border-radius:10px}
+.rb-l{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rb-s{flex:1 1 320px;font-size:14.5px}
+.rb-e{color:var(--accent);font-size:14px;font-weight:600;text-decoration:underline}
+.rb-e::after{content:"Edit"}
+.refinebox[open] .rb-e::after{content:"Close"}
+.card.ranked{display:block}
+.refinebox .panel{border:0;border-top:1px solid var(--line);border-radius:0;background:none;padding:16px 20px 20px}
+@media (min-width:901px){
+  .refinebox .panel{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:28px;align-items:start}
+  .refinebox .ptitle,.refinebox #rerunSetup{grid-column:1/-1}
+  .refinebox .sec{border-top:0;padding-top:0}
+}
+
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px}
 .gt{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .ctrl{display:grid;gap:3px}
@@ -134,8 +156,8 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .map text.lbl{fill:var(--ink);font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;line-height:1.35;box-shadow:0 2px 10px rgb(0 0 0 / .12);white-space:nowrap;transform:translate(-50%,calc(-100% - 10px))}
 .tip b{font-weight:600}
-.ranked > summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:500}
-.ranked[open] > summary{margin-bottom:12px}
+.ranked > summary{cursor:pointer;color:var(--accent);font-size:15px;font-weight:600}
+.ranked[open] > summary{margin-bottom:4px}
 .ranked > summary:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .ranked .body{display:grid;gap:12px}
 .plot{overflow-x:auto}
@@ -159,7 +181,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .ptitle{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 10px}
 .ptitle h2{font-size:20px;white-space:nowrap}
 .ptitle .btn{white-space:nowrap;padding:4px 10px;font-size:12.5px}
-@media (min-width:861px){#toRefine{display:none}}
+
 .sec{border-top:1px solid var(--line);padding-top:12px}
 .sec > summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .sec > summary::-webkit-details-marker{display:none}
@@ -234,83 +256,106 @@ code{font-family:var(--mono);font-size:12.5px}
   </div>
 
   <div class="grid">
-    <form class="panel" id="refine" onsubmit="return false" aria-labelledby="refineT">
-      <div class="ptitle"><h2 id="refineT">Refine your estimate</h2><button type="button" class="btn" id="resetAll">Reset to defaults</button></div>
-      <button type="button" class="linkbtn" id="rerunSetup">Walk me through the setup again</button>
-      <details class="sec" open><summary>About you</summary><div class="body">
-      <div class="fq" id="g-you" role="radiogroup" aria-labelledby="youL"><span id="youL">You are</span>
-        <div class="seg">
-          <label><input type="radio" name="you" id="you-m" value="m" checked><span>A man</span></label>
-          <label><input type="radio" name="you" id="you-w" value="w"><span>A woman</span></label>
-          <label><input type="radio" name="you" id="you-n" value="n"><span>Nonbinary</span></label>
-        </div>
-      </div>
-      <div class="fq" id="g-seek" role="group" aria-labelledby="seekL"><span id="seekL">Looking for</span>
-        <div class="seg">
-          <label><input type="checkbox" name="seek" id="seek-w" value="w" checked><span>Women</span></label>
-          <label><input type="checkbox" name="seek" id="seek-m" value="m"><span>Men</span></label>
-          <label><input type="checkbox" name="seek" id="seek-n" value="n"><span>Nonbinary people</span></label>
-        </div>
-      </div>
-      <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"></div>
-      <div class="ctrl"><label for="yHt">Your height</label><select id="yHt"></select></div>
-      <div class="ctrl"><label for="yEdu">Your education</label><select id="yEdu"><option value="ba">Bachelor's or higher</option><option value="no">No bachelor's</option></select></div>
-      <div class="ctrl"><label for="yJob">Your work</label><select id="yJob"><option value="job">Steady job</option><option value="less">Steady job, but you earn much less than most of them</option><option value="none">No steady job</option></select></div>
-      <div class="fq" role="radiogroup" aria-labelledby="kidsL"><span id="kidsL">Kids</span>
-        <div class="seg">
-          <label><input type="radio" name="kids" id="kids-any" value="any" checked><span>Undecided</span></label>
-          <label><input type="radio" name="kids" id="kids-want" value="want"><span>Want kids</span></label>
-          <label><input type="radio" name="kids" id="kids-dont" value="dont"><span>Don't want kids</span></label>
-          <label><input type="radio" name="kids" id="kids-have" value="have"><span>Have kids</span></label>
-        </div>
-      </div>
-      <label class="chk"><input type="checkbox" id="openP" checked> Open to partners who have kids</label>
-      </div></details>
-      <details class="sec" open><summary>Who you're looking for</summary><div class="body">
-      <div class="ctrl" id="g-amin"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
-      <div class="ctrl" id="g-amax"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
-      <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
-      <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
-      <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
-        <div class="seg">
-          <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive and secular</span></label>
-          <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative and Christian</span></label>
-        </div>
-      </div>
-      <div class="ctrl" id="g-pol"><label for="pol">Politics</label><select id="pol"><option value="prog" selected>Progressive</option><option value="cons">Conservative</option><option value="any">Any politics</option></select></div>
-      <div class="ctrl" id="g-faith"><label for="faith">Faith</label><select id="faith"><option value="secular" selected>Secular-leaning</option><option value="christian">Christian</option><option value="catholic">Catholic</option><option value="protestant">Protestant</option><option value="lds">Latter-day Saint</option><option value="jewish">Jewish</option><option value="muslim">Muslim</option><option value="hindu">Hindu</option><option value="buddhist">Buddhist</option><option value="pagan">Pagan or Wiccan</option><option value="any">Any faith or none</option></select></div>
-      <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive and secular-leaning</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
-      <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
-      </div></details>
-      <details class="sec" open><summary>Whether it clicks</summary><div class="body">
-      <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
-      <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
-      <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
-      </div></details>
-    </form>
-
     <section class="result">
       <div class="hero">
         <div class="top"><span class="big" id="sPool">…</span><span class="what" id="sPoolL">real possibilities</span></div>
         <span class="rng" id="sRange"></span>
         <p id="readout" aria-live="polite"></p>
-        <div class="acts"><button type="button" class="btn" id="share">Copy link to this result</button><a class="btn" href="#refine" id="toRefine">Refine your estimate</a></div>
+        <div class="acts"><button type="button" class="btn" id="share">Copy link to this result</button></div>
       </div>
+    </section>
+
+    <details class="card refinebox" id="refineBox">
+      <summary><span class="rb-l">Your search</span><span class="rb-s" id="rbSum"></span><span class="rb-e" aria-hidden="true"></span></summary>
+      <form class="panel" id="refine" onsubmit="return false" aria-labelledby="refineT">
+        <div class="ptitle"><h2 id="refineT">Refine your estimate</h2><button type="button" class="btn" id="resetAll">Reset to defaults</button></div>
+        <button type="button" class="linkbtn" id="rerunSetup">Walk me through the setup again</button>
+        <details class="sec" open><summary>About you</summary><div class="body">
+        <div class="fq" id="g-you" role="radiogroup" aria-labelledby="youL"><span id="youL">You are</span>
+          <div class="seg">
+            <label><input type="radio" name="you" id="you-m" value="m" checked><span>A man</span></label>
+            <label><input type="radio" name="you" id="you-w" value="w"><span>A woman</span></label>
+            <label><input type="radio" name="you" id="you-n" value="n"><span>Nonbinary</span></label>
+          </div>
+        </div>
+        <div class="fq" id="g-seek" role="group" aria-labelledby="seekL"><span id="seekL">Looking for</span>
+          <div class="seg">
+            <label><input type="checkbox" name="seek" id="seek-w" value="w" checked><span>Women</span></label>
+            <label><input type="checkbox" name="seek" id="seek-m" value="m"><span>Men</span></label>
+            <label><input type="checkbox" name="seek" id="seek-n" value="n"><span>Nonbinary people</span></label>
+          </div>
+        </div>
+        <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"></div>
+        <div class="ctrl"><label for="yHt">Your height</label><select id="yHt"></select></div>
+        <div class="ctrl"><label for="yEdu">Your education</label><select id="yEdu"><option value="ba">Bachelor's or higher</option><option value="no">No bachelor's</option></select></div>
+        <div class="ctrl"><label for="yJob">Your work</label><select id="yJob"><option value="job">Steady job</option><option value="less">Steady job, but you earn much less than most of them</option><option value="none">No steady job</option></select></div>
+        <div class="fq" role="radiogroup" aria-labelledby="kidsL"><span id="kidsL">Kids</span>
+          <div class="seg">
+            <label><input type="radio" name="kids" id="kids-any" value="any" checked><span>Undecided</span></label>
+            <label><input type="radio" name="kids" id="kids-want" value="want"><span>Want kids</span></label>
+            <label><input type="radio" name="kids" id="kids-dont" value="dont"><span>Don't want kids</span></label>
+            <label><input type="radio" name="kids" id="kids-have" value="have"><span>Have kids</span></label>
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="openP" checked> Open to partners who have kids</label>
+        </div></details>
+        <details class="sec" open><summary>Who you're looking for</summary><div class="body">
+        <div class="ctrl" id="g-amin"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="45" value="25"></div>
+        <div class="ctrl" id="g-amax"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="55" value="35"></div>
+        <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
+        <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
+        <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
+          <div class="seg">
+            <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive and secular</span></label>
+            <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative and Christian</span></label>
+          </div>
+        </div>
+        <div class="ctrl" id="g-pol"><label for="pol">Politics</label><select id="pol"><option value="prog" selected>Progressive</option><option value="cons">Conservative</option><option value="any">Any politics</option></select></div>
+        <div class="ctrl" id="g-faith"><label for="faith">Faith</label><select id="faith"><option value="secular" selected>Secular-leaning</option><option value="christian">Christian</option><option value="catholic">Catholic</option><option value="protestant">Protestant</option><option value="lds">Latter-day Saint</option><option value="jewish">Jewish</option><option value="muslim">Muslim</option><option value="hindu">Hindu</option><option value="buddhist">Buddhist</option><option value="pagan">Pagan or Wiccan</option><option value="any">Any faith or none</option></select></div>
+        <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive and secular-leaning</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
+        <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
+        </div></details>
+        <details class="sec" open><summary>Whether it clicks</summary><div class="body">
+        <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
+        <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
+        <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
+        </div></details>
+      </form>
+    </details>
+
+    <section class="viz" id="viz">
       <div class="card">
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
         <p class="note" id="funnelSub"></p>
         <div class="phases" id="phases"></div>
         <div class="funwrap"><div class="fun" id="funnel"></div><svg class="fshape" id="fshape" aria-hidden="true"><defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0"></linearGradient><clipPath id="fclip"><path id="fclipP"/></clipPath></defs><path id="fbody" fill="url(#fgrad)"/><g id="fdiv" clip-path="url(#fclip)"></g></svg></div>
       </div>
-    </section>
-
-    <section class="more" id="more">
       <div class="card" id="cmp">
         <div class="head"><h2>Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
         <div class="map" id="map"></div>
         <div class="mkey" id="mapKey"></div>
         <p class="note" id="mapNote"></p>
-        <details class="ranked" id="ranked">
+      </div>
+
+      <div class="card">
+        <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the list above.</small></div>
+        <div class="plot" id="plot"></div>
+        <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
+      </div>
+
+      <div class="card metrics">
+        <div class="head"><h2>Key numbers</h2></div>
+        <div class="stats">
+          <div class="stat"><span class="n" id="sApps">…</span><span class="l">of them on the apps right now</span></div>
+          <div class="stat"><span class="n" id="sRank">…</span><span class="l">of 387 metros by number of possibilities</span></div>
+          <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
+          <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="more" id="more">
+        <details class="card ranked" id="ranked">
           <summary>See every metro as a ranked list</summary>
           <div class="body">
             <div class="tools">
@@ -324,21 +369,6 @@ code{font-family:var(--mono);font-size:12.5px}
             <div class="list" id="list"></div>
           </div>
         </details>
-      </div>
-
-      <div class="card">
-        <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the list above.</small></div>
-        <div class="plot" id="plot"></div>
-        <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
-      </div>
-
-      <div class="stats">
-        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of them on the apps right now</span></div>
-        <div class="stat"><span class="n" id="sRank">…</span><span class="l">of 387 metros by number of possibilities</span></div>
-        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
-        <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
-      </div>
-
     <details class="card notes" id="notes">
       <summary><h2>How the estimates work</h2></summary>
       <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
@@ -801,6 +831,8 @@ function update(){
   $("eduHint").textContent = `Estimate for ${who} aged ${s.ageMin} to ${s.ageMax} in ${m.short}.${s.deg ? "" : " Not used as a filter."}`;
   Object.entries(PRESETS).forEach(([k, v]) => $("preset-" + k).checked = Object.entries(v).every(([f, x]) => P[f] === x));
   $("valuesL").textContent = valuesLabel(P) || "Any politics or faith";
+  $("rbSum").textContent = `${G[P.you].one[0].toUpperCase() + G[P.you].one.slice(1)}, ${P.age} · ${who[0].toUpperCase() + who.slice(1)} ${s.ageMin} to ${s.ageMax} · ` +
+    `${valuesLabel(P) || "Any politics or faith"}${P.diet !== "any" ? " · " + DIETS[P.diet] : ""}${s.deg ? "" : " · Any education"}`;
   const vote = `the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""})`, F = m.faith;
   const faithNote = P.faith === "secular" ? `${m.none}% with no religion and ${m.adh}% in a congregation`
     : P.faith === "any" ? "" : P.faith === "pagan" ? "about 0.3% nationally, scaled by the local share of other religions"
@@ -945,10 +977,16 @@ function drawFunnel(){
 }
 new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 
+// The map and scatter pick their label and dot sizes from the width they're drawn at, not the window
+const mapNarrow = () => NARROW.matches || ($("map").clientWidth || 975) < 700;
+const plotNarrow = () => NARROW.matches || ($("plot").clientWidth || 760) < 600;
+let sizeKey = "";
+new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; if (cur) update(); } }).observe($("viz"));
+
 // Bubble map: one circle per metro at its Census center, area proportional to the people on the apps now
 let MAPPTS = [];
 function usMap(m, all, who){
-  const nw = NARROW.matches, k = nw ? 2.2 : 1, rMax = nw ? 34 : 28, rMin = nw ? 3 : 1.6;
+  const nw = mapNarrow(), k = nw ? 2.2 : 1, rMax = nw ? 34 : 28, rMin = nw ? 3 : 1.6;
   const mx = Math.max(...all.map(a => a.apps)), sc = rMax/Math.sqrt(mx || 1), rad = v => Math.max(rMin, Math.sqrt(v)*sc);
   MAPPTS = all.filter(a => MAPXY[a.m.name]).map(a => ({a, x:MAPXY[a.m.name][0], y:MAPXY[a.m.name][1], r:rad(a.apps)})).sort((p, q) => q.r - p.r);
   const dots = MAPPTS.filter(p => p.a.m !== m).map(p => `<circle data-i="${p.a.m.i}" cx="${p.x}" cy="${p.y}" r="${p.r.toFixed(1)}"/>`).join("");
@@ -968,7 +1006,7 @@ function usMap(m, all, who){
 function mapHit(e){
   const svg = $("map").querySelector("svg"); if (!svg) return null;
   const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM().inverse());
-  const pad = NARROW.matches ? 22 : 10;
+  const pad = mapNarrow() ? 22 : 10;
   let hit = null, bd = Infinity;
   MAPPTS.forEach(p => { const d = Math.hypot(p.x - pt.x, p.y - pt.y); if (d < p.r + pad && d - p.r < bd){ bd = d - p.r; hit = p; } });
   return hit;
@@ -986,7 +1024,7 @@ $("map").addEventListener("pointerleave", () => { const tip = $("mapTip"); if (t
 $("map").addEventListener("click", e => { const h = mapHit(e); if (h) select(h.a.m); });
 
 function plot(m, s, P){
-  const nw = NARROW.matches, W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
+  const nw = plotNarrow(), W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
   const fit = new Map(M.map(x => [x, blends(x, s, P).val]));
   const yMax = Math.max(70, Math.ceil(Math.max(...fit.values())/10)*10);
   const x0 = Math.log10(50000), x1 = Math.log10(25e6);
