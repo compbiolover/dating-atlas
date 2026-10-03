@@ -40,6 +40,7 @@ p{margin:0}
 #cmp .map{align-self:center}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
 .metrics{grid-template-rows:auto 1fr}
+.vtabs{display:none}
 .metrics .stats{grid-template-columns:1fr 1fr;grid-auto-rows:1fr}
 .metrics .stat{background:var(--bg);border-color:transparent;align-content:center;padding:14px 16px}
 .metrics .stat .n{font-size:44px}
@@ -230,6 +231,29 @@ code{font-family:var(--mono);font-size:12.5px}
 .chk{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:400}
 .chk input{accent-color:var(--accent);margin:0}
 .ctrl .chk{justify-content:flex-start;font-size:13.5px;font-weight:400;margin-top:4px}
+/* Phones: map and scatter share a slot behind tabs, and the funnel, numbers and header tighten up */
+@media (max-width:560px){
+  .vtabs{display:flex;gap:6px;margin-bottom:-12px}
+  .vtabs button{flex:1;font:inherit;font-size:14px;font-weight:600;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .vtabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+  .vtabs button:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .viz[data-tab="map"] > #plotCard,.viz[data-tab="plot"] > #cmp{display:none}
+  .phases{display:none}
+  .fun{grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr) max-content}
+  .fun .seg{min-height:30px}
+  .fun .lab{padding:2px 0}
+  .fun .ptag{padding-top:4px}
+  .metrics .stats{grid-auto-rows:auto;gap:8px}
+  .metrics .stat{padding:10px 12px}
+  .metrics .stat .n{font-size:26px}
+  .metrics .stat .l{font-size:12.5px}
+  .pick{display:grid;grid-template-columns:minmax(0,1fr)}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px;min-width:0}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex:none}
+  .status{display:none}
+  .lede{font-size:15px}
+}
 </style>
 
 <div class="wrap">
@@ -323,12 +347,16 @@ code{font-family:var(--mono);font-size:12.5px}
       </form>
     </details>
 
-    <section class="viz" id="viz">
+    <section class="viz" id="viz" data-tab="map">
       <div class="card">
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
         <p class="note" id="funnelSub"></p>
         <div class="phases" id="phases"></div>
         <div class="funwrap"><div class="fun" id="funnel"></div><svg class="fshape" id="fshape" aria-hidden="true"><defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0"></linearGradient><clipPath id="fclip"><path id="fclipP"/></clipPath></defs><path id="fbody" fill="url(#fgrad)"/><g id="fdiv" clip-path="url(#fclip)"></g></svg></div>
+      </div>
+      <div class="vtabs" role="tablist" aria-label="Choose a chart">
+        <button type="button" role="tab" id="tab-map" data-t="map" aria-selected="true" aria-controls="cmp">Map</button>
+        <button type="button" role="tab" id="tab-plot" data-t="plot" aria-selected="false" aria-controls="plotCard">Scatter</button>
       </div>
       <div class="card" id="cmp">
         <div class="head"><h2>Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
@@ -337,8 +365,8 @@ code{font-family:var(--mono);font-size:12.5px}
         <p class="note" id="mapNote"></p>
       </div>
 
-      <div class="card">
-        <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the list above.</small></div>
+      <div class="card" id="plotCard">
+        <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the ranked list below.</small></div>
         <div class="plot" id="plot"></div>
         <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
       </div>
@@ -982,6 +1010,13 @@ const mapNarrow = () => NARROW.matches || ($("map").clientWidth || 975) < 700;
 const plotNarrow = () => NARROW.matches || ($("plot").clientWidth || 760) < 600;
 let sizeKey = "";
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; if (cur) update(); } }).observe($("viz"));
+
+// Phone tabs: show the map or the scatter, then redraw so the shown chart measures its real width
+document.querySelectorAll(".vtabs button").forEach(b => b.addEventListener("click", () => {
+  $("viz").dataset.tab = b.dataset.t;
+  document.querySelectorAll(".vtabs button").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false"));
+  update();
+}));
 
 // Bubble map: one circle per metro at its Census center, area proportional to the people on the apps now
 let MAPPTS = [];
