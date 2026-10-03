@@ -22,12 +22,11 @@ Usage:
 """
 import argparse
 import csv
-import json
 import math
 import re
 import sys
 
-from acs_to_json import atlas_names, b12002_plan, b15001_plan, load_labels, norm, short_key
+from acs_to_json import atlas_names, b12002_plan, b15001_plan, embed, load_labels, matcher
 
 Z90 = 1.645
 
@@ -67,14 +66,11 @@ def main():
     mar, edu = read_sf(a.b12002), read_sf(a.b15001)
 
     atlas = atlas_names(a.page)
-    names = {norm(n): n for n in atlas}
-    short = {}
-    for n in atlas:
-        short.setdefault(short_key(n), []).append(n)
+    match = matcher(atlas)
     code_to_name = {}
     with open(a.names, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            n = names.get(norm(row["NAME"])) or (lambda c: c[0] if len(c) == 1 else None)(short.get(short_key(row["NAME"]), []))
+            n = match(row["NAME"])
             if n:
                 code_to_name[row["GEOID"].zfill(5)] = n
 
@@ -100,14 +96,8 @@ def main():
     missing = [n for n in atlas if n not in out]
     if missing:
         sys.exit("No ACS standard errors for:\n  " + "\n  ".join(missing))
-    line = "const ACSE = " + json.dumps({n: out[n] for n in atlas}, ensure_ascii=False, separators=(",", ":")) + ";"
-    page = open(a.page, encoding="utf-8").read()
-    if re.search(r"^const ACSE = .*;$", page, flags=re.M):
-        page = re.sub(r"^const ACSE = .*;$", lambda _: line, page, count=1, flags=re.M)
-    else:
-        page = re.sub(r"^(const ACS = .*;)$", lambda m: m.group(1) + "\n" + line, page, count=1, flags=re.M)
-    open(a.page, "w", encoding="utf-8").write(page)
-    print(f"Wrote ACSE for {len(out)} metros ({len(line) // 1024} KB)")
+    size = embed(a.page, "ACSE", {n: out[n] for n in atlas}, after="ACS")
+    print(f"Wrote ACSE for {len(out)} metros ({size // 1024} KB)")
 
 
 if __name__ == "__main__":

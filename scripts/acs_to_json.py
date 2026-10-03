@@ -57,6 +57,36 @@ def short_key(name):
     return cities.split("-")[0] + ", " + states.split("-")[0]
 
 
+def matcher(names):
+    """Return match(name) -> value: an exact norm() match first, then a short_key() match if exactly one
+    candidate shares it. names is a list (values are the names themselves) or a dict of name -> value."""
+    items = list(names.items()) if isinstance(names, dict) else [(n, n) for n in names]
+    exact = {norm(n): v for n, v in items}
+    short = defaultdict(list)
+    for n, v in items:
+        short[short_key(n)].append(v)
+    def match(name):
+        if norm(name) in exact:
+            return exact[norm(name)]
+        c = short.get(short_key(name), [])
+        return c[0] if len(c) == 1 else None
+    return match
+
+
+def embed(page, name, obj, after=None):
+    """Write obj as the page's `const NAME = ...;` line. If the page has none yet, insert it after the
+    `const AFTER = ...;` line. Returns the line's length."""
+    line = f"const {name} = " + json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + ";"
+    html = open(page, encoding="utf-8").read()
+    html, n = re.subn(rf"^const {name} = .*;$", lambda _: line, html, count=1, flags=re.M)
+    if not n and after:
+        html, n = re.subn(rf"^(const {after} = .*;)$", lambda m: m.group(1) + "\n" + line, html, count=1, flags=re.M)
+    if not n:
+        sys.exit(f"No 'const {name} = ...;' line in {page}")
+    open(page, "w", encoding="utf-8").write(html)
+    return len(line)
+
+
 def load_labels(path):
     labels = {}
     with open(path, newline="", encoding="utf-8") as f:
@@ -157,17 +187,12 @@ def main():
     parents = b11012_plan(labels)
     idx = {band: i for i, band in enumerate(bands)}
     atlas = atlas_names(a.page)  # largest metro first
-    names = {norm(n): n for n in atlas}
-    short = defaultdict(list)
-    for n in atlas:
-        short[short_key(n)].append(n)
+    match = matcher(atlas)
 
     metros, unmatched = {}, []
     with open(a.data, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            name = names.get(norm(row["NAME"]))
-            if not name and len(short[short_key(row["NAME"])]) == 1:
-                name = short[short_key(row["NAME"])][0]
+            name = match(row["NAME"])
             if not name or name in metros:
                 unmatched.append(row["NAME"])
                 continue
@@ -199,12 +224,7 @@ def main():
     for n in missing[:15]:
         print("  no ACS row: " + n, file=sys.stderr)
 
-    html = open(a.page, encoding="utf-8").read()
-    line = "const ACS = " + json.dumps(acs, separators=(",", ":")) + ";"
-    html, n = re.subn(r"^const ACS = .*;$", lambda _: line, html, count=1, flags=re.M)
-    if not n:
-        sys.exit(f"No 'const ACS = ...;' line in {a.page}")
-    open(a.page, "w", encoding="utf-8").write(html)
+    embed(a.page, "ACS", acs)
     print(f"Embedded into {a.page}")
 
 

@@ -17,12 +17,10 @@ Usage:
 """
 import argparse
 import csv
-import json
-import re
 import sys
 
-from acs_to_json import atlas_names, norm, short_key
-from religion_to_json import CT_REGION, sheets
+from acs_to_json import atlas_names, embed
+from religion_to_json import metro_means
 
 # Each output column is a sum of PRRI columns
 GROUPS = {
@@ -36,29 +34,6 @@ GROUPS = {
 GROUPS = {"christian": GROUPS["catholic"] + GROUPS["protestant"] + ["mormon", "jehovahs_witness", "orthodox_christian"], **GROUPS}
 
 
-def metro_shares(prri_csv, delin_xlsx, atlas):
-    """{atlas metro: {group: population-weighted %}} from PRRI county estimates."""
-    with open(prri_csv, newline="", encoding="utf-8") as f:
-        county = {r["fipsstcnty"].zfill(5): (float(r["Population"]), {g: sum(float(r[c]) for c in cols) for g, cols in GROUPS.items()})
-                  for r in csv.DictReader(f)}
-    counties = {}
-    for r in sheets(delin_xlsx)["List 1"]:
-        if r.get("Metropolitan/Micropolitan Statistical Area") == "Metropolitan Statistical Area":
-            fips = r["FIPS State Code"] + r["FIPS County Code"]
-            counties.setdefault(norm(r["CBSA Title"]), []).extend(CT_REGION.get(fips, [fips]))
-    by_short = {}
-    for k in counties:
-        by_short.setdefault(short_key(k), []).append(k)
-    out = {}
-    for name in atlas:
-        key = norm(name) if norm(name) in counties else (lambda c: c[0] if len(c) == 1 else None)(by_short.get(short_key(name), []))
-        rows = [county[c] for c in dict.fromkeys(counties.get(key, [])) if c in county]
-        if rows:
-            tot = sum(p for p, _ in rows)
-            out[name] = {g: sum(p * s[g] for p, s in rows) / tot for g in GROUPS}
-    return out
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("prri")
@@ -68,7 +43,7 @@ def main():
     a = ap.parse_args()
 
     atlas = atlas_names(a.page)
-    shares = metro_shares(a.prri, a.delineation, atlas)
+    shares = metro_means(a.prri, a.delineation, atlas, GROUPS)
     missing = [n for n in atlas if n not in shares]
     if missing:
         sys.exit("No PRRI counties for these atlas metros:\n  " + "\n  ".join(missing))
@@ -79,16 +54,7 @@ def main():
         for n in atlas:
             w.writerow([n] + [round(shares[n][g], 2) for g in GROUPS])
 
-    line = "const FAITH = " + json.dumps({n: [round(shares[n][g], 2) for g in GROUPS] for n in atlas},
-                                         ensure_ascii=False, separators=(",", ":")) + ";"
-    with open(a.page, encoding="utf-8") as f:
-        page = f.read()
-    if re.search(r"^const FAITH = .*;$", page, flags=re.M):
-        page = re.sub(r"^const FAITH = .*;$", lambda _: line, page, count=1, flags=re.M)
-    else:
-        page = re.sub(r"^(const REL = .*;)$", lambda m: m.group(1) + "\n" + line, page, count=1, flags=re.M)
-    with open(a.page, "w", encoding="utf-8") as f:
-        f.write(page)
+    embed(a.page, "FAITH", {n: [round(shares[n][g], 2) for g in GROUPS] for n in atlas}, after="REL")
     print(f"Wrote {a.out} and FAITH for {len(atlas)} metros")
 
 
