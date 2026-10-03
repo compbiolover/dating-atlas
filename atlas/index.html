@@ -35,6 +35,7 @@ p{margin:0}
 .chips button:hover{border-color:var(--accent)}
 .grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);grid-template-areas:"form result" "form more";gap:20px;align-items:start}
 .grid > .panel{grid-area:form}
+@media (min-width:861px){.grid > .panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain}}
 .grid > .result{grid-area:result}
 .grid > .more{grid-area:more}
 @media (max-width:860px){.grid{grid-template-columns:1fr;grid-template-areas:"result" "form" "more"}}
@@ -47,11 +48,6 @@ p{margin:0}
 .ctrl small button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 input[type=range]{width:100%;accent-color:var(--accent)}
 .result,.more{display:grid;gap:20px}
-.more.locked > :not(#moreGate){display:none}
-.more:not(.locked) #moreGate{display:none}
-.card.gate{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px}
-.gate .btn{flex:none;padding:9px 18px;font-size:14.5px}
-.gate h2{margin-bottom:4px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
 .btn.primary:hover{filter:brightness(1.08)}
 .linkbtn{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;justify-self:start}
@@ -300,13 +296,6 @@ code{font-family:var(--mono);font-size:12.5px}
         <p id="readout" aria-live="polite"></p>
         <div class="acts"><button type="button" class="btn" id="share">Copy link to this result</button><a class="btn" href="#refine" id="toRefine">Refine your estimate</a></div>
       </div>
-      <div class="stats">
-        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of them on the apps right now</span></div>
-        <div class="stat"><span class="n" id="sRank">…</span><span class="l">of 387 metros by number of possibilities</span></div>
-        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
-        <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
-      </div>
-
       <div class="card">
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
         <p class="note" id="funnelSub"></p>
@@ -315,11 +304,7 @@ code{font-family:var(--mono);font-size:12.5px}
       </div>
     </section>
 
-    <section class="more locked" id="more">
-      <div class="card gate" id="moreGate">
-        <div><h2>How does your metro compare?</h2><p class="note">See every metro on a map, rank them, and read how the estimates work.</p></div>
-        <button type="button" class="btn primary" id="moreOpen">Compare with other metros</button>
-      </div>
+    <section class="more" id="more">
       <div class="card" id="cmp">
         <div class="head"><h2>Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
         <div class="map" id="map"></div>
@@ -345,6 +330,13 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the list above.</small></div>
         <div class="plot" id="plot"></div>
         <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span class="n" id="sApps">…</span><span class="l">of them on the apps right now</span></div>
+        <div class="stat"><span class="n" id="sRank">…</span><span class="l">of 387 metros by number of possibilities</span></div>
+        <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
+        <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
       </div>
 
     <details class="card notes" id="notes">
@@ -994,7 +986,7 @@ $("map").addEventListener("pointerleave", () => { const tip = $("mapTip"); if (t
 $("map").addEventListener("click", e => { const h = mapHit(e); if (h) select(h.a.m); });
 
 function plot(m, s, P){
-  const nw = NARROW.matches, W = nw ? 400 : 760, H = nw ? 340 : 380, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
+  const nw = NARROW.matches, W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
   const fit = new Map(M.map(x => [x, blends(x, s, P).val]));
   const yMax = Math.max(70, Math.ceil(Math.max(...fit.values())/10)*10);
   const x0 = Math.log10(50000), x1 = Math.log10(25e6);
@@ -1024,8 +1016,7 @@ $("plot").addEventListener("click", e => {
   if (best) select(best);
 });
 NARROW.addEventListener("change", update);
-if (!NARROW.matches) $("notes").open = true;
-else document.querySelectorAll("#refine .sec").forEach(d => d.open = false);
+if (NARROW.matches) document.querySelectorAll("#refine .sec").forEach(d => d.open = false);
 ["scope","sort"].forEach(id => $(id).addEventListener("change", () => { shownCur = null; update(); }));
 resetClicks();
 SLIDERS.forEach(k => { const el = $(k); if (hNum(k, +el.min, +el.max) !== null) el.value = hNum(k, +el.min, +el.max); });
@@ -1072,8 +1063,4 @@ $("setupSkip").addEventListener("click", finishSetup);
 $("rerunSetup").addEventListener("click", startSetup);
 if (!HQ.toString() && !store.get("atlas.profile") && !store.get("atlas.onboarded")) startSetup();
 
-// The comparison section (map, ranked list, scatter and methods) opens on request, and stays open after that
-function openMore(){ $("more").classList.remove("locked"); store.set("atlas.more", "1"); update(); }
-$("moreOpen").addEventListener("click", () => { openMore(); $("cmp").scrollIntoView({block:"start", behavior:"smooth"}); });
-if (store.get("atlas.more") || HQ.toString()) openMore();
 </script>
