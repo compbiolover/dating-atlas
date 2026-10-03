@@ -624,8 +624,9 @@ const LN = (sd, z) => Math.exp(sd*z - sd*sd/2);       // mean-one lognormal scal
 const NR = (sd, z) => Math.max(.05, 1 + sd*z);        // mean-one normal scale, kept positive
 const UNC = {cohab:.035, look:.08, openAdapt:.05, off:.07, sec:.05, corr:.15, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
   diet:{veg:.15, vegan:.3, pesc:.08, kosher:.05, halal:.05}};
-const UGROUPS = {census:"Census counts of singles and degrees", look:"who is single and looking", open:"openness to dating your gender",
-  values:"the politics and faith estimates", diet:"the diet rates", kids:"kids plans", click:"the attraction rates"};
+// Each group as it reads after "mostly depending on"
+const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
+  values:"the politics and faith estimates", diet:"the diet rates", kids:"kids plans", click:"how often attraction is mutual"};
 // Relative standard error of ACS single people of gender g over the age range (bands split as in bandSum)
 function singlesRelSE(m, g, s){
   const a = m.acs, e = ACSE[m.name];
@@ -883,8 +884,8 @@ function update(){
   const iv = interval(m, s, P, f);
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
   $("sPoolL").textContent = `real possibilities in ${m.short}`;
-  $("sRange").textContent = !iv ? "" : iv.hi < 10 ? "80% likely fewer than 10." :
-    `80% likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}. Most of that range comes from ${UGROUPS[iv.top]} (about ${Math.round(iv.share*100)}%).`;
+  $("sRange").textContent = !iv ? "" : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` :
+    `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}, mostly depending on ${UGROUPS[iv.top]}.`;
   $("sRatio").textContent = fmt1(f.ratio);
   const rs = rentShare(m, P), pay = P.edu === "ba" ? "pay for someone with a bachelor's" : "pay for someone with some college";
   const byRent = all.filter(a => a.rent === a.rent).sort((a,b) => a.rent - b.rent), hRank = byRent.findIndex(a => a.m === m) + 1;
