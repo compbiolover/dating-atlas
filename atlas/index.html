@@ -721,7 +721,7 @@ if (saved) applySettings(k => { const v = saved[k === "deg" ? "degOnly" : k];
 const HQ = (() => { try { return new URLSearchParams(location.hash.slice(1)); } catch(e){ return new URLSearchParams(); } })();
 const hNum = (k, lo, hi) => { const v = +HQ.get(k); return HQ.has(k) && v >= lo && v <= hi ? v : null; };
 applySettings(k => HQ.get(k));
-if (HQ.get("y") === "n") document.querySelector('input[name="yfit"][value="n"]').checked = true;
+if ((HQ.get("y") || store.get("atlas.yfit")) === "n") document.querySelector('input[name="yfit"][value="n"]').checked = true;
 if (!htSet) $("yHt").value = defaultHt();
 
 $("metroList").innerHTML = M.map(m => `<option value="${m.name}">`).join("");
@@ -828,7 +828,7 @@ document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => 
 }));
 $("yHt").addEventListener("change", () => htSet = true);
 ["yAge","yHt","yEdu","yJob","openP","degOnly","pol","faith","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
-document.querySelectorAll('input[name="yfit"]').forEach(el => el.addEventListener("change", () => { drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); }));
+document.querySelectorAll('input[name="yfit"]').forEach(el => el.addEventListener("change", () => { store.set("atlas.yfit", el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); }));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
   Object.entries(PRESETS[el.value]).forEach(([k, v]) => $(k).value = v); saveProfile(); update(); }));
