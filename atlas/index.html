@@ -817,6 +817,7 @@ $("share").addEventListener("click", () => {
 });
 $("resetAll").addEventListener("click", () => {
   $("refine").reset(); htSet = false; $("yHt").value = defaultHt();  // the form's own defaults are the default profile
+  document.querySelector('input[name="yfit"][value="pct"]').checked = true; store.set("atlas.yfit", "pct");
   saveProfile(); resetClicks(); update();
 });
 
