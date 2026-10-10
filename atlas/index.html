@@ -41,8 +41,7 @@ p{margin:0}
 .viz > #cmp{grid-template-rows:auto 1fr auto auto}
 #cmp .map{align-self:center}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
-.metrics{grid-template-rows:auto 1fr;grid-column:1/-1}
-@media (min-width:901px){.metrics .stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.metrics{grid-template-rows:auto 1fr}
 .vtabs{display:none}
 .refinebox{padding:0;display:block}
 .refinebox > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:14px 20px;cursor:pointer;list-style:none}
@@ -162,6 +161,18 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .plot circle.big{fill:var(--accent);fill-opacity:.8}
 .plot circle.on{fill:var(--hot);fill-opacity:1;stroke:var(--surface);stroke-width:2}
 .plot text.lbl{fill:var(--ink);font-weight:600;font-size:12px}
+.drv svg{display:block;width:100%;height:auto}
+.drv text{fill:var(--muted);font-family:var(--body);font-size:12px}
+.drv text.nm{fill:var(--ink);font-size:13px}
+.drv text.v{font-family:var(--mono);font-size:11px}
+.drv .tick{stroke:var(--line)}
+.drv .top{stroke:var(--hot);stroke-width:2}
+.drv .stem{stroke:var(--dot);stroke-width:2.5;stroke-linecap:round}
+.drv circle{fill:var(--accent)}
+.drv .lead circle{fill:var(--hot)}
+.drv .lead .stem{stroke:var(--hot);stroke-opacity:.45}
+.drv .est{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3}
+.drv text.estt{fill:var(--ink);font-weight:600}
 .plot .burdenl{stroke:var(--hot);stroke-width:1.5;stroke-dasharray:5 4}
 .plot text.burdent{fill:var(--hot);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .hero{background:var(--hot-soft);border-radius:12px;padding:18px 20px;display:grid;gap:10px}
@@ -381,6 +392,12 @@ code{font-family:var(--mono);font-size:12.5px}
           <div class="stat"><span class="n" id="sRatio">…</span><span class="l" id="sRatioL">for every person looking for them</span></div>
           <div class="stat" id="sRentC"><span class="n" id="sRent">…</span><span class="l" id="sRentL">of pay for a 1-bedroom</span></div>
         </div>
+      </div>
+
+      <div class="card" id="drvCard">
+        <div class="head"><h2>What moves your number</h2><small>Likely range when only that input is uncertain</small></div>
+        <div class="drv" id="drivers"></div>
+        <p class="note" id="drvNote"></p>
       </div>
     </section>
 
@@ -675,7 +692,8 @@ function interval(m, s, P, f){
   const q = p => tot[Math.floor(p*(NSIM - 1))];
   const lv = arr => { let s1 = 0, s2 = 0; arr.forEach(x => { const l = Math.log(Math.max(1e-9, x)); s1 += l; s2 += l*l; }); const n = arr.length; return Math.max(0, s2/n - (s1/n)**2); };
   const vars = solo.map(lv), vt = vars.reduce((a, v) => a + v, 0), ti = vars.indexOf(Math.max(...vars));
-  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0};
+  const ranges = keys.map((k, i) => { const a = solo[i].sort(); return {k, lo: a[Math.floor(.1*(NSIM - 1))], hi: a[Math.floor(.9*(NSIM - 1))]}; });
+  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges};
 }
 const pct = n => fmt(n) + "%";
 const nACS = M.filter(m => m.acs).length;
@@ -957,7 +975,7 @@ function update(){
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
-  LAST = {m, all, who, s, P};
+  LAST = {m, all, who, s, P, iv, est: f.click};
   drawCharts();
   writeHash(s, P);
 }
@@ -1016,6 +1034,7 @@ function drawCharts(){
   if (shown($("cmp"))) usMap(m, all, who);
   if (shown($("plotCard"))) plot(m, s, P, all);
   if (shown($("rentCard"))) rentPlot(m, P, all);
+  drivers(LAST);
 }
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 
@@ -1089,6 +1108,31 @@ function plot(m, s, P, all){
   const on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`;
   PTS = M.filter(x => x !== m).map(x => [x, X(x.pop), Y(fit.get(x))]);
   $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(fit.get(m))} who share your values` : `a values fit of ${Math.round(fit.get(m))}%`}.">${g}${dots}${on}</svg>`;
+}
+
+// Dumbbell lollipops: the 10th to 90th percentile of the result when only one input group varies
+const DRV = {census:"Census counts", look:"Singles looking", open:"Open to dating you", values:"Politics and faith", diet:"Diet rates", kids:"Kids plans", click:"Mutual attraction"};
+function drivers({iv, est, m}){
+  const rows = iv ? iv.ranges.filter(r => r.lo > 0 && r.hi/r.lo > 1.01).sort((a, b) => b.hi/b.lo - a.hi/a.lo) : [];
+  if (!rows.length){ $("drivers").innerHTML = ""; $("drvNote").textContent = `The pool in ${m.short} is too small to break down.`; return; }
+  const W = $("drivers").clientWidth || 520, nw = W < 440, L = nw ? 12 : 150, R = 44, T = 30, RH = nw ? 46 : 34, H = T + rows.length*RH + 26;
+  const lo = Math.min(est, ...rows.map(r => r.lo))/1.25, hi = Math.max(est, ...rows.map(r => r.hi))*1.25;
+  const X = v => L + (Math.log(v) - Math.log(lo))/(Math.log(hi) - Math.log(lo))*(W - L - R);
+  // Log ticks per decade: denser when the span is narrow, whole decades when it's wide
+  const span = hi/lo, ks = span > 300 ? [1] : span > 12 ? [1, 2, 5] : [1, 1.5, 2, 3, 4, 5, 7], ticks = [];
+  for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) ks.forEach(k => { const v = k*10**e; if (v >= lo && v <= hi) ticks.push(v); });
+  let g = `<line class="top" x1="0" x2="${W}" y1="1" y2="1"/>`;
+  ticks.forEach(v => g += `<line class="tick" x1="${X(v)}" x2="${X(v)}" y1="${T - 6}" y2="${H - 22}"/><text x="${X(v)}" y="${T - 12}" text-anchor="middle">${fmtAx(v)}</text>`);
+  rows.forEach((r, i) => {
+    const y = T + i*RH + (nw ? 30 : RH/2), x1 = X(r.lo), x2 = X(r.hi);
+    g += `<g class="${i ? "" : "lead"}"><text class="nm" x="${nw ? L : L - 12}" y="${nw ? y - 12 : y + 4}" text-anchor="${nw ? "start" : "end"}">${DRV[r.k]}</text>` +
+      `<line class="stem" x1="${x1}" x2="${x2}" y1="${y}" y2="${y}"/><circle cx="${x1}" cy="${y}" r="5"/><circle cx="${x2}" cy="${y}" r="5"/>` +
+      `<text class="v" x="${x1 - 9}" y="${y + 4}" text-anchor="end">${fmt(nice(r.lo))}</text><text class="v" x="${x2 + 9}" y="${y + 4}">${fmt(nice(r.hi))}</text>` +
+      `<title>${DRV[r.k]}: ${fmt(nice(r.lo))} to ${fmt(nice(r.hi))}</title></g>`;
+  });
+  g += `<line class="est" x1="${X(est)}" x2="${X(est)}" y1="${T - 4}" y2="${H - 20}"/><text class="estt" x="${X(est)}" y="${H - 6}" text-anchor="middle">Your estimate, ${fmt(est)}</text>`;
+  $("drivers").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="How much each input moves the estimate of ${fmt(est)} possibilities in ${m.short}. ${rows.map(r => `${DRV[r.k]}: ${fmt(nice(r.lo))} to ${fmt(nice(r.hi))}`).join(". ")}.">${g}</svg>`;
+  $("drvNote").textContent = `Each line spans the middle 80% of results when only that input varies and everything else stays at its best guess; the dashed line is your estimate. Biggest source of uncertainty: ${DRV[rows[0].k].toLowerCase()}. Log scale.`;
 }
 
 // Possibilities (log) against rent as a share of pay, with HUD's cost-burden line
