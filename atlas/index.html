@@ -954,9 +954,15 @@ $("geoBtn").addEventListener("click", () => {
     } catch(e){ say("Couldn't work out your metro. Type it instead."); }
     finally { $("geoBtn").disabled = false; }
   }, err => { $("geoBtn").disabled = false;
-    say(err.code === 1 ? "Location wasn't shared. Type your metro instead." : "Couldn't get your location. Type your metro instead."); },
+    // A refusal won't change this visit (and inside an embedding frame that blocks location it comes without a prompt), so drop the button
+    if (err.code === 1){ $("geoBtn").hidden = true; return say("Location isn't available here. Type your metro instead."); }
+    say("Couldn't get your location. Type your metro instead."); },
   {maximumAge: 600000, timeout: 15000});
 });
+// Hide the button up front where the browser already says location is off: a frame without the geolocation
+// permission (Chromium's featurePolicy) or a denied permission (Permissions API, Chromium and recent Safari)
+if (!navigator.geolocation || document.featurePolicy?.allowsFeature?.("geolocation") === false) $("geoBtn").hidden = true;
+else navigator.permissions?.query({name: "geolocation"}).then(st => { if (st.state === "denied") $("geoBtn").hidden = true; }, () => {});
 let rangeOff = null;
 $("yAge").addEventListener("input", () => {
   if (!LAST) return;
