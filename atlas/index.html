@@ -318,7 +318,7 @@ code{font-family:var(--mono);font-size:12.5px}
             <label><input type="checkbox" name="seek" id="seek-n" value="n"><span>Nonbinary people</span></label>
           </div>
         </div>
-        <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"></div>
+        <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="65" value="30"><small>The age range you're looking for moves with it.</small></div>
         <div class="ctrl"><label for="yHt">Your height</label><select id="yHt"></select></div>
         <div class="ctrl"><label for="yEdu">Your education</label><select id="yEdu"><option value="ba">Bachelor's or higher</option><option value="no">No bachelor's</option></select></div>
         <div class="ctrl"><label for="yJob">Your work</label><select id="yJob"><option value="job">Steady job</option><option value="less">Steady job, but you earn much less than most of them</option><option value="none">No steady job</option></select></div>
@@ -891,7 +891,7 @@ $("share").addEventListener("click", () => {
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => done("Link copied"), () => { window.prompt("Copy this link", url); });
 });
 $("resetAll").addEventListener("click", () => {
-  $("refine").reset(); htSet = false; $("yHt").value = defaultHt();  // the form's own defaults are the default profile
+  $("refine").reset(); htSet = false; rangeOff = null; $("yHt").value = defaultHt();  // the form's own defaults are the default profile
   document.querySelector('input[name="yfit"][value="pct"]').checked = true; store.set("atlas.yfit", "pct");
   saveProfile(); resetClicks(); update();
 });
@@ -903,6 +903,16 @@ document.querySelectorAll('input[name="you"],input[name="seek"]').forEach(el => 
   saveProfile(); resetClicks(); update();
 }));
 $("yHt").addEventListener("change", () => htSet = true);
+// Your age carries the age range you're looking for with it, keeping its gap from your age as of the last
+// time you set the range, so a trip into the sliders' limits and back restores it
+let rangeOff = null;
+$("yAge").addEventListener("input", () => {
+  if (!LAST) return;
+  rangeOff = rangeOff || [LAST.s.ageMin - LAST.age, LAST.s.ageMax - LAST.age];
+  const a = +$("yAge").value, clamp = (el, v) => Math.min(+el.max, Math.max(+el.min, v));
+  $("ageMin").value = clamp($("ageMin"), a + rangeOff[0]); $("ageMax").value = clamp($("ageMax"), a + rangeOff[1]);
+});
+["ageMin","ageMax"].forEach(k => $(k).addEventListener("input", () => rangeOff = null));
 ["yAge","yHt","yEdu","yJob","openP","degOnly","pol","faith","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 document.querySelectorAll('input[name="yfit"]').forEach(el => el.addEventListener("change", () => { store.set("atlas.yfit", el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); }));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
