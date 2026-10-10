@@ -30,6 +30,7 @@ h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0;text-wrap:
 p{margin:0}
 .lede{color:var(--muted);max-width:66ch;font-size:16px}
 .pick{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#geoMsg{flex-basis:100%}
 .pick input{font:inherit;font-size:17px;font-weight:600;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:min(100%,440px)}
 :is(button,a,input,select,summary):focus-visible{outline:2px solid var(--hot);outline-offset:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -293,7 +294,9 @@ code{font-family:var(--mono);font-size:12.5px}
   <div class="pick" id="g-pick">
     <input id="metro" list="metroList" autocomplete="off" aria-label="Metro area" placeholder="Type a metro, e.g. Memphis">
     <datalist id="metroList"></datalist>
+    <button type="button" class="btn" id="geoBtn">Use my location</button>
     <div class="chips" id="quick"></div>
+    <small class="note" id="geoMsg" aria-live="polite" hidden></small>
   </div>
 
   <div class="grid">
@@ -934,6 +937,26 @@ $("yHt").addEventListener("change", () => htSet = true);
 // time you set the range, so a trip into the sliders' limits and back restores it
 M.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(x => $("cmpSel").add(new Option(x.name, x.i)));
 $("cmpSel").addEventListener("change", update);
+// Nearest metro to the viewer's location: their position goes through the same Albers USA projection as the map
+// (loaded only on click), then the closest metro center wins. The position is never stored or sent anywhere.
+$("geoBtn").addEventListener("click", () => {
+  const say = t => { $("geoMsg").hidden = !t; $("geoMsg").textContent = t; };
+  if (!navigator.geolocation) return say("This browser can't share a location. Type your metro instead.");
+  $("geoBtn").disabled = true; say("Finding you…");
+  navigator.geolocation.getCurrentPosition(async pos => {
+    try {
+      const {geoAlbersUsa} = await import("https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/+esm");
+      const xy = geoAlbersUsa().scale(1300).translate([487.5, 305])([pos.coords.longitude, pos.coords.latitude]);
+      if (!xy) return say("You look to be outside the U.S. Type a metro instead.");
+      let best = null, bd = Infinity;
+      M.forEach(x => { const c = MAPXY[x.name]; if (c){ const d = Math.hypot(c[0] - xy[0], c[1] - xy[1]); if (d < bd){ bd = d; best = x; } } });
+      select(best); say(`Closest metro: ${best.name}.`);
+    } catch(e){ say("Couldn't work out your metro. Type it instead."); }
+    finally { $("geoBtn").disabled = false; }
+  }, err => { $("geoBtn").disabled = false;
+    say(err.code === 1 ? "Location wasn't shared. Type your metro instead." : "Couldn't get your location. Type your metro instead."); },
+  {maximumAge: 600000, timeout: 15000});
+});
 let rangeOff = null;
 $("yAge").addEventListener("input", () => {
   if (!LAST) return;
@@ -1397,7 +1420,7 @@ const STEPS = [
   {t:"Start with you", help:"Who you are sets who's likely to be open to dating you, and how your age plays into it.", ids:["g-you","g-age"]},
   {t:"Who are you looking for?", help:"Pick the genders and ages you date, and the politics, faith and diet you want them to share. Quick picks fill in politics and faith.",
    ids:["g-seek","g-amin","g-amax","g-preset","g-pol","g-faith","g-diet"]},
-  {t:"Where are you looking?", help:"Type one of 387 U.S. metros or tap a city. You can switch metros anytime.", ids:["g-pick"]}];
+  {t:"Where are you looking?", help:"Type one of 387 U.S. metros, tap a city, or use your location. You can switch metros anytime.", ids:["g-pick"]}];
 let stepI = -1;
 const homes = new Map();  // borrowed element -> placeholder marking where it lives on the page
 function borrow(ids){
