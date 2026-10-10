@@ -42,6 +42,7 @@ p{margin:0}
 #cmp .map{align-self:center}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
 .metrics{grid-template-rows:auto 1fr}
+#ageCard{grid-column:1/-1}
 .vtabs{display:none}
 .refinebox{padding:0;display:block}
 .refinebox > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:14px 20px;cursor:pointer;list-style:none}
@@ -171,6 +172,12 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .drv circle{fill:var(--accent)}
 .drv .lead circle{fill:var(--hot)}
 .drv .lead .stem{stroke:var(--hot);stroke-opacity:.45}
+.drv .dens{fill:var(--accent-soft);stroke:none}
+.drv .densb{fill:var(--accent);fill-opacity:.35;stroke:none}
+.drv .densl{fill:none;stroke:var(--accent);stroke-width:2}
+.drv .bar{fill:var(--dot);fill-opacity:.55}
+.drv .bar.in{fill:var(--accent);fill-opacity:1}
+.drv .bar.you{fill:var(--hot);fill-opacity:1}
 .drv .est{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 3}
 .drv text.estt{fill:var(--ink);font-weight:600}
 .plot .burdenl{stroke:var(--hot);stroke-width:1.5;stroke-dasharray:5 4}
@@ -399,6 +406,12 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="drv" id="drivers"></div>
         <p class="note" id="drvNote"></p>
       </div>
+
+      <div class="card" id="ageCard">
+        <div class="head"><h2 id="ageT">Possibilities by age</h2><small>One bar per year of age, with everything else as you set it</small></div>
+        <div class="drv" id="ages"></div>
+        <p class="note" id="ageNote"></p>
+      </div>
     </section>
 
     <section class="more" id="more">
@@ -421,7 +434,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
       <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
       <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
-      <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
+      <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it into single years with a smooth curve that keeps each band's total exactly (a monotone cubic fitted to the running count across band edges), so neighboring years don't jump at band boundaries. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
       <p>If a metro had no ACS row, the page would fall back to 50% single for women (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
       <p>The map puts each metro at its internal point from the Census Bureau's <a href="https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html">2023 Gazetteer</a>, with state outlines from <a href="https://github.com/topojson/us-atlas">us-atlas</a>, in the Albers USA projection that moves Alaska and Hawaii into insets. Circle area is proportional to the number of possibilities on the apps right now.</p>
       <p>The range under the main number comes from a Monte Carlo simulation. The page redraws every input 2,000 times from a distribution that reflects how sure we are of it, runs the funnel for each draw, and shows the middle 80% of the results (10th to 90th percentile). The spreads come from the sources themselves: the Census Bureau's published margins of error for each metro's single people by age band and degree share (standard error = margin of error ÷ 1.645, summed across bands as root sum of squares); survey sample sizes for Gallup's openness rates and PRRI's faith shares; ±8% for Pew's share of singles who are looking and ±3.5% for the cohabiting cut; ±7 points on the progressive offset, ±5 points on the secular-leaning base and ±15% on the overlap boost, since those are modeling choices; ±25% each on the two attraction rates, which spans the published yes-rates from 22% to 49%; ±6% on the kids step; and ±5% to ±30% on the diet rates, depending on the survey. The page also reports which group of inputs drives most of the range, from how much each varies the result on its own. The range only covers uncertainty in the inputs. It does not cover errors in how the funnel is built, like assuming the steps are independent.</p>
@@ -653,13 +666,14 @@ const UNC = {cohab:.035, look:.08, openAdapt:.05, off:.07, sec:.05, corr:.15, pa
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
   values:"the politics and faith estimates", diet:"the diet rates", kids:"kids plans", click:"how often attraction is mutual"};
-// Relative standard error of ACS single people of gender g over the age range (bands split as in bandSum)
+// Relative standard error of ACS single people of gender g over the age range (bands split as in bandSum,
+// with each band's margin of error scaled by the share of that band inside the range)
 function singlesRelSE(m, g, s){
   const a = m.acs, e = ACSE[m.name];
   if (!a || !e) return .1;
   if (g === "n") return (singlesRelSE(m, "w", s) + singlesRelSE(m, "m", s))/2;
   let v = 0, n = 0;
-  bandWeights(s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
+  bandWeights(a[g], s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
   return n ? Math.sqrt(v)/n : .1;
 }
 function interval(m, s, P, f){
@@ -693,7 +707,7 @@ function interval(m, s, P, f){
   const lv = arr => { let s1 = 0, s2 = 0; arr.forEach(x => { const l = Math.log(Math.max(1e-9, x)); s1 += l; s2 += l*l; }); const n = arr.length; return Math.max(0, s2/n - (s1/n)**2); };
   const vars = solo.map(lv), vt = vars.reduce((a, v) => a + v, 0), ti = vars.indexOf(Math.max(...vars));
   const ranges = keys.map((k, i) => { const a = solo[i].sort(); return {k, lo: a[Math.floor(.1*(NSIM - 1))], hi: a[Math.floor(.9*(NSIM - 1))]}; });
-  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges};
+  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
 }
 const pct = n => fmt(n) + "%";
 const nACS = M.filter(m => m.acs).length;
@@ -762,11 +776,44 @@ QUICK.forEach(s => { const m = M.find(x => x.short === s); if (!m) return;
 function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] = +$(k).value);
   if (s.ageMax <= s.ageMin){ s.ageMax = s.ageMin + 1; $("ageMax").value = s.ageMax; } return s; }
 
-// Sum ACS band counts over the age range, splitting bands that straddle an edge
-const bandWeights = s => ACS.bands.map(([lo, hi]) => Math.max(0, Math.min(hi, s.ageMax) - Math.max(lo, s.ageMin) + 1)/(hi - lo + 1));
-function bandSum(arr, s){
-  return bandWeights(s).reduce((t, w, i) => t + arr[i]*w, 0);
+// Single-year counts from ACS bands: a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at
+// each band edge, differenced by year. Every band keeps its exact total, counts never go negative, and years
+// change smoothly across band edges instead of stepping. Cached per band array.
+const YEARS = new WeakMap(), AGE0 = ACS.bands[0][0];
+function singleYears(arr){
+  if (YEARS.has(arr)) return YEARS.get(arr);
+  const x = [AGE0, ...ACS.bands.map(b => b[1] + 1)], y = [0], n = x.length - 1;
+  arr.forEach((v, i) => y.push(y[i] + v));
+  const h = [], d = [];
+  for (let k = 0; k < n; k++){ h.push(x[k+1] - x[k]); d.push((y[k+1] - y[k])/h[k]); }
+  const t = [d[0]];
+  for (let k = 1; k < n; k++){ const w1 = 2*h[k] + h[k-1], w2 = h[k] + 2*h[k-1];
+    t.push(d[k-1]*d[k] > 0 ? (w1 + w2)/(w1/d[k-1] + w2/d[k]) : 0); }
+  t.push(d[n-1]);
+  const C = a => { let k = 0; while (k < n - 1 && a >= x[k+1]) k++;
+    const u = (a - x[k])/h[k], u2 = u*u, u3 = u2*u;
+    return (2*u3 - 3*u2 + 1)*y[k] + (u3 - 2*u2 + u)*h[k]*t[k] + (-2*u3 + 3*u2)*y[k+1] + (u3 - u2)*h[k]*t[k+1]; };
+  const out = new Float64Array(x[n] - AGE0);
+  for (let a = AGE0; a < x[n]; a++) out[a - AGE0] = Math.max(0, C(a + 1) - C(a));
+  YEARS.set(arr, out);
+  return out;
 }
+// Share of each band's count that falls inside the age range, from the single-year counts
+function bandWeights(arr, s){
+  const yr = singleYears(arr);
+  return ACS.bands.map(([lo, hi], i) => { let t = 0;
+    for (let a = Math.max(lo, s.ageMin); a <= Math.min(hi, s.ageMax); a++) t += yr[a - AGE0];
+    return arr[i] ? t/arr[i] : 0; });
+}
+function bandSum(arr, s){
+  const yr = singleYears(arr);
+  let t = 0; for (let a = s.ageMin; a <= s.ageMax; a++) t += yr[a - AGE0] || 0;
+  return t;
+}
+// Self-check: the single years add back up to each band's total
+{ const a = Object.values(ACS.metros)[0].w, yr = singleYears(a);
+  ACS.bands.forEach(([lo, hi], i) => { let t = 0; for (let x = lo; x <= hi; x++) t += yr[x - AGE0];
+    console.assert(Math.abs(t - a[i]) < 1e-6*Math.max(1, a[i]), "singleYears band total", lo, hi, t, a[i]); }); }
 
 // People of gender g in the age range, and how many of them are single
 function base(m, g, s){
@@ -899,6 +946,13 @@ function update(){
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
   const iv = interval(m, s, P, f);
+  // The funnel rerun for one year of age at a time, across the range the sliders allow
+  const byAge = [];
+  for (let a = +$("ageMin").min; a <= +$("ageMax").max; a++){
+    const sa = {...s, ageMin:a, ageMax:a}, Ta = traitRel(sa, P); Ta.D = D; Ta.look = {}; Ta.want = {};
+    GK.forEach(g => { Ta.look[g] = lookFit(g, sa); Ta.want[g] = kidsWant(g, P, sa); });
+    byAge.push({a, v: pool(m, sa, P, Ta).click});
+  }
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
   $("sPoolL").textContent = `real possibilities in ${m.short}`;
   $("sRange").textContent = !iv ? "" : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` :
@@ -975,7 +1029,7 @@ function update(){
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
-  LAST = {m, all, who, s, P, iv, est: f.click};
+  LAST = {m, all, who, s, P, iv, est: f.click, byAge, age: P.age};
   drawCharts();
   writeHash(s, P);
 }
@@ -1035,6 +1089,7 @@ function drawCharts(){
   if (shown($("plotCard"))) plot(m, s, P, all);
   if (shown($("rentCard"))) rentPlot(m, P, all);
   drivers(LAST);
+  ages(LAST);
 }
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 
@@ -1115,14 +1170,25 @@ const DRV = {census:"Census counts", look:"Singles looking", open:"Open to datin
 function drivers({iv, est, m}){
   const rows = iv ? iv.ranges.filter(r => r.lo > 0 && r.hi/r.lo > 1.01).sort((a, b) => b.hi/b.lo - a.hi/a.lo) : [];
   if (!rows.length){ $("drivers").innerHTML = ""; $("drvNote").textContent = `The pool in ${m.short} is too small to break down.`; return; }
-  const W = $("drivers").clientWidth || 520, nw = W < 440, L = nw ? 12 : 150, R = 44, T = 30, RH = nw ? 46 : 34, H = T + rows.length*RH + 26;
-  const lo = Math.min(est, ...rows.map(r => r.lo))/1.25, hi = Math.max(est, ...rows.map(r => r.hi))*1.25;
+  const d = iv.draws, dq = p => d[Math.floor(p*(d.length - 1))], DH = 70;
+  const W = $("drivers").clientWidth || 520, nw = W < 440, L = nw ? 12 : 150, R = 44, T = 30 + DH + (nw ? 22 : 12), RH = nw ? 46 : 34, H = T + rows.length*RH + 26;
+  const lo = Math.max(1e-3, Math.min(est, dq(.02), ...rows.map(r => r.lo)))/1.25, hi = Math.max(est, dq(.98), ...rows.map(r => r.hi))*1.25;
   const X = v => L + (Math.log(v) - Math.log(lo))/(Math.log(hi) - Math.log(lo))*(W - L - R);
   // Log ticks per decade: denser when the span is narrow, whole decades when it's wide
   const span = hi/lo, ks = span > 300 ? [1] : span > 12 ? [1, 2, 5] : [1, 1.5, 2, 3, 4, 5, 7], ticks = [];
   for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) ks.forEach(k => { const v = k*10**e; if (v >= lo && v <= hi) ticks.push(v); });
   let g = `<line class="top" x1="0" x2="${W}" y1="1" y2="1"/>`;
-  ticks.forEach(v => g += `<line class="tick" x1="${X(v)}" x2="${X(v)}" y1="${T - 6}" y2="${H - 22}"/><text x="${X(v)}" y="${T - 12}" text-anchor="middle">${fmtAx(v)}</text>`);
+  ticks.forEach(v => g += `<line class="tick" x1="${X(v)}" x2="${X(v)}" y1="24" y2="${H - 22}"/><text x="${X(v)}" y="18" text-anchor="middle">${fmtAx(v)}</text>`);
+  // Smoothed density of all the draws together: a Gaussian kernel on log values, Silverman's bandwidth
+  const ls = Array.from(d, v => Math.log(Math.max(v, 1e-3))), n = ls.length, mu = ls.reduce((a, b) => a + b, 0)/n;
+  const bw = 1.06*Math.sqrt(ls.reduce((a, b) => a + (b - mu)**2, 0)/n)*n**-.2 || .05, NP = 90, xs = [], ys = [];
+  for (let i = 0; i < NP; i++){ const x = Math.log(lo) + i/(NP - 1)*(Math.log(hi) - Math.log(lo)); let k = 0; for (let j = 0; j < n; j++) k += Math.exp(-.5*((x - ls[j])/bw)**2); xs.push(Math.exp(x)); ys.push(k); }
+  const ym = Math.max(...ys), base = 30 + DH, DY = k => base - k/ym*(DH - 6);
+  const pts = xs.map((x, i) => `${X(x).toFixed(1)},${DY(ys[i]).toFixed(1)}`), inb = xs.map((x, i) => [x, i]).filter(([x]) => x >= dq(.1) && x <= dq(.9));
+  g += `<path class="dens" d="M${X(xs[0])},${base}L${pts.join("L")}L${X(xs[NP - 1])},${base}Z"/>`;
+  if (inb.length) g += `<path class="densb" d="M${X(inb[0][0])},${base}L${inb.map(([x, i]) => pts[i]).join("L")}L${X(inb[inb.length - 1][0])},${base}Z"/>`;
+  g += `<path class="densl" d="M${pts.join("L")}"/><line class="tick" x1="${L}" x2="${W - R}" y1="${base}" y2="${base}"/>`;
+  g += `<text class="nm" x="${nw ? L : L - 12}" y="${nw ? base + 16 : base - 8}" text-anchor="${nw ? "start" : "end"}">All inputs together</text>`;
   rows.forEach((r, i) => {
     const y = T + i*RH + (nw ? 30 : RH/2), x1 = X(r.lo), x2 = X(r.hi);
     g += `<g class="${i ? "" : "lead"}"><text class="nm" x="${nw ? L : L - 12}" y="${nw ? y - 12 : y + 4}" text-anchor="${nw ? "start" : "end"}">${DRV[r.k]}</text>` +
@@ -1130,9 +1196,29 @@ function drivers({iv, est, m}){
       `<text class="v" x="${x1 - 9}" y="${y + 4}" text-anchor="end">${fmt(nice(r.lo))}</text><text class="v" x="${x2 + 9}" y="${y + 4}">${fmt(nice(r.hi))}</text>` +
       `<title>${DRV[r.k]}: ${fmt(nice(r.lo))} to ${fmt(nice(r.hi))}</title></g>`;
   });
-  g += `<line class="est" x1="${X(est)}" x2="${X(est)}" y1="${T - 4}" y2="${H - 20}"/><text class="estt" x="${X(est)}" y="${H - 6}" text-anchor="middle">Your estimate, ${fmt(est)}</text>`;
+  g += `<line class="est" x1="${X(est)}" x2="${X(est)}" y1="24" y2="${H - 20}"/><text class="estt" x="${X(est)}" y="${H - 6}" text-anchor="middle">Your estimate, ${fmt(est)}</text>`;
   $("drivers").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="How much each input moves the estimate of ${fmt(est)} possibilities in ${m.short}. ${rows.map(r => `${DRV[r.k]}: ${fmt(nice(r.lo))} to ${fmt(nice(r.hi))}`).join(". ")}.">${g}</svg>`;
-  $("drvNote").textContent = `Each line spans the middle 80% of results when only that input varies and everything else stays at its best guess; the dashed line is your estimate. Biggest source of uncertainty: ${DRV[rows[0].k].toLowerCase()}. Log scale.`;
+  $("drvNote").textContent = `The curve at the top smooths all ${n.toLocaleString("en-US")} simulated results, with the shaded middle 80% matching the range under the main number. Each line below spans the middle 80% of results when only that input varies and everything else stays at its best guess; the dashed line is your estimate. Biggest source of uncertainty: ${DRV[rows[0].k].toLowerCase()}. Log scale.`;
+}
+
+// Columns per year of the people's age: inside your range in blue, your own age in orange
+function ages({byAge, s, m, age}){
+  const W = $("ages").clientWidth || 900, nw = W < 560, L = nw ? 36 : 48, R = 8, T = 10, B = 34, H = nw ? 200 : 240;
+  const vmax = Math.max(...byAge.map(b => b.v)) || 1, step = Math.pow(10, Math.floor(Math.log10(vmax))), top = Math.ceil(vmax/step)*step;
+  const n = byAge.length, bw = (W - L - R)/n, X = i => L + i*bw, Y = v => T + (1 - v/top)*(H - T - B);
+  let g = "";
+  for (let k = 0; k <= top/step; k++){ const v = k*step; if (top/step > 6 && k % 2) continue;
+    g += `<line class="tick" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fmtAx(v)}</text>`; }
+  byAge.forEach((b, i) => {
+    const inR = b.a >= s.ageMin && b.a <= s.ageMax, cls = b.a === age ? "bar you" : inR ? "bar in" : "bar";
+    g += `<rect class="${cls}" x="${(X(i) + 1).toFixed(1)}" y="${Y(b.v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(Y(0) - Y(b.v)).toFixed(1)}"><title>Age ${b.a}: about ${fmt(b.v)}</title></rect>`;
+    if (b.a % 5 === 0) g += `<text x="${X(i) + bw/2}" y="${H - B + 16}" text-anchor="middle">${b.a}</text>`;
+  });
+  g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Their age</text>`;
+  const sum = (a, b) => byAge.filter(x => x.a >= a && x.a <= b).reduce((t, x) => t + x.v, 0);
+  const inside = sum(s.ageMin, s.ageMax), wider = sum(s.ageMin - 2, s.ageMax + 2), peak = byAge.reduce((p, x) => x.v > p.v ? x : p);
+  $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. The most are at age ${peak.a}, about ${fmt(peak.v)}.">${g}</svg>`;
+  $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. The most possibilities in ${m.short} are at age ${peak.a}. Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drop at 40 is real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women. Each year is estimated on its own, so the bars only roughly add up to your total.`;
 }
 
 // Possibilities (log) against rent as a share of pay, with HUD's cost-burden line
