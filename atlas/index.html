@@ -434,7 +434,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>
       <p>The Census counts only women and men. Among adults of dating age, the page assumes 50% are women, 48.5% are men and 1.5% are nonbinary, close to Pew's 2022 estimate for adults under 50. Nonbinary counts are always modeled.</p>
       <p>How open each group is to dating each gender is a rough national figure from Gallup's 2024 LGBTQ+ identification data for younger adults. About 94% of men and 14% of women are open to dating women, for example. The figures are the same in every metro, so the page won't pick up places with larger queer communities.</p>
-      <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it evenly by year. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
+      <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it into single years with a smooth curve that keeps each band's total exactly (a monotone cubic fitted to the running count across band edges), so neighboring years don't jump at band boundaries. The survey can't see unmarried couples who live together, so singles are cut by about 15%. Table B15001 gives the share of women and men aged 25 to 34 with a bachelor's degree or higher. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
       <p>If a metro had no ACS row, the page would fall back to 50% single for women (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
       <p>The map puts each metro at its internal point from the Census Bureau's <a href="https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html">2023 Gazetteer</a>, with state outlines from <a href="https://github.com/topojson/us-atlas">us-atlas</a>, in the Albers USA projection that moves Alaska and Hawaii into insets. Circle area is proportional to the number of possibilities on the apps right now.</p>
       <p>The range under the main number comes from a Monte Carlo simulation. The page redraws every input 2,000 times from a distribution that reflects how sure we are of it, runs the funnel for each draw, and shows the middle 80% of the results (10th to 90th percentile). The spreads come from the sources themselves: the Census Bureau's published margins of error for each metro's single people by age band and degree share (standard error = margin of error ÷ 1.645, summed across bands as root sum of squares); survey sample sizes for Gallup's openness rates and PRRI's faith shares; ±8% for Pew's share of singles who are looking and ±3.5% for the cohabiting cut; ±7 points on the progressive offset, ±5 points on the secular-leaning base and ±15% on the overlap boost, since those are modeling choices; ±25% each on the two attraction rates, which spans the published yes-rates from 22% to 49%; ±6% on the kids step; and ±5% to ±30% on the diet rates, depending on the survey. The page also reports which group of inputs drives most of the range, from how much each varies the result on its own. The range only covers uncertainty in the inputs. It does not cover errors in how the funnel is built, like assuming the steps are independent.</p>
@@ -666,13 +666,14 @@ const UNC = {cohab:.035, look:.08, openAdapt:.05, off:.07, sec:.05, corr:.15, pa
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
   values:"the politics and faith estimates", diet:"the diet rates", kids:"kids plans", click:"how often attraction is mutual"};
-// Relative standard error of ACS single people of gender g over the age range (bands split as in bandSum)
+// Relative standard error of ACS single people of gender g over the age range (bands split as in bandSum,
+// with each band's margin of error scaled by the share of that band inside the range)
 function singlesRelSE(m, g, s){
   const a = m.acs, e = ACSE[m.name];
   if (!a || !e) return .1;
   if (g === "n") return (singlesRelSE(m, "w", s) + singlesRelSE(m, "m", s))/2;
   let v = 0, n = 0;
-  bandWeights(s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
+  bandWeights(a[g], s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
   return n ? Math.sqrt(v)/n : .1;
 }
 function interval(m, s, P, f){
@@ -775,11 +776,44 @@ QUICK.forEach(s => { const m = M.find(x => x.short === s); if (!m) return;
 function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] = +$(k).value);
   if (s.ageMax <= s.ageMin){ s.ageMax = s.ageMin + 1; $("ageMax").value = s.ageMax; } return s; }
 
-// Sum ACS band counts over the age range, splitting bands that straddle an edge
-const bandWeights = s => ACS.bands.map(([lo, hi]) => Math.max(0, Math.min(hi, s.ageMax) - Math.max(lo, s.ageMin) + 1)/(hi - lo + 1));
-function bandSum(arr, s){
-  return bandWeights(s).reduce((t, w, i) => t + arr[i]*w, 0);
+// Single-year counts from ACS bands: a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at
+// each band edge, differenced by year. Every band keeps its exact total, counts never go negative, and years
+// change smoothly across band edges instead of stepping. Cached per band array.
+const YEARS = new WeakMap(), AGE0 = ACS.bands[0][0];
+function singleYears(arr){
+  if (YEARS.has(arr)) return YEARS.get(arr);
+  const x = [AGE0, ...ACS.bands.map(b => b[1] + 1)], y = [0], n = x.length - 1;
+  arr.forEach((v, i) => y.push(y[i] + v));
+  const h = [], d = [];
+  for (let k = 0; k < n; k++){ h.push(x[k+1] - x[k]); d.push((y[k+1] - y[k])/h[k]); }
+  const t = [d[0]];
+  for (let k = 1; k < n; k++){ const w1 = 2*h[k] + h[k-1], w2 = h[k] + 2*h[k-1];
+    t.push(d[k-1]*d[k] > 0 ? (w1 + w2)/(w1/d[k-1] + w2/d[k]) : 0); }
+  t.push(d[n-1]);
+  const C = a => { let k = 0; while (k < n - 1 && a >= x[k+1]) k++;
+    const u = (a - x[k])/h[k], u2 = u*u, u3 = u2*u;
+    return (2*u3 - 3*u2 + 1)*y[k] + (u3 - 2*u2 + u)*h[k]*t[k] + (-2*u3 + 3*u2)*y[k+1] + (u3 - u2)*h[k]*t[k+1]; };
+  const out = new Float64Array(x[n] - AGE0);
+  for (let a = AGE0; a < x[n]; a++) out[a - AGE0] = Math.max(0, C(a + 1) - C(a));
+  YEARS.set(arr, out);
+  return out;
 }
+// Share of each band's count that falls inside the age range, from the single-year counts
+function bandWeights(arr, s){
+  const yr = singleYears(arr);
+  return ACS.bands.map(([lo, hi], i) => { let t = 0;
+    for (let a = Math.max(lo, s.ageMin); a <= Math.min(hi, s.ageMax); a++) t += yr[a - AGE0];
+    return arr[i] ? t/arr[i] : 0; });
+}
+function bandSum(arr, s){
+  const yr = singleYears(arr);
+  let t = 0; for (let a = s.ageMin; a <= s.ageMax; a++) t += yr[a - AGE0] || 0;
+  return t;
+}
+// Self-check: the single years add back up to each band's total
+{ const a = Object.values(ACS.metros)[0].w, yr = singleYears(a);
+  ACS.bands.forEach(([lo, hi], i) => { let t = 0; for (let x = lo; x <= hi; x++) t += yr[x - AGE0];
+    console.assert(Math.abs(t - a[i]) < 1e-6*Math.max(1, a[i]), "singleYears band total", lo, hi, t, a[i]); }); }
 
 // People of gender g in the age range, and how many of them are single
 function base(m, g, s){
@@ -1184,7 +1218,7 @@ function ages({byAge, s, m, age}){
   const sum = (a, b) => byAge.filter(x => x.a >= a && x.a <= b).reduce((t, x) => t + x.v, 0);
   const inside = sum(s.ageMin, s.ageMax), wider = sum(s.ageMin - 2, s.ageMax + 2), peak = byAge.reduce((p, x) => x.v > p.v ? x : p);
   $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. The most are at age ${peak.a}, about ${fmt(peak.v)}.">${g}</svg>`;
-  $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. The most possibilities in ${m.short} are at age ${peak.a}. Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Each year is estimated on its own, so the bars only roughly add up to your total.`;
+  $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. The most possibilities in ${m.short} are at age ${peak.a}. Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drop at 40 is real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women. Each year is estimated on its own, so the bars only roughly add up to your total.`;
 }
 
 // Possibilities (log) against rent as a share of pay, with HUD's cost-burden line
