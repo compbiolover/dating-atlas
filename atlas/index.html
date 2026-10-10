@@ -1007,10 +1007,12 @@ function update(){
 
   const fx = f.fx, xs = [["age", "your age"], ["ht", "your height"], ["edu", "your education"], ["job", "your work situation"], ["kids", "having kids"]]
     .filter(([k]) => Math.abs(fx[k] - 1) > .005).map(([, l]) => l);
-  const chg = Math.round((fx.all - 1)*100), tl = xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1] : xs[0];
+  const herEff = Math.round(Math.min(95, s.her*fx.all)), tl = xs.length > 1 ? xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1] : xs[0];
   $("herHint").innerHTML = `For someone their own age, of average height, with a degree, a steady job and no kids. Default for the ${who} you picked: ${Math.round(D.her)}%. ` +
-    (xs.length ? (chg === 0 ? `${cap(tl)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
-      `${cap(tl)} ${chg < 0 ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it by about ${Math.abs(chg)}%, to about ${Math.round(Math.min(95, s.her*fx.all))}%.`) : "Your traits match that.") + rst("her");
+    (xs.length ? (herEff === s.her ? `${cap(tl)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
+      `${cap(tl)} ${herEff < s.her ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it from ${s.her}% to about ${herEff}%.`) : "Your traits match that.") + rst("her");
+  // The readout shows the slider's setting and, when your traits change it, the rate the model actually uses
+  $("herO").textContent = herEff !== s.her ? `${s.her}% → ${herEff}%` : `${s.her}%`;
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   // Each step: [label, count, cut note, phase]
