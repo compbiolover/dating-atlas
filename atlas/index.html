@@ -36,6 +36,8 @@ p{margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{font:inherit;font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
 .chips button:hover{border-color:var(--accent)}
+.chips button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.chips .qlbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;align-self:center;flex:none}
 .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
 .viz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:stretch}
 .viz > .card{align-content:start}
@@ -819,9 +821,22 @@ if (!htSet) $("yHt").value = defaultHt();
 $("metroList").innerHTML = M.map(m => `<option value="${m.name}">`).join("");
 $("statusT").textContent = nACS ? `Singles and degrees from the 2019 to 2023 ACS for ${nACS} of 387 metros` : "Singles and degrees are modeled estimates";
 $("status").classList.toggle("live", !!nACS);
-const QUICK = ["Memphis","Chattanooga","Nashville-Davidson","Atlanta","Philadelphia","Boston","Chicago","Seattle","Denver","Minneapolis"];
-QUICK.forEach(s => { const m = M.find(x => x.short === s); if (!m) return;
-  const b = document.createElement("button"); b.type = "button"; b.textContent = s.replace("-Davidson",""); b.onclick = () => select(m); $("quick").appendChild(b); });
+// Quick picks: the selected metro, then the closest metros to it by map position, rebuilt when the metro changes
+let quickFor = null;
+// Chip names: the short name, with its state when another metro shares it (Jackson, MS and Jackson, TN)
+const SHORTN = new Map(M.map(x => { const n = x.short.replace("-Davidson", ""), dup = M.some(y => y !== x && y.short === x.short);
+  return [x, dup ? `${n}, ${x.name.slice(x.name.lastIndexOf(", ") + 2).split("-")[0]}` : n]; }));
+function quickPicks(m){
+  if (quickFor === m) return; quickFor = m;
+  // Bigger metros count as a bit closer, so a regional center isn't crowded out by small neighbors. Alaska and Hawaii
+  // sit in map insets, so their distances to the other states mean nothing: they only pair within their own state.
+  const st = x => x.name.slice(x.name.lastIndexOf(", ") + 2), inset = x => /^(AK|HI)$/.test(st(x));
+  const c = MAPXY[m.name], d = x => { const p = MAPXY[x.name]; return c && p ? Math.hypot(p[0] - c[0], p[1] - c[1])/Math.pow(x.pop, .25) : Infinity; };
+  const near = M.filter(x => x !== m && MAPXY[x.name] && (inset(m) || inset(x) ? st(x) === st(m) : true)).sort((a, b) => d(a) - d(b)).slice(0, 8);
+  $("quick").replaceChildren(Object.assign(document.createElement("span"), {className: "qlbl", textContent: "Nearby"}), ...[m, ...near].map(x => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = SHORTN.get(x);
+    b.setAttribute("aria-pressed", x === m); b.onclick = () => select(x); return b; }));
+}
 
 function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] = +$(k).value);
   if (s.ageMax <= s.ageMin){ s.ageMax = s.ageMin + 1; $("ageMax").value = s.ageMax; } return s; }
@@ -1000,6 +1015,7 @@ document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListe
 
 function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
+  quickPicks(m);
   $("ageMinO").textContent = s.ageMin; $("ageMaxO").textContent = s.ageMax; $("yAgeO").textContent = P.age;
   SLIDERS.slice(2).forEach(k => $(k+"O").textContent = s[k] + "%");
 
