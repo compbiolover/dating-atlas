@@ -42,10 +42,20 @@ p{margin:0}
 .viz > #cmp{grid-template-rows:auto 1fr auto auto}
 #cmp .map{align-self:center}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
-.metrics{grid-template-rows:auto 1fr}
-#ageCard{grid-column:1/-1}
+.metrics{grid-template-rows:auto 1fr;grid-column:1/-1}
+@media (min-width:901px){.metrics .stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#ageCard,#sexCard,#cmpCard,#drvCard{grid-column:1/-1}
+/* Question sections: closed, each shows its one-line answer; open, its charts */
+.qsec > summary{display:grid;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 20px;cursor:pointer;list-style:none}
+.qsec > summary::-webkit-details-marker{display:none}
+.qsec > summary:hover{border-color:var(--accent)}
+.qsec .qq{font-family:var(--display);font-size:22px;font-weight:500}
+.qsec .qa{color:var(--muted);font-size:15px;max-width:70ch}
+.qsec .qx{color:var(--accent);font-size:14px;font-weight:600;text-decoration:underline}
+.qsec .qx::after{content:"Show the charts"}
+.qsec[open] .qx::after{content:"Hide the charts"}
+.qsec .qbody{margin-top:20px}
 #cmpSel option{color:var(--ink)}
-.vtabs{display:none}
 .refinebox{padding:0;display:block}
 .refinebox > summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:14px 20px;cursor:pointer;list-style:none}
 .refinebox > summary::-webkit-details-marker{display:none}
@@ -102,7 +112,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .head small,.note{color:var(--muted);font-size:12.5px}
 .phases{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;font-size:12.5px;color:var(--muted)}
 .phases .ph{display:inline-flex;align-items:baseline;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--track)}
-.phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block}
+.phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block;box-shadow:0 0 0 1px var(--muted)}
 .phases .ph b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
 .phases .arr{color:var(--dot)}
 .funwrap{position:relative}
@@ -110,6 +120,10 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .fshape{position:absolute;top:0;pointer-events:none;overflow:visible}
 .fshape path{transition:d .45s cubic-bezier(.2,.7,.2,1)}
 .fshape .div{stroke:var(--surface);stroke-width:1.5;stroke-opacity:.6}
+/* The outline keeps the shape's edge above 3:1 against the card even where the fill is pale; the solid cut marks
+   where "who clicks" starts without relying on hue (blue and orange are equally bright in dark mode) */
+#fbody{stroke:var(--muted);stroke-width:1.25}
+.fshape .div.cut{stroke-width:3;stroke-opacity:1}
 .fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right;padding:4px 0}
 .fun .cut{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .fun .fseg{min-height:40px;align-self:stretch}
@@ -251,10 +265,6 @@ code{font-family:var(--mono);font-size:12.5px}
 .ctrl .chk{justify-content:flex-start;margin-top:4px}
 /* Phones: map and scatter share a slot behind tabs, and the funnel, numbers and header tighten up */
 @media (max-width:560px){
-  .vtabs{display:flex;gap:6px;margin-bottom:-12px}
-  .vtabs button{flex:1;font:inherit;font-size:14px;font-weight:600;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-  .vtabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
-  .viz:not([data-tab="map"]) > #cmp,.viz:not([data-tab="plot"]) > #plotCard,.viz:not([data-tab="rent"]) > #rentCard{display:none}
   .phases{display:none}
   .fun{grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr) max-content}
   .fun .fseg{min-height:30px}
@@ -367,45 +377,21 @@ code{font-family:var(--mono);font-size:12.5px}
       </form>
     </details>
 
-    <section class="viz" id="viz" data-tab="map">
+    <section class="viz" id="viz">
       <div class="card">
         <div class="head"><h2 id="funnelTitle">The funnel</h2><small>Widths on a log scale</small></div>
         <p class="note" id="funnelSub"></p>
         <div class="phases" id="phases"></div>
         <div class="funwrap"><div class="fun" id="funnel"></div><svg class="fshape" id="fshape" aria-hidden="true"><defs><linearGradient id="fgrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0"></linearGradient><clipPath id="fclip"><path id="fclipP"/></clipPath></defs><path id="fbody" fill="url(#fgrad)"/><g id="fdiv" clip-path="url(#fclip)"></g></svg></div>
       </div>
-      <div class="vtabs" role="tablist" aria-label="Choose a chart">
-        <button type="button" role="tab" id="tab-map" data-t="map" aria-selected="true" aria-controls="cmp">Map</button>
-        <button type="button" role="tab" id="tab-plot" data-t="plot" aria-selected="false" aria-controls="plotCard">Scatter</button>
-        <button type="button" role="tab" id="tab-rent" data-t="rent" aria-selected="false" aria-controls="rentCard">Trade-offs</button>
-      </div>
       <div class="card" id="cmp">
-        <div class="head"><h2>Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
+        <div class="head"><h2 id="mapT">Where the possibilities are</h2><small>Circle area is how many are on the apps right now</small></div>
         <div class="map" id="map"></div>
         <div class="mkey" id="mapKey"></div>
         <p class="note" id="mapNote"></p>
       </div>
 
-      <div class="card" id="plotCard">
-        <div class="head"><h2>Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the ranked list below.</small></div>
-        <div class="seg" role="radiogroup" aria-label="Show values fit as">
-          <label><input type="radio" name="yfit" value="pct" checked><span>Percent</span></label>
-          <label><input type="radio" name="yfit" value="n"><span>Number of people</span></label>
-        </div>
-        <div class="plot" id="plot"></div>
-        <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
-      </div>
 
-      <div class="card" id="rentCard">
-        <div class="head"><h2 id="rentT">Pool versus rent</h2><small>Each dot is a metro. Tap or click one to select it.</small></div>
-        <div class="seg" role="radiogroup" aria-label="Compare possibilities with">
-          <label><input type="radio" name="ry" value="rent" checked><span>Rent</span></label>
-          <label><input type="radio" name="ry" value="ratio"><span>Competition</span></label>
-          <label><input type="radio" name="ry" value="sex"><span>Gender balance</span></label>
-        </div>
-        <div class="plot" id="rplot"></div>
-        <p class="note" id="rentNote"></p>
-      </div>
 
       <div class="card metrics">
         <div class="head"><h2>Key numbers</h2></div>
@@ -417,30 +403,65 @@ code{font-family:var(--mono);font-size:12.5px}
         </div>
       </div>
 
-      <div class="card" id="drvCard">
-        <div class="head"><h2>What moves your number</h2><small>Likely range when only that input is uncertain</small></div>
-        <div class="drv" id="drivers"></div>
-        <p class="note" id="drvNote"></p>
-      </div>
 
-      <div class="card" id="ageCard">
-        <div class="head"><h2 id="ageT">Possibilities by age</h2><small>One bar per year of age, with everything else as you set it</small></div>
-        <div class="drv" id="ages"></div>
-        <p class="note" id="ageNote"></p>
-      </div>
 
-      <div class="card" id="cmpCard">
+
+    </section>
+
+    <details class="qsec" id="qWhere">
+      <summary><span class="qq">Where else could I look?</span><span class="qa" id="qWhereA"></span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="viz qbody">
+        <div class="card" id="plotCard">
+        <div class="head"><h2 id="plotT">Size versus values fit</h2><small>Each dot is a metro. Tap or click one to select it, or use the ranked list below.</small></div>
+        <div class="seg" role="radiogroup" aria-label="Show values fit as">
+          <label><input type="radio" name="yfit" value="pct" checked><span>Percent</span></label>
+          <label><input type="radio" name="yfit" value="n"><span>Number of people</span></label>
+        </div>
+        <div class="plot" id="plot"></div>
+        <p class="note">The biggest pools sit up and to the right, in large metros where more of the people you're looking for share your values. Blue dots are the 25 largest metros.</p>
+      </div>
+        <div class="card" id="rentCard">
+        <div class="head"><h2 id="rentT">Pool versus rent</h2><small>Each dot is a metro. Tap or click one to select it.</small></div>
+        <div class="seg" role="radiogroup" aria-label="Compare possibilities with">
+          <label><input type="radio" name="ry" value="rent" checked><span>Rent</span></label>
+          <label><input type="radio" name="ry" value="ratio"><span>Competition</span></label>
+          <label><input type="radio" name="ry" value="sex"><span>Gender balance</span></label>
+        </div>
+        <div class="plot" id="rplot"></div>
+        <p class="note" id="rentNote"></p>
+      </div>
+        <div class="card" id="cmpCard">
         <div class="head"><h2 id="cmpT">Step by step</h2><small><label for="cmpSel">Compare with</label> <select id="cmpSel"><option value="">Similar size, more possibilities</option></select></small></div>
         <div class="drv" id="cmpChart"></div>
         <p class="note" id="cmpNote"></p>
       </div>
-
-      <div class="card" id="sexCard">
+      </div>
+    </details>
+    <details class="qsec" id="qWho">
+      <summary><span class="qq">Who's out there?</span><span class="qa" id="qWhoA"></span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="viz qbody">
+        <div class="card" id="ageCard">
+        <div class="head"><h2 id="ageT">Possibilities by age</h2><small>One bar per year of age, with everything else as you set it</small></div>
+        <div class="drv" id="ages"></div>
+        <p class="note" id="ageNote"></p>
+      </div>
+        <div class="card" id="sexCard">
         <div class="head"><h2 id="sexT">Gender balance by age</h2><small>Single people in the metro, one point per year of age</small></div>
         <div class="drv" id="sexChart"></div>
         <p class="note" id="sexNote"></p>
       </div>
-    </section>
+      </div>
+    </details>
+    <details class="qsec" id="qSure">
+      <summary><span class="qq">How sure is this number?</span><span class="qa" id="qSureA"></span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="viz qbody">
+        <div class="card" id="drvCard">
+        <div class="head"><h2 id="drvT">What moves your number</h2><small>Likely range when only that input is uncertain</small></div>
+        <div class="drv" id="drivers"></div>
+        <p class="note" id="drvNote"></p>
+      </div>
+      </div>
+    </details>
 
     <section class="more" id="more">
         <details class="card ranked" id="ranked">
@@ -503,8 +524,8 @@ const USMAP = {"nation":"M648,492L652,492L652,491L653,492L652,492L652,492L649,49
 
 const GK = ["w","m","n"];
 // Funnel stages, from who lives there to who'd say yes
-const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 30%, var(--track))"},
-  {name:"Who's available", c:"color-mix(in srgb, var(--accent) 60%, var(--track))"},
+const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 45%, var(--track))"},
+  {name:"Who's available", c:"color-mix(in srgb, var(--accent) 72%, var(--track))"},
   {name:"Who fits", c:"var(--accent)"}, {name:"Who clicks", c:"var(--hot)", sharp:true}];
 const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", share:.485}, n:{noun:"nonbinary people", one:"nonbinary person", share:.015}};
 // OPEN[a][b]: share of single people of gender a who are open to dating someone of gender b
@@ -1153,8 +1174,10 @@ function drawFunnel(){
     return `<stop offset="${o(r.t + 6)}" style="stop-color:${r.c}"/><stop offset="${o(r.b - 6)}" style="stop-color:${r.c}"/>` +
       (nx && nx.ph !== r.ph ? (PHASES[nx.ph].sharp ? `<stop offset="${o((r.b + nx.t)/2 - 3)}" style="stop-color:${r.c}"/><stop offset="${o((r.b + nx.t)/2 + 3)}" style="stop-color:${nx.c}"/>`
         : `<stop offset="${o((r.b + nx.t)/2)}" style="stop-color:color-mix(in oklab, ${r.c}, ${nx.c})"/>`) : ""); }).join("");
-  // A faint line between steps in the same phase; a phase change is marked by the color shift instead
-  $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => r.ph === rows[i+1].ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>` : "").join("");
+  // A faint line between steps in the same phase, a solid cut into a sharp phase; other phase changes show by color
+  $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => { const nx = rows[i+1];
+    return r.ph === nx.ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>`
+      : PHASES[nx.ph].sharp ? `<line class="div cut" x1="0" x2="${W}" y1="${f((r.b + nx.t)/2)}" y2="${f((r.b + nx.t)/2)}"/>` : ""; }).join("");
 }
 new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 
@@ -1162,26 +1185,46 @@ new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 const mapNarrow = () => NARROW.matches || ($("map").clientWidth || 975) < 700;
 const plotNarrow = () => NARROW.matches || ($("plot").clientWidth || 760) < 600;
 let sizeKey = "", LAST = null;
-const shown = el => el.offsetParent !== null;
+// Visible on screen: laid out, and not inside a closed question section (Chromium lays those out while hidden)
+const shown = el => el.offsetParent !== null && !el.closest(".qsec:not([open])");
 function drawCharts(){
   if (!LAST) return;
   const {m, all, who, s, P} = LAST;
   if (shown($("cmp"))) usMap(m, all, who);
   if (shown($("plotCard"))) plot(m, s, P, all);
   if (shown($("rentCard"))) rentPlot(m, P, all);
-  drivers(LAST);
-  ages(LAST);
-  compare(LAST);
-  sexByAge(LAST);
+  if (shown($("drvCard"))) drivers(LAST);
+  if (shown($("ageCard"))) ages(LAST);
+  if (shown($("cmpCard"))) compare(LAST);
+  if (shown($("sexCard"))) sexByAge(LAST);
+  answers(LAST);
+}
+// A closed section draws nothing; opening it draws its charts at their real width
+document.querySelectorAll(".qsec").forEach(d => d.addEventListener("toggle", drawCharts));
+
+// The one-line answer on each closed section, from the same numbers its charts use
+const pctBelow = (arr, v) => Math.round(100*arr.filter(x => x < v).length/arr.length);
+// "more than in 62% of metros", or from the other side when the metro is in the bottom half
+const vsMetros = (arr, v, up, down, pre = "") => { const b = pctBelow(arr, v), a = Math.round(100*arr.filter(x => x > v).length/arr.length);
+  return b >= a ? `${up} than ${pre}${b}% of metros` : `${down} than ${pre}${a}% of metros`; };
+function sexInRange(m, s, P){
+  const a = m.acs, sv = sexView(P), b = sv.inv ? "m" : "w", o = sv.inv ? "w" : "m";
+  if (!a) return null;
+  const yb = singleYears(a[b]), yo = singleYears(a[o]); let nb = 0, no = 0;
+  for (let x = s.ageMin; x <= s.ageMax; x++){ nb += yb[x - AGE0] || 0; no += yo[x - AGE0] || 0; }
+  return no ? nb/no : null;
+}
+function answers({m, all, s, P, iv, byAge, cmp}){
+  const me = all.find(a => a.m === m), last = cmp.rows.find(r => r.t === "Mutual attraction"), k = last && last.a ? last.b/last.a : 1;
+  const cheaper = me ? all.filter(a => a.v > me.v && a.rent <= BURDEN).length : 0;
+  $("qWhereA").textContent = (cmp.cm === m ? "" : k >= 1.05 ? `${cmp.cm.short} has about ${k.toFixed(1)}× as many possibilities. ` : k <= .95 ? `${cmp.cm.short} has fewer possibilities than ${m.short}. ` : `${cmp.cm.short} has about as many. `) +
+    (cheaper ? `${cheaper} metro${cheaper === 1 ? " has" : "s have"} more than ${m.short} with rent under ${BURDEN}% of pay.` : `No metro has more than ${m.short} with rent under ${BURDEN}% of pay.`);
+  const peak = byAge.reduce((p, x) => x.v > p.v ? x : p), sr = sexInRange(m, s, P), sv = sexView(P);
+  $("qWhoA").textContent = `The most possibilities are at age ${peak.a}.` + (sr ? ` Counting all singles in your age range, there are about ${fmt2(sr)} ${sv.label}.` : "");
+  $("qSureA").textContent = !iv ? "The pool is too small to put a range on." : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` : `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}, mostly depending on ${UGROUPS[iv.top]}.`;
 }
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 
-// Phone tabs: show the map or the scatter, then redraw so the shown chart measures its real width
-document.querySelectorAll(".vtabs button").forEach(b => b.addEventListener("click", () => {
-  $("viz").dataset.tab = b.dataset.t;
-  document.querySelectorAll(".vtabs button").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false"));
-  drawCharts();
-}));
 
 // Bubble map: one circle per metro at its Census center, area proportional to the people on the apps now
 let MAPPTS = [];
@@ -1202,6 +1245,7 @@ function usMap(m, all, who){
   $("mapSvg").setAttribute("aria-label", `Map of 387 U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro.`);
   $("mapKey").innerHTML = `<span>People on the apps now</span><svg width="${kx}" height="${kh + 18}" aria-hidden="true">${keyDots}</svg>`;
   const best = MAPPTS[0];
+  $("mapT").textContent = `${best.a.m === m ? m.short : best.a.m.short} has the most ${who} on the apps right now`;
   $("mapNote").textContent = `Each circle is a metro, placed at its center. ${best.a.m === m ? `${m.short} has the most ${who} on the apps.` : `${best.a.m.short} has the most ${who} on the apps, about ${fmt(best.a.apps)}, against ${fmt(me ? me.a.apps : 0)} in ${m.short}.`} Tap or click a circle to switch metros.`;
 }
 // Nearest circle to a pointer, within its radius plus a margin so small ones are easy to hit
@@ -1245,6 +1289,9 @@ function plot(m, s, P, all){
   const cx = X(m.pop), cy = Y(fit.get(m)), right = cx > W - (nw ? 90 : 140);
   const on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`;
   PTS = M.filter(x => x !== m).map(x => [x, X(x.pop), Y(fit.get(x))]);
+  const vf = [...fit.values()], mine = fit.get(m);
+  $("plotT").textContent = raw ? `${fmt(mine)} of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`
+    : `${Math.round(mine)}% of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`;
   $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(fit.get(m))} who share your values` : `a values fit of ${Math.round(fit.get(m))}%`}.">${g}${dots}${on}</svg>`;
 }
 
@@ -1281,6 +1328,7 @@ function drivers({iv, est, m}){
   });
   g += `<line class="est" x1="${X(est)}" x2="${X(est)}" y1="24" y2="${H - 20}"/><text class="estt" x="${X(est)}" y="${H - 6}" text-anchor="middle">Your estimate, ${fmt(est)}</text>`;
   $("drivers").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="How much each input moves the estimate of ${fmt(est)} possibilities in ${m.short}. ${rows.map(r => `${DRV[r.k]}: ${fmt(nice(r.lo))} to ${fmt(nice(r.hi))}`).join(". ")}.">${g}</svg>`;
+  $("drvT").textContent = `Your number hinges most on ${DRV[rows[0].k].toLowerCase()}`;
   $("drvNote").textContent = `The curve at the top smooths all ${n.toLocaleString("en-US")} simulated results, with the shaded middle 80% matching the range under the main number. Each line below spans the middle 80% of results when only that input varies and everything else stays at its best guess; the dashed line is your estimate. Biggest source of uncertainty: ${DRV[rows[0].k].toLowerCase()}. Log scale.`;
 }
 
@@ -1300,6 +1348,7 @@ function ages({byAge, s, m, age}){
   g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Their age</text>`;
   const sum = (a, b) => byAge.filter(x => x.a >= a && x.a <= b).reduce((t, x) => t + x.v, 0);
   const inside = sum(s.ageMin, s.ageMax), wider = sum(s.ageMin - 2, s.ageMax + 2), peak = byAge.reduce((p, x) => x.v > p.v ? x : p);
+  $("ageT").textContent = `The most possibilities are at age ${peak.a}`;
   $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. The most are at age ${peak.a}, about ${fmt(peak.v)}.">${g}</svg>`;
   $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. The most possibilities in ${m.short} are at age ${peak.a}. Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drop at 40 is real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women. Each year is estimated on its own, so the bars only roughly add up to your total.`;
 }
@@ -1307,7 +1356,6 @@ function ages({byAge, s, m, age}){
 // Dumbbells per funnel step: your metro in orange, the comparison in blue, on one log axis
 function compare({m, cmp}){
   const {cm, rows} = cmp, W = $("cmpChart").clientWidth || 520, nw = W < 440, L = nw ? 12 : 215, R = 52, T = 44, RH = nw ? 44 : 30, H = T + rows.length*RH + 6;
-  $("cmpT").textContent = `${m.short} versus ${cm.short}`;
   const vals = rows.flatMap(r => [r.a, r.b]).filter(v => v > 0), lo = Math.min(...vals)/1.5, hi = Math.max(...vals)*1.3;
   const X = v => L + (Math.log(Math.max(v, lo)) - Math.log(lo))/(Math.log(hi) - Math.log(lo))*(W - L - R);
   let g = `<line class="top" x1="0" x2="${W}" y1="1" y2="1"/>`;
@@ -1326,6 +1374,8 @@ function compare({m, cmp}){
   const steps = rows.slice(1).map((r, i) => ({t: r.t, ka: rows[i].a ? r.a/rows[i].a : 0, kb: rows[i].b ? r.b/rows[i].b : 0})).filter(x => x.ka && x.kb).map(x => ({...x, d: x.kb/x.ka}));
   const best = steps.reduce((p, x) => x.d > p.d ? x : p, steps[0]), worst = steps.reduce((p, x) => x.d < p.d ? x : p, steps[0]), last = rows[rows.length - 2];
   const kp = v => pct(v*100);
+  $("cmpT").textContent = cm === m ? `${m.short}, step by step` : best.d > 1.05 ? `${cm.short} pulls ahead at “${best.t}”` + (worst.d < .95 ? `, ${m.short} at “${worst.t}”` : "")
+    : worst.d < .95 ? `${m.short} pulls ahead at “${worst.t}”` : `${m.short} and ${cm.short} keep pace at every step`;
   $("cmpNote").textContent = cm === m ? "Pick another metro to compare." :
     `${cm.short} ends with ${fmt(last.b)} possibilities to ${fmt(last.a)} in ${m.short}. ` +
     (best.d > 1.05 ? `Its biggest edge is "${best.t}", which keeps ${kp(best.kb)} there against ${kp(best.ka)} here. ` : "") +
@@ -1336,7 +1386,6 @@ function compare({m, cmp}){
 // Single people of the gender you're looking for per single person of yours, by year of age, from the ACS
 function sexByAge({m, s, P}){
   const a = m.acs, sv = sexView(P), base = sv.inv ? "m" : "w", other = sv.inv ? "w" : "m";
-  $("sexT").textContent = `Single ${sv.label}, by age`;
   if (!a){ $("sexChart").innerHTML = ""; $("sexNote").textContent = `No Census age counts for ${m.short}.`; return; }
   const yb = singleYears(a[base]), yo = singleYears(a[other]), rate = (g, x) => LOOKING[g][x < 40 ? 0 : 1];
   const pts = []; for (let x = +$("ageMin").min; x <= +$("ageMax").max; x++){ const nb = yb[x - AGE0], no = yo[x - AGE0];
@@ -1352,6 +1401,7 @@ function sexByAge({m, s, P}){
   g += `<path class="ln" d="${path("r")}"/><path class="ln look" d="${path("l")}"/><text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Age</text>`;
   $("sexChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Single ${sv.label} in ${m.short} by age, for all singles and for singles who are looking to date.">${g}</svg>`;
   const inR = pts.filter(p => p.x >= s.ageMin && p.x <= s.ageMax), sum = (k) => inR.reduce((t, p) => t + yb[p.x - AGE0]*(k ? rate(base, p.x) : 1), 0)/inR.reduce((t, p) => t + yo[p.x - AGE0]*(k ? rate(other, p.x) : 1), 0);
+  $("sexT").textContent = inR.length ? `Counting all singles in your age range: about ${fmt2(sum(0))} ${sv.label}` : `Single ${sv.label}, by age`;
   $("sexNote").textContent = `Solid line: all single ${sv.label.split(" ")[0]} per single ${sv.label.split(" ").pop()}, from Census counts. Dashed: only those looking to date, using Pew's rates, which drop at 40, most of all for women. ` +
     (inR.length ? `Across your range, ${s.ageMin} to ${s.ageMax} (shaded), that's about ${fmt2(sum(0))} overall and ${fmt2(sum(1))} among those looking.` : "") + " Log scale.";
 }
@@ -1367,8 +1417,7 @@ function rentPlot(m, P, all){
     ratio: {t:"competition", get: a => a.ratio, ok: v => v > 0, ref: 1, refT: "Even competition",
       ax: "Possibilities per competitor (log scale)", tick: v => fmtAx(v), tip: a => `${fmt1(a.ratio)} per competitor`},
     sex: {t:"gender balance", get: a => a.sex, ok: v => v > 0, ref: 1, refT: "Even",
-      ax: `Single ${sv.label} (log scale)`, tick: v => fmtAx(v), tip: a => `${fmt2(a.sex)} ${sv.label}`}}[mode];
-  $("rentT").textContent = `Pool versus ${C.t}`;
+      ax: `${cap(sv.label)} among singles looking to date (log scale)`, tick: v => fmtAx(v), tip: a => `${fmt2(a.sex)} ${sv.label}`}}[mode];
   const nw = plotNarrow(), W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
   const pts = all.filter(a => C.ok(C.get(a)) && a.v > 0), vs = pts.map(a => a.v), ys = pts.map(C.get);
   const x0 = Math.floor(Math.log10(Math.min(...vs))), x1 = Math.max(x0 + 1, Math.ceil(Math.log10(Math.max(...vs))));
@@ -1389,11 +1438,14 @@ function rentPlot(m, P, all){
   if (me){ const cx = X(me.v), cy = Y(C.get(me)), right = cx > W - (nw ? 90 : 140);
     on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; }
   RPTS = pts.filter(a => a.m !== m).map(a => [a.m, X(a.v), Y(C.get(a))]);
+  $("rentT").textContent = !me ? `Pool versus ${C.t}` : mode === "rent" ? `Rent in ${m.short} takes ${me.rent}% of pay, ${me.rent <= BURDEN ? "under" : "over"} the ${BURDEN}% line`
+    : mode === "ratio" ? `${m.short} has ${fmt1(me.ratio)} for every competitor, ${vsMetros(ys, me.ratio, "better", "worse")}`
+    : `Among singles looking to date${LAST.s.deg ? " with a degree" : ""}, ${m.short} has ${fmt2(me.sex)} ${sv.label}, ${vsMetros(ys, me.sex, "higher", "lower")}`;
   $("rplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of ${pts.length} metros by possibilities and ${C.t}.${me ? ` ${m.short} has ${fmt(me.v)} possibilities, ${C.tip(me)}.` : ""}">${g}${dots}${on}</svg>`;
   // "Better" means more possibilities and a better value on this axis: under the burden line for rent, higher for the others
   const better = me ? pts.filter(a => a.v > me.v && (C.low ? C.get(a) <= C.ref : C.get(a) > C.get(me))).length : 0, what = C.low ? `rent under ${BURDEN}%` : mode === "ratio" ? "better odds" : `more ${sv.label.split(" ")[0]} per ${sv.label.split(" ").pop()}`;
   $("rentNote").textContent = (C.low ? `The best spots sit low and to the right: more possibilities, rent under ${BURDEN}% of ${P.edu === "ba" ? "a grad's" : "typical"} pay. `
-      : `The best spots sit high and to the right: more possibilities and ${mode === "ratio" ? "more of them for each person competing for them" : `more single ${sv.label}`}. `) +
+      : `The best spots sit high and to the right: more possibilities and ${mode === "ratio" ? "more of them for each person competing for them" : `more ${sv.label} among singles looking to date`}. `) +
     (!me ? `There's no data for ${m.short} on this measure.` : better ? `${better} metro${better === 1 ? " has" : "s have"} more possibilities than ${m.short} and ${what}.` : `No metro has more possibilities than ${m.short} and ${what}.`) + " Blue dots are the 25 largest metros.";
 }
 
