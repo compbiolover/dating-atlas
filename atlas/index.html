@@ -1214,7 +1214,7 @@ function answers({m, all, s, P, iv, byAge, cmp}){
   $("qWhereA").textContent = (cmp.cm === m ? "" : k >= 1.05 ? `${cmp.cm.short} has about ${k.toFixed(1)}× as many possibilities. ` : k <= .95 ? `${cmp.cm.short} has fewer possibilities than ${m.short}. ` : `${cmp.cm.short} has about as many. `) +
     (cheaper ? `${cheaper} metro${cheaper === 1 ? " has" : "s have"} more than ${m.short} with rent under ${BURDEN}% of pay.` : `No metro has more than ${m.short} with rent under ${BURDEN}% of pay.`);
   const peak = byAge.reduce((p, x) => x.v > p.v ? x : p), sr = sexInRange(m, s, P), sv = sexView(P);
-  $("qWhoA").textContent = `The most possibilities are at age ${peak.a}.` + (sr ? ` In your range there are about ${fmt2(sr)} single ${sv.label}.` : "");
+  $("qWhoA").textContent = `The most possibilities are at age ${peak.a}.` + (sr ? ` Counting all singles in your age range, there are about ${fmt2(sr)} ${sv.label}.` : "");
   $("qSureA").textContent = !iv ? "The pool is too small to put a range on." : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` : `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}, mostly depending on ${UGROUPS[iv.top]}.`;
 }
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
@@ -1395,7 +1395,7 @@ function sexByAge({m, s, P}){
   g += `<path class="ln" d="${path("r")}"/><path class="ln look" d="${path("l")}"/><text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Age</text>`;
   $("sexChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Single ${sv.label} in ${m.short} by age, for all singles and for singles who are looking to date.">${g}</svg>`;
   const inR = pts.filter(p => p.x >= s.ageMin && p.x <= s.ageMax), sum = (k) => inR.reduce((t, p) => t + yb[p.x - AGE0]*(k ? rate(base, p.x) : 1), 0)/inR.reduce((t, p) => t + yo[p.x - AGE0]*(k ? rate(other, p.x) : 1), 0);
-  $("sexT").textContent = inR.length ? `About ${fmt2(sum(0))} single ${sv.label} in your age range` : `Single ${sv.label}, by age`;
+  $("sexT").textContent = inR.length ? `Counting all singles in your age range: about ${fmt2(sum(0))} ${sv.label}` : `Single ${sv.label}, by age`;
   $("sexNote").textContent = `Solid line: all single ${sv.label.split(" ")[0]} per single ${sv.label.split(" ").pop()}, from Census counts. Dashed: only those looking to date, using Pew's rates, which drop at 40, most of all for women. ` +
     (inR.length ? `Across your range, ${s.ageMin} to ${s.ageMax} (shaded), that's about ${fmt2(sum(0))} overall and ${fmt2(sum(1))} among those looking.` : "") + " Log scale.";
 }
@@ -1411,7 +1411,7 @@ function rentPlot(m, P, all){
     ratio: {t:"competition", get: a => a.ratio, ok: v => v > 0, ref: 1, refT: "Even competition",
       ax: "Possibilities per competitor (log scale)", tick: v => fmtAx(v), tip: a => `${fmt1(a.ratio)} per competitor`},
     sex: {t:"gender balance", get: a => a.sex, ok: v => v > 0, ref: 1, refT: "Even",
-      ax: `Single ${sv.label} (log scale)`, tick: v => fmtAx(v), tip: a => `${fmt2(a.sex)} ${sv.label}`}}[mode];
+      ax: `${cap(sv.label)} among singles looking to date (log scale)`, tick: v => fmtAx(v), tip: a => `${fmt2(a.sex)} ${sv.label}`}}[mode];
   const nw = plotNarrow(), W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
   const pts = all.filter(a => C.ok(C.get(a)) && a.v > 0), vs = pts.map(a => a.v), ys = pts.map(C.get);
   const x0 = Math.floor(Math.log10(Math.min(...vs))), x1 = Math.max(x0 + 1, Math.ceil(Math.log10(Math.max(...vs))));
@@ -1434,12 +1434,12 @@ function rentPlot(m, P, all){
   RPTS = pts.filter(a => a.m !== m).map(a => [a.m, X(a.v), Y(C.get(a))]);
   $("rentT").textContent = !me ? `Pool versus ${C.t}` : mode === "rent" ? `Rent in ${m.short} takes ${me.rent}% of pay, ${me.rent <= BURDEN ? "under" : "over"} the ${BURDEN}% line`
     : mode === "ratio" ? `${m.short} has ${fmt1(me.ratio)} for every competitor, ${vsMetros(ys, me.ratio, "better", "worse")}`
-    : `${fmt2(me.sex)} single ${sv.label} in ${m.short}, ${vsMetros(ys, me.sex, "higher", "lower")}`;
+    : `Among singles looking to date${LAST.s.deg ? " with a degree" : ""}, ${m.short} has ${fmt2(me.sex)} ${sv.label}, ${vsMetros(ys, me.sex, "higher", "lower")}`;
   $("rplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of ${pts.length} metros by possibilities and ${C.t}.${me ? ` ${m.short} has ${fmt(me.v)} possibilities, ${C.tip(me)}.` : ""}">${g}${dots}${on}</svg>`;
   // "Better" means more possibilities and a better value on this axis: under the burden line for rent, higher for the others
   const better = me ? pts.filter(a => a.v > me.v && (C.low ? C.get(a) <= C.ref : C.get(a) > C.get(me))).length : 0, what = C.low ? `rent under ${BURDEN}%` : mode === "ratio" ? "better odds" : `more ${sv.label.split(" ")[0]} per ${sv.label.split(" ").pop()}`;
   $("rentNote").textContent = (C.low ? `The best spots sit low and to the right: more possibilities, rent under ${BURDEN}% of ${P.edu === "ba" ? "a grad's" : "typical"} pay. `
-      : `The best spots sit high and to the right: more possibilities and ${mode === "ratio" ? "more of them for each person competing for them" : `more single ${sv.label}`}. `) +
+      : `The best spots sit high and to the right: more possibilities and ${mode === "ratio" ? "more of them for each person competing for them" : `more ${sv.label} among singles looking to date`}. `) +
     (!me ? `There's no data for ${m.short} on this measure.` : better ? `${better} metro${better === 1 ? " has" : "s have"} more possibilities than ${m.short} and ${what}.` : `No metro has more possibilities than ${m.short} and ${what}.`) + " Blue dots are the 25 largest metros.";
 }
 
