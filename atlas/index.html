@@ -112,7 +112,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .head small,.note{color:var(--muted);font-size:12.5px}
 .phases{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:center;font-size:12.5px;color:var(--muted)}
 .phases .ph{display:inline-flex;align-items:baseline;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--track)}
-.phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block}
+.phases .ph i{width:9px;height:9px;border-radius:2px;align-self:center;display:block;box-shadow:0 0 0 1px var(--muted)}
 .phases .ph b{font-family:var(--mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
 .phases .arr{color:var(--dot)}
 .funwrap{position:relative}
@@ -120,6 +120,10 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .fshape{position:absolute;top:0;pointer-events:none;overflow:visible}
 .fshape path{transition:d .45s cubic-bezier(.2,.7,.2,1)}
 .fshape .div{stroke:var(--surface);stroke-width:1.5;stroke-opacity:.6}
+/* The outline keeps the shape's edge above 3:1 against the card even where the fill is pale; the solid cut marks
+   where "who clicks" starts without relying on hue (blue and orange are equally bright in dark mode) */
+#fbody{stroke:var(--muted);stroke-width:1.25}
+.fshape .div.cut{stroke-width:3;stroke-opacity:1}
 .fun .lab{display:grid;line-height:1.25;font-size:13.5px;text-align:right;padding:4px 0}
 .fun .cut{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
 .fun .fseg{min-height:40px;align-self:stretch}
@@ -520,8 +524,8 @@ const USMAP = {"nation":"M648,492L652,492L652,491L653,492L652,492L652,492L649,49
 
 const GK = ["w","m","n"];
 // Funnel stages, from who lives there to who'd say yes
-const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 30%, var(--track))"},
-  {name:"Who's available", c:"color-mix(in srgb, var(--accent) 60%, var(--track))"},
+const PHASES = [{name:"Who's there", c:"color-mix(in srgb, var(--accent) 45%, var(--track))"},
+  {name:"Who's available", c:"color-mix(in srgb, var(--accent) 72%, var(--track))"},
   {name:"Who fits", c:"var(--accent)"}, {name:"Who clicks", c:"var(--hot)", sharp:true}];
 const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", share:.485}, n:{noun:"nonbinary people", one:"nonbinary person", share:.015}};
 // OPEN[a][b]: share of single people of gender a who are open to dating someone of gender b
@@ -1170,8 +1174,10 @@ function drawFunnel(){
     return `<stop offset="${o(r.t + 6)}" style="stop-color:${r.c}"/><stop offset="${o(r.b - 6)}" style="stop-color:${r.c}"/>` +
       (nx && nx.ph !== r.ph ? (PHASES[nx.ph].sharp ? `<stop offset="${o((r.b + nx.t)/2 - 3)}" style="stop-color:${r.c}"/><stop offset="${o((r.b + nx.t)/2 + 3)}" style="stop-color:${nx.c}"/>`
         : `<stop offset="${o((r.b + nx.t)/2)}" style="stop-color:color-mix(in oklab, ${r.c}, ${nx.c})"/>`) : ""); }).join("");
-  // A faint line between steps in the same phase; a phase change is marked by the color shift instead
-  $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => r.ph === rows[i+1].ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>` : "").join("");
+  // A faint line between steps in the same phase, a solid cut into a sharp phase; other phase changes show by color
+  $("fdiv").innerHTML = rows.slice(0, -1).map((r, i) => { const nx = rows[i+1];
+    return r.ph === nx.ph ? `<line class="div" x1="0" x2="${W}" y1="${f(r.b)}" y2="${f(r.b)}"/>`
+      : PHASES[nx.ph].sharp ? `<line class="div cut" x1="0" x2="${W}" y1="${f((r.b + nx.t)/2)}" y2="${f((r.b + nx.t)/2)}"/>` : ""; }).join("");
 }
 new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 
