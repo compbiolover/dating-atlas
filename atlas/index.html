@@ -98,6 +98,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .dots{display:flex;gap:6px}
 .dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
 .dots i.on{background:var(--accent)}
+.dots i{transition:width .35s cubic-bezier(.2,.7,.2,1),background-color .35s}
+.dots i.cur{width:22px;border-radius:4px}
 body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{display:none}
 .stats{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:10px}
 .stat.burden .n{color:var(--hot)}
@@ -241,7 +243,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .notes p + p{margin-top:12px}
 .notes a{color:var(--accent)}
 code{font-family:var(--mono);font-size:12.5px}
-@media (prefers-reduced-motion:reduce){.fshape path{transition:none}}
+@media (prefers-reduced-motion:reduce){.fshape path,.dots i{transition:none}}
 .crow,.lhead{grid-template-columns:28px minmax(0,180px) minmax(0,1fr) 58px 52px 44px 52px}
 .crow .h{font-family:var(--mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
 .crow .h.hi{color:var(--hot)}
@@ -1509,19 +1511,51 @@ function showStep(i){
   borrow(st.ids);
   $("setupBack").disabled = i === 0;
   $("setupNext").textContent = i === STEPS.length - 1 ? "Show my results" : "Next";
-  $("setupDots").innerHTML = STEPS.map((_, j) => `<i class="${j <= i ? "on" : ""}"></i>`).join("");
+  // Reuse the dots so the current one can grow into a pill (a CSS transition) instead of being redrawn
+  if ($("setupDots").children.length !== STEPS.length) $("setupDots").innerHTML = STEPS.map(() => "<i></i>").join("");
+  [...$("setupDots").children].forEach((d, j) => { d.classList.toggle("on", j <= i); d.classList.toggle("cur", j === i); });
   $("setupT").focus();
 }
-function startSetup(){
-  document.body.classList.add("onboarding"); $("setup").hidden = false; showStep(0); window.scrollTo(0, 0);
+// Motion: steps slide out the way you're going and the next one slides in, its title, help and fields
+// arriving one after another while the card eases to its new height. Reduced motion gets instant changes.
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)"), EASE = "cubic-bezier(.2,.7,.2,1)";
+let busy = false;  // ignore clicks while a step is leaving, so a double tap can't skip one
+const arrive = (els, dx, dy, base = 0) => els.forEach((el, k) => el.animate(
+  [{opacity: 0, transform: `translate(${dx}px, ${dy}px)`}, {opacity: 1, transform: "none"}],
+  {duration: 380, delay: base + 45*k, easing: EASE, fill: "backwards"}));
+const stepParts = () => [$("setupT"), $("setupHelp"), ...$("setupBody").children];
+async function goStep(i){
+  if (busy || i === stepI) return;
+  if (REDUCE.matches) return showStep(i);
+  busy = true;
+  const dir = i > stepI ? 1 : -1, card = $("setup"), out = [$("setupT"), $("setupHelp"), $("setupBody")], h0 = card.offsetHeight;
+  await Promise.all(out.map(el => el.animate([{opacity: 1, transform: "none"}, {opacity: 0, transform: `translateX(${-28*dir}px)`}],
+    {duration: 170, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards"}).finished));
+  showStep(i);
+  out.forEach(el => el.getAnimations().forEach(a => a.cancel()));
+  const h1 = card.offsetHeight;
+  card.style.overflow = "hidden";
+  card.animate([{height: h0 + "px"}, {height: h1 + "px"}], {duration: 320, easing: EASE}).finished.then(() => card.style.overflow = "");
+  arrive(stepParts(), 28*dir, 0);
+  busy = false;
 }
-function finishSetup(){
+function startSetup(){
+  document.body.classList.add("onboarding"); $("setup").hidden = false; stepI = -1; showStep(0); window.scrollTo(0, 0);
+  if (!REDUCE.matches){ $("setup").animate([{opacity: 0, transform: "translateY(16px) scale(.985)"}, {opacity: 1, transform: "none"}], {duration: 480, easing: EASE});
+    arrive(stepParts(), 0, 10, 120); }
+}
+async function finishSetup(){
+  if (busy) return;
+  if (!REDUCE.matches){ busy = true;
+    await $("setup").animate([{opacity: 1, transform: "none"}, {opacity: 0, transform: "translateY(-10px) scale(.985)"}], {duration: 220, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards"}).finished;
+    $("setup").getAnimations().forEach(a => a.cancel()); busy = false; }
   giveBack(); $("setup").hidden = true; document.body.classList.remove("onboarding");
   store.set("atlas.onboarded", "1"); saveProfile(); update();
   window.scrollTo(0, 0);
+  if (!REDUCE.matches) arrive([...document.querySelectorAll(".wrap > .pick, .grid > *")].slice(0, 4), 0, 14);
 }
-$("setupNext").addEventListener("click", () => stepI < STEPS.length - 1 ? showStep(stepI + 1) : finishSetup());
-$("setupBack").addEventListener("click", () => stepI > 0 && showStep(stepI - 1));
+$("setupNext").addEventListener("click", () => stepI < STEPS.length - 1 ? goStep(stepI + 1) : finishSetup());
+$("setupBack").addEventListener("click", () => stepI > 0 && goStep(stepI - 1));
 $("setupSkip").addEventListener("click", finishSetup);
 $("rerunSetup").addEventListener("click", startSetup);
 if (!HQ.toString() && !store.get("atlas.profile") && !store.get("atlas.onboarded")) startSetup();
