@@ -85,7 +85,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
 .btn.primary:hover{filter:brightness(1.08)}
 .linkbtn{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;justify-self:start}
-.setup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;gap:14px;max-width:640px}
+.setup{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;gap:14px}
 .setup-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .setup-top .linkbtn{text-transform:none;letter-spacing:0;font-weight:400}
 .setup h2{font-size:26px}
@@ -695,10 +695,12 @@ const cap = t => t[0].toUpperCase() + t.slice(1);
 // localStorage can be missing or blocked; reads then return null and writes do nothing
 const store = {get: k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch(e){} }};
-const fmt = n => n >= 100 ? Math.round(n).toLocaleString("en-US") : n >= 10 ? String(Math.round(n)) : n.toFixed(1);
+// Counts are people, so whole numbers only; one that would round to 0 shows as "<1". Ratios keep fmt1/fmt2.
+const fmt = n => n > 0 && n < .5 ? "<1" : Math.round(n).toLocaleString("en-US");
 const fmt2 = n => n.toFixed(2);
 const fmtAx = n => n >= 1e6 ? n/1e6 + "M" : n >= 1e3 ? n/1e3 + "k" : String(n);
 const fmt1 = n => n.toFixed(1);
+const fmtX = n => n >= 10 ? fmt(n) : fmt1(n); // multiples like "2.3×"
 // Round to two significant figures for the range under the main number
 const nice = n => { if (n < 10) return Math.round(n); const q = 10**(Math.floor(Math.log10(n)) - 1); return Math.round(n/q)*q; };
 // Judgment range for stacked estimates: wider where ACS margins of error are wider
@@ -762,7 +764,7 @@ function interval(m, s, P, f){
   const ranges = keys.map((k, i) => { const a = solo[i].sort(); return {k, lo: a[Math.floor(.1*(NSIM - 1))], hi: a[Math.floor(.9*(NSIM - 1))]}; });
   return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
 }
-const pct = n => fmt(n) + "%";
+const pct = n => fmtX(n) + "%";
 const nACS = M.filter(m => m.acs).length;
 const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const near = (x, m) => x.pop >= m.pop*.6 && x.pop <= m.pop*1.4;
@@ -939,7 +941,7 @@ function sexView(P){
   return {inv:false, label:"women per man"};
 }
 
-function select(m){ cur = m; $("metro").value = m.name; update(); }
+function select(m){ cur = m; store.set("atlas.metro", m.name); $("metro").value = m.name; update(); }
 function resetClicks(){ const D = clickDefaults(profile()); ["his","her","apps"].forEach(k => $(k).value = Math.round(D[k])); }
 $("metro").addEventListener("change", e => { const q = e.target.value.trim().toLowerCase();
   const m = byName.get(q) || (q && M.find(x => x.name.toLowerCase().includes(q)));
@@ -1114,7 +1116,7 @@ function update(){
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const edu = s.deg ? "single, looking, degree-holding" : "single, looking";
   $("readout").innerHTML = `About <strong>${fmt(f.click)}</strong> ${who} in the ${m.name} metro fit what you're looking for, and about <strong>${fmt(f.apps)}</strong> of them are on the apps right now. ` +
-    (peer && peer.v > f.click ? `Among metros of similar size, ${peer.m.short} has about <strong>${fmt(peer.v/f.click)}×</strong> as many.` : byPool[0].m === m ? "No metro has more." : `No metro of similar size has more. ${byPool[0].m.short} has the most, about <strong>${fmt(byPool[0].v/f.click)}×</strong> as many.`);
+    (peer && peer.v > f.click ? `Among metros of similar size, ${peer.m.short} has about <strong>${fmtX(peer.v/f.click)}×</strong> as many.` : byPool[0].m === m ? "No metro has more." : `No metro of similar size has more. ${byPool[0].m.short} has the most, about <strong>${fmtX(byPool[0].v/f.click)}×</strong> as many.`);
 
   const scope = $("scope").value, sort = $("sort").value;
   let set = scope === "near" ? new Set(M.filter(x => near(x, m))) : new Set(TOP.slice(0, +scope));
@@ -1134,7 +1136,7 @@ function update(){
     : sort === "rent"
     ? `Ranked by housing cost, cheapest first: a recent mover's 1-bedroom rent as a share of the typical ${pay} in that metro. Above 30% is cost-burdened by HUD's standard. Tap or click a row to switch.`
     : `Ranked by gender balance: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
-  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : `, ${fmt(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : fmt(a.v/f.click) + "×"}</span></button>`).join("");
+  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : `, ${fmtX(a.v/f.click)} times yours`}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : fmtX(a.v/f.click) + "×"}</span></button>`).join("");
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
@@ -1487,8 +1489,16 @@ if (NARROW.matches) document.querySelectorAll("#refine .sec").forEach(d => d.ope
 ["scope","sort"].forEach(id => $(id).addEventListener("change", () => { shownCur = null; update(); }));
 resetClicks();
 SLIDERS.forEach(k => { const el = $(k); if (hNum(k, +el.min, +el.max) !== null) el.value = hNum(k, +el.min, +el.max); });
-if (HQ.has("m") && byName.has(HQ.get("m").toLowerCase())) cur = byName.get(HQ.get("m").toLowerCase());
-select(cur);
+// Starting metro: a shared link's, else the last one picked here, else the biggest metro in the browser's time zone
+// (no prompt, nothing sent), else Memphis. Where location is already allowed, the nearest metro replaces the guess.
+const TZM = {"America/New_York":"New York", "America/Detroit":"Detroit", "America/Indiana/Indianapolis":"Indianapolis",
+  "America/Kentucky/Louisville":"Louisville", "America/Chicago":"Chicago", "America/Denver":"Denver", "America/Boise":"Boise",
+  "America/Phoenix":"Phoenix", "America/Los_Angeles":"Los Angeles", "America/Anchorage":"Anchorage", "Pacific/Honolulu":"Urban Honolulu"};
+const pickedM = (HQ.get("m") || store.get("atlas.metro") || "").toLowerCase();
+if (byName.has(pickedM)) cur = byName.get(pickedM);
+else { const tz = TZM[Intl.DateTimeFormat().resolvedOptions().timeZone]; cur = (tz && M.find(x => x.name.startsWith(tz))) || cur;
+  navigator.permissions?.query({name: "geolocation"}).then(st => { if (st.state === "granted") $("geoBtn").click(); }, () => {}); }
+$("metro").value = cur.name; update();
 
 // Guided setup for first visits: three short steps that borrow the page's own controls, then hand back to
 // the full page. Visitors with a saved profile or a shared link skip it.
