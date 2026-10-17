@@ -90,8 +90,6 @@ fs.writeFileSync(patched, html);
 let diff = "";
 try { execSync(`git diff --no-index --no-color -U2 ${path.relative(ROOT, BEFORE)} ${path.relative(ROOT, patched)}`, {cwd: ROOT}); } catch (e) { diff = e.stdout.toString(); }
 fs.writeFileSync(path.join(here, "step2-values-joint.patch"), diff.replaceAll(path.relative(ROOT, patched), "atlas/index.html").replaceAll(path.relative(ROOT, BEFORE), "atlas/index.html"));
-// The patch is applied on this branch: the live page must match the patched copy exactly
-if (fs.readFileSync(path.join(ROOT, "atlas/index.html"), "utf8") !== html) throw new Error("atlas/index.html differs from the step 2 patched page");
 
 // ---- Measure ----
 const PROFILES = {

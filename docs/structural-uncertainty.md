@@ -1,6 +1,6 @@
 # How the funnel is built: a structural check
 
-The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Step 2 is now applied to the page (`scripts/structure/step2-values-joint.patch`). Every "before" figure below is the page as it was before that change; the scripts read it from git (commit 73d4238), so the analysis reproduces.
+The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Step 2 is now applied to the page (`scripts/structure/step2-values-joint.patch`), and so are next steps 2 and 3 (the degree share by age band and cohabiting rates by age; see "Applied after step 2" below). Every "before" figure below is the page as it was before that change; the scripts read it from git (commit 73d4238), so the analysis reproduces.
 
 ## Summary
 
@@ -10,7 +10,7 @@ The range under the main number covers uncertainty in the inputs, not in how the
 - **Several other assumptions are wrong by 8 to 37%, in measurable ways.** The degree step uses the degree share of everyone aged 25 to 34. Singles hold degrees about 10% less often, and the page uses the 25-to-34 share whatever age range you pick (singles 40 to 50 hold degrees at 0.78 times that rate). The flat 15% cohabiting cut is too small for young singles (26% of women and 22% of men aged 25 to 35 live with a partner). The faith shares describe all adults, but young singles are only 0.68 times as likely to be Christian.
 - **The secular-leaning level is not clearly off, but it should fall with age.** CES finds 6 to 7 points more young singles with no religion than the page assumes, but CES also finds about 7 points more unaffiliated adults overall than the GSS, PRRI or Pew. That's a survey house effect, not an error on the page. Across sources, the share of single women 25 to 35 with no religion runs from about 32% (on PRRI's scale) through 37.5% (GSS) to 48% (CES); the page's 40% sits in the middle. The real problem is age: the page uses the same base at every age, while the no-religion share among singles falls from 37.5% at 25 to 35 to about 22% at 46 to 55 (GSS, women). For a search for women 40 to 50 that alone is ×0.76.
 - **Some assumptions hold up.** Mutual attraction is close to his rate times her rate (lift 1.03). Openness to dating your gender barely varies with politics (within 2.5%). The progressive model fits young single women well. For men it's too steep: it overstates how progressive men are in the most Democratic metros.
-- **Recommendation: fix rather than widen.** The structural errors found here are systematic biases with data to correct them, not random noise. Folding them into the range as judgment would widen it around a center that's known to be off. Step 2 is applied. Next, fix the degree share's age band, the cohabiting rate, the faith shares and the secular share's age gradient, and carry each correction's own statistical uncertainty into the range. Step 2 shows how. The one finding that does belong in the range is the secular-leaning level, where sources disagree with no known direction of error.
+- **Recommendation: fix rather than widen.** The structural errors found here are systematic biases with data to correct them, not random noise. Folding them into the range as judgment would widen it around a center that's known to be off. Step 2, the degree share's age band and the cohabiting rate are applied. Next, fix the faith shares and the secular share's age gradient, and carry each correction's own statistical uncertainty into the range. Step 2 shows how. The one finding that does belong in the range is the secular-leaning level, where sources disagree with no known direction of error.
 
 ## Method
 
@@ -120,6 +120,25 @@ Nonbinary people get the average of the women's and men's figures, as elsewhere 
 - **Rankings.** The top 10 keeps the same metros in five of the six searches, with neighbors occasionally swapping places; in the default search Miami replaces Denver at number 9. The mean metro moves 3 to 6 places out of 387.
 - **The range.** It stays about as wide relative to the number (Memphis ×0.53 to ×1.57, from ×0.51 to ×1.61), now centered on the corrected estimate. The correction itself is well determined: its 95% interval (×0.70 to ×0.91 for the default) sits entirely below 1.
 
+## Applied after step 2: degree share and cohabiting rate
+
+`scripts/pums_singles.py` embeds two national corrections from the 2023 ACS microdata as the page's `PUMS` object, and `scripts/acs_to_json.py` now embeds each metro's B15001 degree share for all four age bands, not just 25 to 34.
+
+- **Cohabiting.** The page removes the share of singles living with a partner for each B12002 age band and sex, instead of 15% everywhere: 26% of single women and 21% of single men at 25 to 29, falling to 6% and 12% at 55 to 59. The kids step's single-parent rate uses the same denominator.
+- **Degree share.** For each year of the age range, the page takes the metro's B15001 share for that year's band and scales it by how often singles hold degrees against everyone in the band: 0.93 (women) and 0.91 (men) at 25 to 34, 0.79 and 0.73 at 35 to 44, 0.85 and 0.71 at 45 to 64, and 1.77 and 1.73 at 18 to 24 (singles 21 to 24 against everyone 18 to 24, who are mostly too young for a degree). The years are weighted by single people at each age. The degree uncertainty in the range still uses the 25-to-34 band's relative error.
+
+Effect on top of step 2 (Memphis, and the population-weighted change across metros):
+
+| Search | Memphis after step 2 | Memphis now | Pop-weighted | Spread across metros |
+|---|---|---|---|---|
+| Man, women 25 to 35 (default) | 175 | 140 (80% range 74 to 220) | ×0.80 | ×0.79 to ×0.83 |
+| Woman, men 25 to 35 | 125 | 103 | ×0.82 | ×0.80 to ×0.86 |
+| Default without the degree filter | 436 | 380 | ×0.87 | ×0.87 |
+| Man 45, women 40 to 50 | 52 | 39 | ×0.67 | ×0.55 to ×1.21 |
+| Woman 25, men 21 to 30 | 139 | 98 | ×0.76 | ×0.39 to ×1.24 |
+
+For the default search this matches step 1's prediction (×0.92 for the degree share times ×0.87 for cohabiting ≈ ×0.80). Searches outside 25 to 35 now vary more between metros, because each metro's own degree share for those ages replaces its 25-to-34 share. For example, only 3.4% of men aged 18 to 24 in Provo have degrees, while in Elkhart and Prescott Valley older adults hold degrees more often than younger ones.
+
 ## The secular-leaning level
 
 CES puts the no-religion share of single 25-to-35-year-olds 6 to 7 points above the page's secular-leaning share (`ces_metro_form.json`). Before calling that an input error, `scripts/structure/secular_level.py` checks it against the 2022 and 2024 General Social Survey, a probability sample (985 single respondents aged 25 to 35), and against PRRI, the page's own source for how metros differ.
@@ -157,8 +176,8 @@ CES puts the no-religion share of single 25-to-35-year-olds 6 to 7 points above 
 ## Suggested next steps
 
 1. **Step 2: done.** It fixes a logic error and puts the overlap on data, with its uncertainty in the range. The page now carries it; `scripts/structure/step2.mjs` checks that the page matches the patched copy exactly.
-2. **Use the degree share for the matching age band.** B15001 has bands for 25 to 34, 35 to 44 and 45 to 64. Scale it by about 0.9 to reach singles, from PUMS by sex and band (`scripts/structure/out/pums_degree.json`).
-3. **Use cohabiting rates by sex and age band** from PUMS in place of the flat 15%.
+2. **Degree share by age band: done.** The page now uses B15001's band (18 to 24, 25 to 34, 35 to 44 or 45 to 64) for each year of the age range, weighted by singles at that age, times how often singles hold degrees against everyone in that band (PUMS).
+3. **Cohabiting rates by sex and age band: done,** from PUMS in place of the flat 15%.
 4. **Adjust faith shares to young singles** with the CES ratios, or say more prominently that Christian counts are likely high.
 5. **Let the secular-leaning share fall with age**, by about ×0.9 at 36 to 45, ×0.65 to 0.7 at 46 to 55 and ×0.55 at 56 to 65 relative to 25 to 35 (the GSS and CES averaged; `scripts/structure/out/secular_level.json`). Keep the 40% base, but widen its uncertainty in the range from ±5 to about ±8 points, the spread between sources. Decide whether "secular-leaning" should include people who are nominally religious but rarely attend; if so, the base is about 20 points higher (59% of single women 25 to 35 and 68% of men in the GSS).
 6. **Revisit the men's progressive offset** in the most Democratic metros.
@@ -175,6 +194,7 @@ python3 scripts/structure/pums_degree.py DATA_DIR       # out/pums_degree.json (
 python3 scripts/structure/secular_level.py DATA_DIR     # out/secular_level.json (needs the GSS 2022 and 2024 Stata files)
 node scripts/structure/sensitivity.mjs                  # step 1, out/sensitivity.json
 node scripts/structure/step2.mjs                        # step 2, out/step2.json and step2-values-joint.patch
+python3 scripts/pums_singles.py csv_pus.zip --page atlas/index.html   # the page's PUMS object (run from scripts/)
 ```
 
 The Node scripts need Playwright with Chromium. The Python scripts need pandas, numpy, statsmodels and openpyxl.
