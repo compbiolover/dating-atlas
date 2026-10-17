@@ -1,4 +1,4 @@
-// Step 2: replace the page's biggest independence assumption, how politics and faith combine (and how a degree
+// Step 2 (applied on this branch): replace the page's biggest independence assumption, how politics and faith combine (and how a degree
 // shifts them), with estimates from the 2024 CES. Writes a patched copy of the page to out/index.step2.html and
 // the proposed change to scripts/structure/step2-values-joint.patch, then measures what it does.
 //
@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { open } from "./harness.mjs";
+import { open, BEFORE } from "./harness.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url)), OUT = path.join(here, "out"), ROOT = path.resolve(here, "../..");
 const J = f => JSON.parse(fs.readFileSync(path.join(OUT, f)));
@@ -82,14 +82,16 @@ function valRaw(m, g, P, Q = VQ){
   [`The 1.5 overlap boost applies only to matching pairs, progressive with secular-leaning and conservative with a Christian faith, because those go together more often than chance.</p>`,
    `Matching pairs, progressive with secular-leaning and conservative with a Christian faith, go together more often than chance. The share who fit both comes from the odds ratio between politics and faith among single 25 to 35 year olds in the <a href="https://doi.org/10.7910/DVN/X11EP6">2024 Cooperative Election Study</a>: ${f2(PSI.prog.all.w)} for women and ${f2(PSI.prog.all.m)} for men for progressive with no religion, and ${f2(PSI.cons.all.w)} and ${f2(PSI.cons.all.m)} for conservative with a Christian faith. Worked out this way (a Plackett joint), it can never exceed either share on its own. Degree holders are more progressive (odds ${f2(DEG_OR.prog.w)} to ${f2(DEG_OR.prog.m)} times higher), more often Christian (${f2(DEG_OR.christian.w)} to ${f2(DEG_OR.christian.m)} times) and less often unaffiliated, and their politics and faith line up more tightly (odds ratios of ${f2(Math.min(PSI.prog.ba.m, PSI.cons.ba.m))} to ${f2(Math.max(PSI.prog.ba.w, PSI.cons.ba.w))}), so the degree filter uses those figures. Progressive counts Democrats and leaners, with independents as half.</p>`],
 ];
-let html = fs.readFileSync(path.join(ROOT, "atlas/index.html"), "utf8");
+let html = fs.readFileSync(BEFORE, "utf8");
 for (const [a, b] of EDITS){ if (html.split(a).length !== 2) throw new Error("edit not unique: " + a.slice(0, 70)); html = html.replace(a, () => b); }
 if (/\bCORR\b|Q\.corr|UNC\.corr/.test(html)) throw new Error("leftover CORR reference");
 const patched = path.join(OUT, "index.step2.html");
 fs.writeFileSync(patched, html);
 let diff = "";
-try { execSync(`git diff --no-index --no-color -U2 atlas/index.html ${path.relative(ROOT, patched)}`, {cwd: ROOT}); } catch (e) { diff = e.stdout.toString(); }
-fs.writeFileSync(path.join(here, "step2-values-joint.patch"), diff.replaceAll(path.relative(ROOT, patched), "atlas/index.html"));
+try { execSync(`git diff --no-index --no-color -U2 ${path.relative(ROOT, BEFORE)} ${path.relative(ROOT, patched)}`, {cwd: ROOT}); } catch (e) { diff = e.stdout.toString(); }
+fs.writeFileSync(path.join(here, "step2-values-joint.patch"), diff.replaceAll(path.relative(ROOT, patched), "atlas/index.html").replaceAll(path.relative(ROOT, BEFORE), "atlas/index.html"));
+// The patch is applied on this branch: the live page must match the patched copy exactly
+if (fs.readFileSync(path.join(ROOT, "atlas/index.html"), "utf8") !== html) throw new Error("atlas/index.html differs from the step 2 patched page");
 
 // ---- Measure ----
 const PROFILES = {

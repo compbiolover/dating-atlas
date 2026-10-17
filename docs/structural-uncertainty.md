@@ -1,6 +1,6 @@
 # How the funnel is built: a structural check
 
-The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Nothing on the live page has changed; step 2 exists as a tested patch, `scripts/structure/step2-values-joint.patch`.
+The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Step 2 is now applied to the page (`scripts/structure/step2-values-joint.patch`). Every "before" figure below is the page as it was before that change; the scripts read it from git (commit 73d4238), so the analysis reproduces.
 
 ## Summary
 
@@ -10,7 +10,7 @@ The range under the main number covers uncertainty in the inputs, not in how the
 - **Several other assumptions are wrong by 8 to 37%, in measurable ways.** The degree step uses the degree share of everyone aged 25 to 34. Singles hold degrees about 10% less often, and the page uses the 25-to-34 share whatever age range you pick (singles 40 to 50 hold degrees at 0.78 times that rate). The flat 15% cohabiting cut is too small for young singles (26% of women and 22% of men aged 25 to 35 live with a partner). The faith shares describe all adults, but young singles are only 0.68 times as likely to be Christian.
 - **The secular-leaning level is not clearly off, but it should fall with age.** CES finds 6 to 7 points more young singles with no religion than the page assumes, but CES also finds about 7 points more unaffiliated adults overall than the GSS, PRRI or Pew. That's a survey house effect, not an error on the page. Across sources, the share of single women 25 to 35 with no religion runs from about 32% (on PRRI's scale) through 37.5% (GSS) to 48% (CES); the page's 40% sits in the middle. The real problem is age: the page uses the same base at every age, while the no-religion share among singles falls from 37.5% at 25 to 35 to about 22% at 46 to 55 (GSS, women). For a search for women 40 to 50 that alone is ×0.76.
 - **Some assumptions hold up.** Mutual attraction is close to his rate times her rate (lift 1.03). Openness to dating your gender barely varies with politics (within 2.5%). The progressive model fits young single women well. For men it's too steep: it overstates how progressive men are in the most Democratic metros.
-- **Recommendation: fix rather than widen.** The structural errors found here are systematic biases with data to correct them, not random noise. Folding them into the range as judgment would widen it around a center that's known to be off. Apply step 2. Then fix the degree share's age band, the cohabiting rate, the faith shares and the secular share's age gradient, and carry each correction's own statistical uncertainty into the range. Step 2 shows how. The one finding that does belong in the range is the secular-leaning level, where sources disagree with no known direction of error.
+- **Recommendation: fix rather than widen.** The structural errors found here are systematic biases with data to correct them, not random noise. Folding them into the range as judgment would widen it around a center that's known to be off. Step 2 is applied. Next, fix the degree share's age band, the cohabiting rate, the faith shares and the secular share's age gradient, and carry each correction's own statistical uncertainty into the range. Step 2 shows how. The one finding that does belong in the range is the secular-leaning level, where sources disagree with no known direction of error.
 
 ## Method
 
@@ -92,7 +92,7 @@ What stands out:
 - **The secular-leaning level moves the number but not the ranking.** Taking it from PRRI's scale, the GSS or CES moves the combined result for the default search from ×0.49 to ×0.83, with the ranking unchanged (ρ 0.996 to 0.998). The page's level gives ×0.67, close to the GSS. This is uncertainty about the level, with no known direction of error, so it belongs in the range rather than in a correction.
 - **Rankings are robust throughout.** The order of metros barely depends on how the funnel is built, so comparing metros on the page is far safer than reading off a single metro's absolute number.
 
-## Step 2: replacing the overlap with data
+## Step 2: replacing the overlap with data (applied)
 
 The largest independence-type assumption is how politics and faith combine, so step 2 replaces it. Because the degree holders' odds ratio only makes sense with their own shares, the replacement also shifts politics and faith for degree holders. Concretely, the patch:
 
@@ -156,7 +156,7 @@ CES puts the no-religion share of single 25-to-35-year-olds 6 to 7 points above 
 
 ## Suggested next steps
 
-1. **Apply step 2.** It fixes a logic error and puts the overlap on data, with its uncertainty in the range: `git apply scripts/structure/step2-values-joint.patch`.
+1. **Step 2: done.** It fixes a logic error and puts the overlap on data, with its uncertainty in the range. The page now carries it; `scripts/structure/step2.mjs` checks that the page matches the patched copy exactly.
 2. **Use the degree share for the matching age band.** B15001 has bands for 25 to 34, 35 to 44 and 45 to 64. Scale it by about 0.9 to reach singles, from PUMS by sex and band (`scripts/structure/out/pums_degree.json`).
 3. **Use cohabiting rates by sex and age band** from PUMS in place of the flat 15%.
 4. **Adjust faith shares to young singles** with the CES ratios, or say more prominently that Christian counts are likely high.
