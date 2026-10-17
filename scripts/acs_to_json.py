@@ -7,7 +7,7 @@ Inputs (both written by scripts/pull_acs.R):
 
 Per metro and sex it keeps, by B12002 age band:
   single people (never married + divorced + widowed) and everyone
-from B15001 the share of 25-34 year olds with a bachelor's or higher,
+from B15001 the share with a bachelor's or higher in each age band from 18-24 to 45-64,
 and from B11012 the number of single parents (householders with no spouse
 or partner present and their own children under 18).
 
@@ -147,6 +147,26 @@ def b15001_plan(labels):
     return total, deg
 
 
+def b15001_bands(labels):
+    """[(age band, total variable, bachelor's-plus variables)] by sex, for the bands from 18-24 to 45-64."""
+    out = defaultdict(dict)
+    for var, parts in labels.items():
+        if not var.startswith("B15001_") or len(parts) < 2 or parts[0] not in SEXES:
+            continue
+        band = parse_age(parts[1])
+        if not band or band[0] >= 65:
+            continue
+        cell = out[SEXES[parts[0]]].setdefault(band, [None, []])
+        if len(parts) == 2:
+            cell[0] = var
+        elif parts[2].startswith(("bachelor", "graduate")):
+            cell[1].append(var)
+    plan = {sex: [(band, t, d) for band, (t, d) in sorted(out[sex].items())] for sex in ("w", "m")}
+    if [b for b, _, _ in plan["w"]] != [(18, 24), (25, 34), (35, 44), (45, 64)] or any(not t or len(d) != 2 for p in plan.values() for _, t, d in p):
+        sys.exit("Could not find the B15001 degree cells for each age band")
+    return plan
+
+
 def b11012_plan(labels):
     """The single-parent householder cell for each sex."""
     cells = {}
@@ -183,7 +203,7 @@ def main():
 
     labels = load_labels(a.labels)
     plan, bands = b12002_plan(labels)
-    total25, deg25 = b15001_plan(labels)
+    degs = b15001_bands(labels)
     parents = b11012_plan(labels)
     idx = {band: i for i, band in enumerate(bands)}
     atlas = atlas_names(a.page)  # largest metro first
@@ -204,12 +224,12 @@ def main():
                     out[sex][idx[band]] += n
             rec = {k: [round(x) for x in v] for k, v in out.items()}
             for sex in ("w", "m"):
-                t = estimate(row, total25[sex])
-                rec["d" + sex] = round(100 * sum(estimate(row, v) for v in deg25[sex]) / t, 1) if t else 0
+                rec["d" + sex] = [round(100 * sum(estimate(row, v) for v in d) / estimate(row, t), 1) if estimate(row, t) else 0
+                                  for _, t, d in degs[sex]]
                 rec["k" + sex] = round(estimate(row, parents[sex]))
             metros[name] = rec
 
-    acs = {"bands": [list(b) for b in bands], "metros": metros}
+    acs = {"bands": [list(b) for b in bands], "degBands": [list(b) for b, _, _ in degs["w"]], "metros": metros}
     missing = [n for n in atlas if n not in metros]
     print(f"{len(metros)} metros matched, {len(missing)} atlas metros without ACS rows")
     if unmatched:

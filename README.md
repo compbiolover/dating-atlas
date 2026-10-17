@@ -4,7 +4,7 @@ Dating Atlas estimates how many people in a U.S. metro could realistically be yo
 
 Live page: https://datingatlas.dev/
 
-![Dating Atlas showing 216 possibilities in Memphis, with the funnel from 1.3 million people down to 50 on the apps and a map of every metro](docs/atlas-screenshot.png)
+![Dating Atlas showing 140 possibilities in Memphis, with the funnel from 1.3 million people down to 32 on the apps and a map of every metro](docs/atlas-screenshot.png)
 
 ## What it does
 
@@ -27,7 +27,8 @@ Each funnel step multiplies the one before it. The steps that differ by metro us
 | Step | Source |
 |---|---|
 | Population | Census Bureau 2025 estimates for the 387 metropolitan statistical areas |
-| Single people by age, and the degree share | American Community Survey 2019 to 2023, tables B12002 and B15001 |
+| Single people by age, and the degree share | American Community Survey 2019 to 2023, tables B12002 and B15001 (degree share by age band) |
+| Who lives with a partner, and how often singles hold degrees | 2023 ACS microdata (PUMS), by sex and age band, applied nationally |
 | Politics | 2024 presidential vote by county, summed to metros |
 | Faith | PRRI Census of American Religion county estimates, and the 2020 U.S. Religion Census |
 | Single parents | ACS table B11012 |
@@ -35,7 +36,7 @@ Each funnel step multiplies the one before it. The steps that differ by metro us
 
 The behavioral steps use national rates: who is looking to date (Pew), who is open to dating each gender (Gallup), attraction rates (speed-dating studies), dating-app use (Pew) and diets (Gallup, NHANES, Pew and ISPU). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
 
-The range under the main number comes from a Monte Carlo simulation. The page reruns the funnel 2,000 times, and each run varies every input by how uncertain it is. Local counts vary by their Census margins of error, survey rates by their sample sizes, and modeling assumptions over stated ranges. The page shows the middle 80% of the results. That range covers uncertainty in the inputs, not in how the funnel is built.
+The range under the main number comes from a Monte Carlo simulation. The page reruns the funnel 2,000 times, and each run varies every input by how uncertain it is. Local counts vary by their Census margins of error, survey rates by their sample sizes, and modeling assumptions over stated ranges. The page shows the middle 80% of the results. That range covers uncertainty in the inputs, not in how the funnel is built. `docs/structural-uncertainty.md` checks how the funnel is built against survey microdata, with the scripts in `scripts/structure/`.
 
 ## Repository layout
 
@@ -49,7 +50,8 @@ scripts/            scripts that rebuild the embedded data
 | Script | What it rebuilds |
 |---|---|
 | `scripts/pull_acs.R` | Pulls ACS tables B12002, B15001 and B11012 for every metro with tidycensus, into `data/metro_acs_2023.csv` and `data/acs_variables_2023.csv`. Needs a Census API key. |
-| `scripts/acs_to_json.py` | Turns that ACS extract into the page's `ACS` object: single people by age band, degree shares and single parents. |
+| `scripts/acs_to_json.py` | Turns that ACS extract into the page's `ACS` object: single people by age band, degree shares by age band and single parents. |
+| `scripts/pums_singles.py` | Embeds `PUMS` from the 2023 ACS 1-year microdata: the share of singles not living with a partner, by sex and age band, and how often singles hold degrees against everyone in each age band. |
 | `scripts/acs_moe_to_json.py` | Embeds ACS standard errors (`ACSE`) for the uncertainty range, from the Census table-based summary files. No API key needed. |
 | `scripts/religion_to_json.py` | Embeds congregation membership and the unaffiliated share (`REL`), which feed the secular-leaning share. Writes `data/metro_religion.csv`. |
 | `scripts/faith_to_json.py` | Embeds PRRI's share for each faith group (`FAITH`), used by the faith filter. Writes `data/metro_faith.csv`. |
@@ -63,6 +65,7 @@ The 2019 to 2023 data is already in `data/` and embedded in the page. To rebuild
 ```sh
 Rscript scripts/pull_acs.R    # needs a Census API key
 python3 scripts/acs_to_json.py data/metro_acs_2023.csv data/acs_variables_2023.csv
+cd scripts && python3 pums_singles.py csv_pus.zip --page ../atlas/index.html && cd ..
 PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx

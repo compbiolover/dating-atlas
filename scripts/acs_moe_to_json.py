@@ -10,12 +10,12 @@ for the CBSA code -> name match the other ACS data uses. The national files are 
 keeping only the header and the lines starting with 310M (metros) is enough.
 
 Standard error = margin of error / 1.645. Single people in a band are a sum of cells,
-so their SE is the root sum of squares (the Census Bureau's approximation). The 25-34
-degree share's SE uses the Census formula for a proportion,
+so their SE is the root sum of squares (the Census Bureau's approximation). Each age
+band's degree share (18-24, 25-34, 35-44, 45-64) has its SE from the Census formula for a proportion,
   SE(p) = sqrt(SE(x)^2 - p^2 SE(X)^2) / X,  with + instead of - if the root is negative.
 
 Writes the `const ACSE = {...};` line in the page, as
-{metro: {w: [SE of single women per age band], m: [... men], dw: SE of women's degree %, dm: ...}}.
+{metro: {w: [SE of single women per age band], m: [... men], dw: [SE of women's degree % per B15001 band], dm: ...}}.
 
 Usage:
   python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
@@ -26,7 +26,7 @@ import math
 import re
 import sys
 
-from acs_to_json import atlas_names, b12002_plan, b15001_plan, embed, load_labels, matcher
+from acs_to_json import atlas_names, b12002_plan, b15001_bands, embed, load_labels, matcher
 
 Z90 = 1.645
 
@@ -61,7 +61,7 @@ def main():
 
     labels = load_labels(a.labels)
     plan, bands = b12002_plan(labels)
-    total25, deg25 = b15001_plan(labels)
+    degs = b15001_bands(labels)
     idx = {band: i for i, band in enumerate(bands)}
     mar, edu = read_sf(a.b12002), read_sf(a.b15001)
 
@@ -84,13 +84,15 @@ def main():
                 var2[sex][idx[band]] += mar[code][var][1] ** 2
         rec = {s: [round(math.sqrt(v)) for v in var2[s]] for s in ("w", "m")}
         for s in ("w", "m"):
-            X, seX = edu[code][total25[s]]
-            x = sum(edu[code][v][0] for v in deg25[s])
-            sex_ = math.sqrt(sum(edu[code][v][1] ** 2 for v in deg25[s]))
-            p = x / X if X else 0
-            inner = sex_ ** 2 - p ** 2 * seX ** 2
-            se = math.sqrt(inner if inner >= 0 else sex_ ** 2 + p ** 2 * seX ** 2) / X if X else 0
-            rec["d" + s] = round(100 * se, 2)
+            rec["d" + s] = []
+            for _, total, deg in degs[s]:
+                X, seX = edu[code][total]
+                x = sum(edu[code][v][0] for v in deg)
+                sex_ = math.sqrt(sum(edu[code][v][1] ** 2 for v in deg))
+                p = x / X if X else 0
+                inner = sex_ ** 2 - p ** 2 * seX ** 2
+                se = math.sqrt(inner if inner >= 0 else sex_ ** 2 + p ** 2 * seX ** 2) / X if X else 0
+                rec["d" + s].append(round(100 * se, 2))
         out[name] = rec
 
     missing = [n for n in atlas if n not in out]
