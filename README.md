@@ -2,7 +2,7 @@
 
 Dating Atlas estimates how many people in a U.S. metro could realistically be your match, and compares that number across all 387 metro areas. It is a single web page with its data built in.
 
-Live page: https://claude.ai/artifact/Cp6FKad8tKBi8rRoqjimqJ
+Live page: https://datingatlas.dev/
 
 ![Dating Atlas showing 215 possibilities in Memphis, with the funnel from 1.3 million people down to 49 on the apps](docs/atlas-screenshot.png)
 
