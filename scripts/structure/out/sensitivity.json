@@ -63,9 +63,19 @@
    "m": 0.2223919681441023
   },
   "recip": 1.028826140676868,
-  "secGap": {
-   "w": 0.06354687534716252,
-   "m": 0.07470828837963361
+  "secShift": {
+   "PRRI scale": {
+    "w": -0.07475839848420968,
+    "m": -0.051222959833605364
+   },
+   "GSS": {
+    "w": -0.025003797017509488,
+    "m": 0.00824739394721502
+   },
+   "CES": {
+    "w": 0.06990907666853974,
+    "m": 0.0730022065864433
+   }
   }
  },
  "profiles": {
@@ -464,6 +474,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.6682955967404483,
@@ -496,35 +570,99 @@
       "top25_kept": 24
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
      "est": {
-      "memphis": 0.8162473617913727,
-      "pop_weighted": 0.7370603767749027,
-      "median": 0.8441092099778733,
-      "p10": 0.7088370713084775,
-      "p90": 1.0083357320738888,
-      "spearman": 0.9963567423558256,
-      "mean_abs_rank_change": 7.095607235142118,
+      "memphis": 0.4937328659895419,
+      "pop_weighted": 0.5128066531749458,
+      "median": 0.5958363443651477,
+      "p10": 0.5056093140159622,
+      "p90": 0.687283417365968,
+      "spearman": 0.9971393481349344,
+      "mean_abs_rank_change": 5.700258397932816,
       "top25_kept": 24
      },
      "lo": {
-      "memphis": 0.6616092349057521,
-      "pop_weighted": 0.6134554181390656,
-      "median": 0.6822456645045537,
-      "p10": 0.5971573573683567,
-      "p90": 0.7578269066051168,
-      "spearman": 0.9984039396954628,
-      "mean_abs_rank_change": 4.594315245478036,
+      "memphis": 0.3918744267935935,
+      "pop_weighted": 0.41764634348148794,
+      "median": 0.4699256070251242,
+      "p10": 0.41595572383553087,
+      "p90": 0.5151718998126057,
+      "spearman": 0.9978298217522171,
+      "mean_abs_rank_change": 4.837209302325581,
       "top25_kept": 24
      },
      "hi": {
-      "memphis": 0.9746633297834066,
-      "pop_weighted": 0.8615889671911284,
-      "median": 1.0094466913372253,
-      "p10": 0.8142841569769557,
-      "p90": 1.2784599213269408,
-      "spearman": 0.993987600046211,
-      "mean_abs_rank_change": 9.17312661498708,
+      "memphis": 0.601103480813872,
+      "pop_weighted": 0.6110478868232617,
+      "median": 0.7287242702286871,
+      "p10": 0.601103480813872,
+      "p90": 0.8853545129438907,
+      "spearman": 0.9958575723734363,
+      "mean_abs_rank_change": 7.0852713178294575,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.6099465741504763,
+      "pop_weighted": 0.5937124379471349,
+      "median": 0.69003443143294,
+      "p10": 0.5895687556141971,
+      "p90": 0.7990300536423096,
+      "spearman": 0.9976101538337953,
+      "mean_abs_rank_change": 5.576227390180879,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.48772260772399234,
+      "pop_weighted": 0.48723001291816087,
+      "median": 0.5488853401911628,
+      "p10": 0.4852362294922677,
+      "p90": 0.590864274896944,
+      "spearman": 0.9988761946642849,
+      "mean_abs_rank_change": 3.6227390180878554,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.7373772820159616,
+      "pop_weighted": 0.7025857171820247,
+      "median": 0.8323093688106685,
+      "p10": 0.6870326439647555,
+      "p90": 1.0253745027219003,
+      "spearman": 0.9958507401007616,
+      "mean_abs_rank_change": 7.529715762273902,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from CES (input check)": {
+     "est": {
+      "memphis": 0.8310216790396809,
+      "pop_weighted": 0.747308150468642,
+      "median": 0.8542444950471907,
+      "p10": 0.7162165548452244,
+      "p90": 1.022643530810093,
+      "spearman": 0.9962111942439966,
+      "mean_abs_rank_change": 7.224806201550388,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.6742557009084045,
+      "pop_weighted": 0.622632825848656,
+      "median": 0.6921539650576047,
+      "p10": 0.604218541247052,
+      "p90": 0.7705306976965066,
+      "spearman": 0.9982983500268529,
+      "mean_abs_rank_change": 4.728682170542636,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.991433258727992,
+      "pop_weighted": 0.8727999033831496,
+      "median": 1.0209621309920474,
+      "p10": 0.8245260924891908,
+      "p90": 1.298168916992989,
+      "spearman": 0.9937439156541445,
+      "mean_abs_rank_change": 9.328165374677003,
       "top25_kept": 24
      }
     }
@@ -925,6 +1063,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.6103883498510101,
@@ -957,35 +1159,99 @@
       "top25_kept": 24
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
      "est": {
-      "memphis": 0.7532474156059323,
-      "pop_weighted": 0.6831598766698435,
-      "median": 0.797767302993411,
-      "p10": 0.6585622268712052,
-      "p90": 1.0272708977340392,
-      "spearman": 0.994786768910592,
-      "mean_abs_rank_change": 8.382428940568476,
+      "memphis": 0.5125669764916646,
+      "pop_weighted": 0.5104244427616595,
+      "median": 0.6047136770931693,
+      "p10": 0.5068129999357104,
+      "p90": 0.7541682522275116,
+      "spearman": 0.9962697861581469,
+      "mean_abs_rank_change": 6.883720930232558,
       "top25_kept": 24
      },
      "lo": {
-      "memphis": 0.567628487858053,
-      "pop_weighted": 0.5317264215299109,
-      "median": 0.6105251970954731,
-      "p10": 0.522943868334254,
-      "p90": 0.7481904902112019,
-      "spearman": 0.9969565330812432,
-      "mean_abs_rank_change": 6.341085271317829,
+      "memphis": 0.37716539382756836,
+      "pop_weighted": 0.3871119821776846,
+      "median": 0.4473110206557649,
+      "p10": 0.3860742270470494,
+      "p90": 0.5367923023755071,
+      "spearman": 0.9972318943738926,
+      "mean_abs_rank_change": 5.7984496124031,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.6796370474957286,
+      "pop_weighted": 0.6578936033282019,
+      "median": 0.7976549675584985,
+      "p10": 0.6492415757901363,
+      "p90": 1.0359455413830998,
+      "spearman": 0.9942422574822702,
+      "mean_abs_rank_change": 8.69767441860465,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.6261625404635577,
+      "pop_weighted": 0.5922256657656245,
+      "median": 0.6978247340005244,
+      "p10": 0.5817109011531878,
+      "p90": 0.8875501135857056,
+      "spearman": 0.9957265169612204,
+      "mean_abs_rank_change": 7.503875968992248,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.4657811441920697,
+      "pop_weighted": 0.454464289140495,
+      "median": 0.525153709989762,
+      "p10": 0.4543464748245159,
+      "p90": 0.6301354431982373,
+      "spearman": 0.9975329284487139,
+      "mean_abs_rank_change": 5.684754521963824,
       "top25_kept": 24
      },
      "hi": {
-      "memphis": 0.9757710162148482,
-      "pop_weighted": 0.8593152608323272,
-      "median": 1.0238206586435592,
-      "p10": 0.8148008712374419,
-      "p90": 1.3843545973205929,
-      "spearman": 0.9921290148401103,
-      "mean_abs_rank_change": 10.304909560723514,
+      "memphis": 0.8213231774375642,
+      "pop_weighted": 0.7547834452425803,
+      "median": 0.9075980451279011,
+      "p10": 0.7250271695664926,
+      "p90": 1.206050786218538,
+      "spearman": 0.9934702106700224,
+      "mean_abs_rank_change": 9.364341085271318,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from CES (input check)": {
+     "est": {
+      "memphis": 0.7499897061997421,
+      "pop_weighted": 0.6808379574282712,
+      "median": 0.7957319359778672,
+      "p10": 0.6559601568733863,
+      "p90": 1.0240871394465518,
+      "spearman": 0.994786768910592,
+      "mean_abs_rank_change": 8.372093023255815,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.5649786517547487,
+      "pop_weighted": 0.5297188879264868,
+      "median": 0.6085352066230706,
+      "p10": 0.521578861643433,
+      "p90": 0.7446811248565908,
+      "spearman": 0.9969691624337632,
+      "mean_abs_rank_change": 6.325581395348837,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.9718677996770404,
+      "pop_weighted": 0.8566904538521348,
+      "median": 1.0209876478054751,
+      "p10": 0.8123640724405079,
+      "p90": 1.380423901061502,
+      "spearman": 0.9921464060796461,
+      "mean_abs_rank_change": 10.294573643410853,
       "top25_kept": 24
      }
     }
@@ -1386,6 +1652,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.4317335642096169,
@@ -1418,7 +1748,71 @@
       "top25_kept": 23
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
+     "est": {
+      "memphis": 0.4317335642096169,
+      "pop_weighted": 0.48092348968964416,
+      "median": 0.46631809469404784,
+      "p10": 0.43523765932145075,
+      "p90": 0.5086052505519604,
+      "spearman": 0.9960745487905014,
+      "mean_abs_rank_change": 6.0671834625323,
+      "top25_kept": 23
+     },
+     "lo": {
+      "memphis": 0.3996148704204589,
+      "pop_weighted": 0.4342776235995299,
+      "median": 0.4100206359225605,
+      "p10": 0.3951932691642385,
+      "p90": 0.45281263485145,
+      "spearman": 0.9969557049269796,
+      "mean_abs_rank_change": 4.702842377260982,
+      "top25_kept": 23
+     },
+     "hi": {
+      "memphis": 0.42694634768938683,
+      "pop_weighted": 0.48482873907540586,
+      "median": 0.48310352800268636,
+      "p10": 0.43734636581483866,
+      "p90": 0.5511946889732144,
+      "spearman": 0.9943300418342126,
+      "mean_abs_rank_change": 8.07235142118863,
+      "top25_kept": 23
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.4317335642096169,
+      "pop_weighted": 0.48092348968964416,
+      "median": 0.46631809469404784,
+      "p10": 0.43523765932145075,
+      "p90": 0.5086052505519604,
+      "spearman": 0.9960745487905014,
+      "mean_abs_rank_change": 6.0671834625323,
+      "top25_kept": 23
+     },
+     "lo": {
+      "memphis": 0.3996148704204589,
+      "pop_weighted": 0.4342776235995299,
+      "median": 0.4100206359225605,
+      "p10": 0.3951932691642385,
+      "p90": 0.45281263485145,
+      "spearman": 0.9969557049269796,
+      "mean_abs_rank_change": 4.702842377260982,
+      "top25_kept": 23
+     },
+     "hi": {
+      "memphis": 0.42694634768938683,
+      "pop_weighted": 0.48482873907540586,
+      "median": 0.48310352800268636,
+      "p10": 0.43734636581483866,
+      "p90": 0.5511946889732144,
+      "spearman": 0.9943300418342126,
+      "mean_abs_rank_change": 8.07235142118863,
+      "top25_kept": 23
+     }
+    },
+    "  ...with secular level from CES (input check)": {
      "est": {
       "memphis": 0.4317335642096169,
       "pop_weighted": 0.48092348968964416,
@@ -1847,6 +2241,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.5816036100257584,
@@ -1879,7 +2337,71 @@
       "top25_kept": 23
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
+     "est": {
+      "memphis": 0.5816036100257584,
+      "pop_weighted": 0.6609797128462613,
+      "median": 0.5391940274631208,
+      "p10": 0.47120405458293957,
+      "p90": 0.7028702313247094,
+      "spearman": 0.985642910647538,
+      "mean_abs_rank_change": 11.9328165374677,
+      "top25_kept": 23
+     },
+     "lo": {
+      "memphis": 0.5028893941565534,
+      "pop_weighted": 0.5565881850804237,
+      "median": 0.45342231977090686,
+      "p10": 0.39354066630632367,
+      "p90": 0.5907514053956306,
+      "spearman": 0.9861267597760506,
+      "mean_abs_rank_change": 11.953488372093023,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.6054124049908954,
+      "pop_weighted": 0.7052749607164834,
+      "median": 0.5870052954639308,
+      "p10": 0.5150143364974099,
+      "p90": 0.7460189846287889,
+      "spearman": 0.9856925999033544,
+      "mean_abs_rank_change": 11.87080103359173,
+      "top25_kept": 23
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.5816036100257584,
+      "pop_weighted": 0.6609797128462613,
+      "median": 0.5391940274631208,
+      "p10": 0.47120405458293957,
+      "p90": 0.7028702313247094,
+      "spearman": 0.985642910647538,
+      "mean_abs_rank_change": 11.9328165374677,
+      "top25_kept": 23
+     },
+     "lo": {
+      "memphis": 0.5028893941565534,
+      "pop_weighted": 0.5565881850804237,
+      "median": 0.45342231977090686,
+      "p10": 0.39354066630632367,
+      "p90": 0.5907514053956306,
+      "spearman": 0.9861267597760506,
+      "mean_abs_rank_change": 11.953488372093023,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.6054124049908954,
+      "pop_weighted": 0.7052749607164834,
+      "median": 0.5870052954639308,
+      "p10": 0.5150143364974099,
+      "p90": 0.7460189846287889,
+      "spearman": 0.9856925999033544,
+      "mean_abs_rank_change": 11.87080103359173,
+      "top25_kept": 23
+     }
+    },
+    "  ...with secular level from CES (input check)": {
      "est": {
       "memphis": 0.5816036100257584,
       "pop_weighted": 0.6609797128462613,
@@ -2308,6 +2830,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.6742751749099376,
@@ -2340,35 +2926,99 @@
       "top25_kept": 24
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
      "est": {
-      "memphis": 0.8184149582347658,
-      "pop_weighted": 0.7502439395711297,
-      "median": 0.7855734518670497,
-      "p10": 0.7204493235495678,
-      "p90": 0.8494274412071923,
-      "spearman": 0.9979832373295503,
-      "mean_abs_rank_change": 4.945736434108527,
+      "memphis": 0.5020321537095539,
+      "pop_weighted": 0.5290342121686049,
+      "median": 0.5592613070462705,
+      "p10": 0.5190267142565406,
+      "p90": 0.5880157381141496,
+      "spearman": 0.998947830008087,
+      "mean_abs_rank_change": 3.5607235142118863,
       "top25_kept": 24
      },
      "lo": {
-      "memphis": 0.7662294316291799,
-      "pop_weighted": 0.7085899040182467,
-      "median": 0.7282094457366073,
-      "p10": 0.6783206440666326,
-      "p90": 0.7745021208840281,
-      "spearman": 0.9986209161125279,
-      "mean_abs_rank_change": 3.9844961240310077,
+      "memphis": 0.4678579485482321,
+      "pop_weighted": 0.4974767271232479,
+      "median": 0.5164896794788676,
+      "p10": 0.47275428035341605,
+      "p90": 0.5417907007449108,
+      "spearman": 0.9988238139071117,
+      "mean_abs_rank_change": 3.689922480620155,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.537481930417699,
+      "pop_weighted": 0.5624148529066694,
+      "median": 0.6086439813431211,
+      "p10": 0.5539568731873306,
+      "p90": 0.6445355347804903,
+      "spearman": 0.9987809569239701,
+      "mean_abs_rank_change": 3.7777777777777777,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.6169786039469409,
+      "pop_weighted": 0.6093837227827251,
+      "median": 0.6453489486393605,
+      "p10": 0.6031352321580836,
+      "p90": 0.6643565274744077,
+      "spearman": 0.9994577659959031,
+      "mean_abs_rank_change": 2.558139534883721,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.5758696284665588,
+      "pop_weighted": 0.5738631430454505,
+      "median": 0.5951877059468913,
+      "p10": 0.5623313474579996,
+      "p90": 0.6075462456236685,
+      "spearman": 0.9996097323032751,
+      "mean_abs_rank_change": 2.0878552971576227,
       "top25_kept": 24
      },
      "hi": {
-      "memphis": 0.8740111663190948,
-      "pop_weighted": 0.7953710898125823,
-      "median": 0.8464954440196077,
-      "p10": 0.7586579768489408,
-      "p90": 0.9333381565045628,
-      "spearman": 0.9970724746781482,
-      "mean_abs_rank_change": 6.103359173126615,
+      "memphis": 0.6600404296547424,
+      "pop_weighted": 0.6472907412719536,
+      "median": 0.7026749055287318,
+      "p10": 0.637457178576005,
+      "p90": 0.7350067824854656,
+      "spearman": 0.9990983470454976,
+      "mean_abs_rank_change": 3.3695090439276485,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from CES (input check)": {
+     "est": {
+      "memphis": 0.832725345531606,
+      "pop_weighted": 0.7602529106852813,
+      "median": 0.7955885833114064,
+      "p10": 0.7284929489653547,
+      "p90": 0.8625411398177982,
+      "spearman": 0.9977652257196558,
+      "mean_abs_rank_change": 5.178294573643411,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.779811699427418,
+      "pop_weighted": 0.7182073844938005,
+      "median": 0.7375446024367164,
+      "p10": 0.6843770727899743,
+      "p90": 0.7874435778025107,
+      "spearman": 0.9984107719681375,
+      "mean_abs_rank_change": 4.232558139534884,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.8891638253458422,
+      "pop_weighted": 0.8058512645480778,
+      "median": 0.8568983497433186,
+      "p10": 0.7683719927846857,
+      "p90": 0.9468648968751631,
+      "spearman": 0.9968269269389887,
+      "mean_abs_rank_change": 6.258397932816537,
       "top25_kept": 24
      }
     }
@@ -2769,6 +3419,70 @@
       "top25_kept": 25
      }
     },
+    "Secular share falls with age (GSS)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 1,
+      "pop_weighted": 1,
+      "median": 1,
+      "p10": 1,
+      "p90": 1,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
     "All data-grounded alternatives combined": {
      "est": {
       "memphis": 0.8239711521384868,
@@ -2801,7 +3515,71 @@
       "top25_kept": 25
      }
     },
-    "  ...plus secular level matched to CES (input check)": {
+    "  ...with secular level on PRRI's scale (input check)": {
+     "est": {
+      "memphis": 0.8239711521384868,
+      "pop_weighted": 0.8239711521384857,
+      "median": 0.8239711521384867,
+      "p10": 0.8239711521384865,
+      "p90": 0.8239711521384868,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 0.8012921727364409,
+      "pop_weighted": 0.8012921727364413,
+      "median": 0.8012921727364412,
+      "p10": 0.801292172736441,
+      "p90": 0.8012921727364414,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.8476460397452623,
+      "pop_weighted": 0.8476460397452632,
+      "median": 0.8476460397452624,
+      "p10": 0.8476460397452623,
+      "p90": 0.8476460397452626,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.8239711521384868,
+      "pop_weighted": 0.8239711521384857,
+      "median": 0.8239711521384867,
+      "p10": 0.8239711521384865,
+      "p90": 0.8239711521384868,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 0.8012921727364409,
+      "pop_weighted": 0.8012921727364413,
+      "median": 0.8012921727364412,
+      "p10": 0.801292172736441,
+      "p90": 0.8012921727364414,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.8476460397452623,
+      "pop_weighted": 0.8476460397452632,
+      "median": 0.8476460397452624,
+      "p10": 0.8476460397452623,
+      "p90": 0.8476460397452626,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "  ...with secular level from CES (input check)": {
      "est": {
       "memphis": 0.8239711521384868,
       "pop_weighted": 0.8239711521384857,
@@ -3230,67 +4008,195 @@
       "top25_kept": 25
      }
     },
-    "All data-grounded alternatives combined": {
+    "Secular share falls with age (GSS)": {
      "est": {
-      "memphis": 0.6099968565459667,
-      "pop_weighted": 0.5807884784282399,
-      "median": 0.6714317439631716,
-      "p10": 0.5677727855635165,
-      "p90": 0.7872337305204514,
-      "spearman": 0.9967403848184416,
-      "mean_abs_rank_change": 6.661498708010336,
-      "top25_kept": 24
+      "memphis": 0.7558841852575753,
+      "pop_weighted": 0.7558841852575756,
+      "median": 0.7558841852575753,
+      "p10": 0.7558841852575752,
+      "p90": 0.7558841852575754,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
      },
      "lo": {
-      "memphis": 0.4856450443260393,
-      "pop_weighted": 0.47421177406360504,
-      "median": 0.5335408808573827,
-      "p10": 0.4724083882866925,
-      "p90": 0.5770437976461485,
-      "spearman": 0.9987614952987753,
-      "mean_abs_rank_change": 3.958656330749354,
-      "top25_kept": 24
-     },
-     "hi": {
-      "memphis": 0.7407134344327378,
-      "pop_weighted": 0.6908232310547218,
-      "median": 0.816376051013519,
-      "p10": 0.6633197132974727,
-      "p90": 1.017187475949592,
-      "spearman": 0.9941664813671501,
-      "mean_abs_rank_change": 8.987080103359173,
-      "top25_kept": 24
-     }
-    },
-    "  ...plus secular level matched to CES (input check)": {
-     "est": {
-      "memphis": 0.7450420551701654,
-      "pop_weighted": 0.6750845460888119,
-      "median": 0.7704733761218838,
-      "p10": 0.6470016971686722,
-      "p90": 0.9203736039980716,
-      "spearman": 0.9953422533829066,
-      "mean_abs_rank_change": 7.912144702842378,
-      "top25_kept": 24
-     },
-     "lo": {
-      "memphis": 0.5989999449324624,
-      "pop_weighted": 0.5568494484279319,
-      "median": 0.6176835115169669,
-      "p10": 0.5406472662531913,
-      "p90": 0.6861123626689819,
-      "spearman": 0.9978834447407856,
-      "mean_abs_rank_change": 5.178294573643411,
+      "memphis": 0.7558841852575753,
+      "pop_weighted": 0.7558841852575756,
+      "median": 0.7558841852575753,
+      "p10": 0.7558841852575752,
+      "p90": 0.7558841852575754,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
       "top25_kept": 25
      },
      "hi": {
-      "memphis": 0.8967335826155034,
-      "pop_weighted": 0.7959631044064056,
-      "median": 0.9287358212023367,
-      "p10": 0.7491776155313621,
-      "p90": 1.176239949169533,
-      "spearman": 0.9922269440817819,
-      "mean_abs_rank_change": 10.304909560723514,
+      "memphis": 0.7558841852575753,
+      "pop_weighted": 0.7558841852575756,
+      "median": 0.7558841852575753,
+      "p10": 0.7558841852575752,
+      "p90": 0.7558841852575754,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "Secular share falls with age (CES)": {
+     "est": {
+      "memphis": 0.7905293268421768,
+      "pop_weighted": 0.7905293268421764,
+      "median": 0.7905293268421767,
+      "p10": 0.7905293268421766,
+      "p90": 0.7905293268421768,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "lo": {
+      "memphis": 0.7905293268421768,
+      "pop_weighted": 0.7905293268421764,
+      "median": 0.7905293268421767,
+      "p10": 0.7905293268421766,
+      "p90": 0.7905293268421768,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.7905293268421768,
+      "pop_weighted": 0.7905293268421764,
+      "median": 0.7905293268421767,
+      "p10": 0.7905293268421766,
+      "p90": 0.7905293268421768,
+      "spearman": 1,
+      "mean_abs_rank_change": 0,
+      "top25_kept": 25
+     }
+    },
+    "All data-grounded alternatives combined": {
+     "est": {
+      "memphis": 0.46088734052416386,
+      "pop_weighted": 0.4387724961468566,
+      "median": 0.5117876889788412,
+      "p10": 0.42946745024189026,
+      "p90": 0.6069354125726769,
+      "spearman": 0.9963451481961351,
+      "mean_abs_rank_change": 7.03359173126615,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.36309837309798604,
+      "pop_weighted": 0.3528051122294117,
+      "median": 0.4000680776530121,
+      "p10": 0.35113188791417793,
+      "p90": 0.4384147891076681,
+      "spearman": 0.9984426559072864,
+      "mean_abs_rank_change": 4.40826873385013,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.56520444307703,
+      "pop_weighted": 0.5291413091702163,
+      "median": 0.6297879179694749,
+      "p10": 0.5106985955103582,
+      "p90": 0.7925240573506168,
+      "spearman": 0.9937751784775958,
+      "mean_abs_rank_change": 9.209302325581396,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level on PRRI's scale (input check)": {
+     "est": {
+      "memphis": 0.34038924620800987,
+      "pop_weighted": 0.354298467525259,
+      "median": 0.41239619811837996,
+      "p10": 0.34827842357993644,
+      "p90": 0.48155708594264895,
+      "spearman": 0.9961053975368208,
+      "mean_abs_rank_change": 6.811369509043928,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.26595138794380085,
+      "pop_weighted": 0.2825087585887278,
+      "median": 0.31874647112303073,
+      "p10": 0.27955494173816126,
+      "p90": 0.35257942570122386,
+      "spearman": 0.997403943422157,
+      "mean_abs_rank_change": 5.390180878552972,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.42082023932360696,
+      "pop_weighted": 0.43066828567408233,
+      "median": 0.5142165329082993,
+      "p10": 0.4221326564938928,
+      "p90": 0.6292141297662831,
+      "spearman": 0.9943873915169674,
+      "mean_abs_rank_change": 8.330749354005167,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from the GSS (input check)": {
+     "est": {
+      "memphis": 0.4205813035850927,
+      "pop_weighted": 0.4105190856598924,
+      "median": 0.4792378086184999,
+      "p10": 0.4066331875273872,
+      "p90": 0.5625195940953048,
+      "spearman": 0.9964747543383896,
+      "mean_abs_rank_change": 6.749354005167959,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.33042032692317,
+      "pop_weighted": 0.32915446519649266,
+      "median": 0.3724520448999391,
+      "p10": 0.32686970632972606,
+      "p90": 0.4062098193014109,
+      "spearman": 0.9983240228090248,
+      "mean_abs_rank_change": 4.459948320413437,
+      "top25_kept": 24
+     },
+     "hi": {
+      "memphis": 0.5171662083725045,
+      "pop_weighted": 0.49638330090872446,
+      "median": 0.5917342717754334,
+      "p10": 0.48529150518590447,
+      "p90": 0.7328348051072338,
+      "spearman": 0.9941482619733508,
+      "mean_abs_rank_change": 8.852713178294573,
+      "top25_kept": 24
+     }
+    },
+    "  ...with secular level from CES (input check)": {
+     "est": {
+      "memphis": 0.5735347909889016,
+      "pop_weighted": 0.5177052201233339,
+      "median": 0.6000744554415233,
+      "p10": 0.4952725037486435,
+      "p90": 0.7237773477941057,
+      "spearman": 0.994734181114853,
+      "mean_abs_rank_change": 8.439276485788113,
+      "top25_kept": 24
+     },
+     "lo": {
+      "memphis": 0.4554321853333784,
+      "pop_weighted": 0.41964756550977406,
+      "median": 0.4715408878934545,
+      "p10": 0.4050141966471153,
+      "p90": 0.5301112781266141,
+      "spearman": 0.9974548749093689,
+      "mean_abs_rank_change": 5.710594315245478,
+      "top25_kept": 25
+     },
+     "hi": {
+      "memphis": 0.6981131095359031,
+      "pop_weighted": 0.61972458009622,
+      "median": 0.7346411775455176,
+      "p10": 0.5857541391621239,
+      "p90": 0.9408225211039092,
+      "spearman": 0.9917302585621834,
+      "mean_abs_rank_change": 10.661498708010337,
       "top25_kept": 24
      }
     }

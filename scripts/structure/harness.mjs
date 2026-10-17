@@ -29,6 +29,7 @@ const { chromium } = await import(path.join(execSync("npm root -g").toString().t
 //   cohab      {w:share, m:share}  share of B12002 singles living with a partner (page: 15% for everyone)
 //   recip      L                   mutual-attraction lift over his-rate x her-rate
 //   secShift   {w:d, m:d}          add d to the secular-leaning share (an input-level check, not structure)
+//   secScale   {w:k, m:k}          multiply the secular-leaning share by k (how it falls with age)
 const INJECT = () => {
   const valRaw0 = valRaw, base0 = base;
   const lg = p => Math.log(p/(1 - p)), il = x => 1/(1 + Math.exp(-x));
@@ -51,7 +52,8 @@ const INJECT = () => {
     let prog = Math.min(.9, m.dem/100 + Q.off + ps);
     if (A.progForm && g !== "n"){ const f = A.progForm[g]; prog = il(f.a + f.b*lg(Math.min(.98, Math.max(.02, m.dem/100))));
       if (A.progShape) prog = orShift(prog, A.progShape[g]); }
-    let sec = Math.min(.8, Math.max(.05, Q.sec + (m.none - 23.1)/100 + .3*(48.6 - m.adh)/100 + ss + (A.secShift ? A.secShift[g] : 0)));
+    let sec = Math.min(.8, Math.max(.05, Q.sec + (m.none - 23.1)/100 + .3*(48.6 - m.adh)/100 + ss + (A.secShift ? pick(A.secShift) : 0)));
+    if (A.secScale) sec *= pick(A.secScale);
     let fs = P.faith === "pagan" ? PAGAN*(F ? F[8] : 0)/OTHER_AVG : F && P.faith in FAITH_COL ? F[FAITH_COL[P.faith]]/100 : 0;
     fs *= Q.fr;
     if (A.faithYoung && A.faithYoung[P.faith]) fs = Math.min(.95, fs*A.faithYoung[P.faith]);

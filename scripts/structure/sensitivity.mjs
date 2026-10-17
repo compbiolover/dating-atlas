@@ -62,6 +62,22 @@ const degPool = z => byG(g => P(g, "ratio_pool_vs_page", z));
 const cohab = z => byG(g => P(g, "cohab_share", z));
 const ends = {est: "est", lo: "lo", hi: "hi"}, zs = {est: 0, lo: -1, hi: 1};
 
+// Input-level checks on the secular-leaning share, kept out of "All". Sources disagree on the level of no religion
+// among young singles (secular_level.json): PRRI's scale (survey ratio of young singles to all adults applied to
+// PRRI's 23.1%), the GSS directly, and CES directly. Each shifts the page's share so its population-weighted mean
+// matches that source, then combines with everything else.
+const sl = J("secular_level.json"), pg = byG(g => sl.page[`pop_weighted_${g}`]);
+const SEC_TARGET = {
+  "PRRI scale": byG(g => sl.implied_base[`gss_${g}`].est + (g === "m" ? .04 : 0)),
+  "GSS": byG(g => sl.gss[`single_25_35_${g}`].est),
+  "CES": byG(g => sl.ces_metro[`single_25_35_${g}`].est),
+};
+const secShift = src => byG(g => SEC_TARGET[src][g] - pg[g]);
+// How no religion falls with age among singles, relative to 25-35, averaged over the age bands a search spans
+const SEC_AGE = {"25-35": [], "35-44": ["36_45"], "45-54": ["46_55"]};
+const secAge = (src, bands) => byG(g => { const k = bands.flatMap(b => SEC_AGE[b]); if (!k.length) return 1;
+  return k.reduce((t, b) => t + sl[src][`single_${b}_${g}`].est, 0)/k.length/sl[src][`single_25_35_${g}`].est; });
+
 // Each alternative as a function of "est", "lo" or "hi"
 const ALT = {
   "Politics x faith as a Plackett joint (CES, no religion)": e => ({joint: joint("sec_none", e)}),
@@ -79,14 +95,10 @@ const ALT = {
 };
 const ALL = e => Object.assign({}, ...["Politics x faith as a Plackett joint (CES, no religion)", "Degree x politics/faith (CES odds ratios)",
   "Progressive model fitted to CES (level and slope)", "Faith shares of young singles, not all adults (CES)", "Openness x politics (CES)",
-  "Degree share of singles, not everyone 25-34 (PUMS)", "Cohabiting share by sex and age (PUMS)", "Mutual attraction reciprocity (speed dating)"].map(k => ALT[k](e)));
+  "Degree share of singles, not everyone 25-34 (PUMS)", "Cohabiting share by sex and age (PUMS)", "Mutual attraction reciprocity (speed dating)"].map(k => ALT[k](e)),
+  {secScale: secAge("gss", BANDS)});
 
 // Summaries of one alternative against the baseline across metros
-// Input-level check, kept out of "All": the page's secular-leaning share sits below CES's no-religion share among young
-// singles in the same metros (ces_metro_form.json); shift it up by the gap and combine with everything else
-const mf = J("ces_metro_form.json"), secGap = byG(g => mf[g].mean_none - mf[g].mean_page_sec);
-const ALL_SEC = e => ({...ALL(e), secShift: secGap});
-
 const rankOf = v => { const idx = v.map((x, i) => [x, i]).sort((a, b) => b[0] - a[0]), r = new Array(v.length); idx.forEach(([, i], k) => r[i] = k + 1); return r; };
 const spearman = (a, b) => { const ra = rankOf(a), rb = rankOf(b), n = a.length; let d2 = 0; for (let i = 0; i < n; i++) d2 += (ra[i] - rb[i])**2; return 1 - 6*d2/(n*(n*n - 1)); };
 const q = (arr, p) => { const s = [...arr].sort((a, b) => a - b); return s[Math.floor(p*(s.length - 1))]; };
@@ -99,13 +111,19 @@ function summarize(base, alt){
     top25_kept: ra.filter((x, i) => top.has(i) && x <= 25).length};
 }
 
-const results = {params: {form, shape, calib, degOR: dOR("est"), joint: joint("sec_none", "est"), degPool: degPool(0), cohab: cohab(0), recip: sd.within_all.est, secGap}, profiles: {}};
+const results = {params: {form, shape, calib, degOR: dOR("est"), joint: joint("sec_none", "est"), degPool: degPool(0), cohab: cohab(0), recip: sd.within_all.est, secShift: Object.fromEntries(Object.keys(SEC_TARGET).map(k => [k, secShift(k)]))}, profiles: {}};
 console.log("params", JSON.stringify(results.params));
 for (const [pl, prof0] of Object.entries(PROFILES)){
   const {bands, ...prof} = prof0; BANDS = bands || ["25-35"];
   const b = await h.run(prof, null), base = b.rows.map(r => r[0]);
   const out = {baseline_memphis: base[mem], interval_memphis: b.iv, input_band_ratio: b.iv ? [b.iv.lo/base[mem], b.iv.hi/base[mem]] : null, alts: {}};
-  for (const [al, fn] of Object.entries({...ALT, "All data-grounded alternatives combined": ALL, "  ...plus secular level matched to CES (input check)": ALL_SEC})){
+  for (const [al, fn] of Object.entries({...ALT,
+    "Secular share falls with age (GSS)": () => ({secScale: secAge("gss", BANDS)}),
+    "Secular share falls with age (CES)": () => ({secScale: secAge("ces_metro", BANDS)}),
+    "All data-grounded alternatives combined": ALL,
+    "  ...with secular level on PRRI's scale (input check)": e => ({...ALL(e), secShift: secShift("PRRI scale")}),
+    "  ...with secular level from the GSS (input check)": e => ({...ALL(e), secShift: secShift("GSS")}),
+    "  ...with secular level from CES (input check)": e => ({...ALL(e), secShift: secShift("CES")})})){
     const o = {};
     for (const e of Object.keys(ends)){ const r = await h.run(prof, fn(e)); o[e] = summarize(base, r.rows.map(x => x[0])); }
     out.alts[al] = o;
