@@ -4,7 +4,7 @@ Dating Atlas estimates how many people in a U.S. metro could realistically be yo
 
 Live page: https://datingatlas.dev/
 
-![Dating Atlas showing 215 possibilities in Memphis, with the funnel from 1.3 million people down to 49 on the apps](docs/atlas-screenshot.png)
+![Dating Atlas showing 216 possibilities in Memphis, with the funnel from 1.3 million people down to 50 on the apps and a map of every metro](docs/atlas-screenshot.png)
 
 ## What it does
 
