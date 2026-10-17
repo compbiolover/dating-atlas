@@ -1,0 +1,780 @@
+{
+ "constants": {
+  "PSI": {
+   "prog": {
+    "all": {
+     "w": 1.82,
+     "m": 2.26
+    },
+    "ba": {
+     "w": 4.76,
+     "m": 4.1
+    }
+   },
+   "cons": {
+    "all": {
+     "w": 2.05,
+     "m": 1.86
+    },
+    "ba": {
+     "w": 5.01,
+     "m": 4.28
+    }
+   }
+  },
+  "DEG_OR": {
+   "prog": {
+    "w": 1.38,
+    "m": 1.45
+   },
+   "sec": {
+    "w": 0.93,
+    "m": 0.76
+   },
+   "christian": {
+    "w": 1.2,
+    "m": 1.3
+   }
+  },
+  "UNC_PSI": {
+   "all": 0.15,
+   "ba": 0.24
+  },
+  "UNC_DEG": 0.1
+ },
+ "profiles": {
+  "man, women, prog+secular (default)": {
+   "memphis": {
+    "old": 215.88447872050807,
+    "neu": 175.03434489981296,
+    "old_range": {
+     "lo": 111.11861624213924,
+     "hi": 348.3570750598414
+    },
+    "new_range": {
+     "lo": 92.77656875356551,
+     "hi": 273.908024979648
+    },
+    "ratio_ci": [
+     0.7029365565007785,
+     0.9086964881793297
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.7719335828456461,
+    "ci": [
+     0.6828654110835546,
+     0.849681440965753
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.6917084626981517,
+    "p10": 0.7576796354046605,
+    "median": 0.884377753561452,
+    "p90": 1.0618700894248354,
+    "max": 1.1939376180209396
+   },
+   "spearman": 0.9971588097601293,
+   "mean_abs_rank_change": 6.294573643410852,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Washington",
+    "San Francisco",
+    "Boston",
+    "Seattle",
+    "Philadelphia",
+    "Atlanta",
+    "Denver"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Washington",
+    "San Francisco",
+    "Boston",
+    "Philadelphia",
+    "Seattle",
+    "Miami",
+    "Atlanta"
+   ],
+   "biggest_drops_1m": [
+    [
+     "San Francisco",
+     2787,
+     1934,
+     0.69
+    ],
+    [
+     "San Jose",
+     1129,
+     800,
+     0.71
+    ],
+    [
+     "Washington",
+     2826,
+     2008,
+     0.71
+    ],
+    [
+     "Seattle",
+     2117,
+     1517,
+     0.72
+    ],
+    [
+     "Portland",
+     1090,
+     800,
+     0.73
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "Jacksonville",
+     218,
+     200,
+     0.92
+    ],
+    [
+     "Oklahoma City",
+     186,
+     171,
+     0.92
+    ],
+    [
+     "Birmingham",
+     127,
+     119,
+     0.93
+    ],
+    [
+     "Tulsa",
+     102,
+     99,
+     0.97
+    ],
+    [
+     "Greenville",
+     100,
+     100,
+     1
+    ]
+   ]
+  },
+  "woman, men, prog+secular": {
+   "memphis": {
+    "old": 161.4294251560515,
+    "neu": 125.2154096576441,
+    "old_range": {
+     "lo": 83.17524172008082,
+     "hi": 259.9891716490607
+    },
+    "new_range": {
+     "lo": 66.94903014909256,
+     "hi": 193.78930895983973
+    },
+    "ratio_ci": [
+     0.66044463044086,
+     0.9143753038566633
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.746512616022386,
+    "ci": [
+     0.6513951259953241,
+     0.8590053355885792
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.6547849460228701,
+    "p10": 0.7446972084972928,
+    "median": 0.865423814135252,
+    "p90": 1.0377889085104397,
+    "max": 1.1700628491660932
+   },
+   "spearman": 0.9973722665215741,
+   "mean_abs_rank_change": 5.891472868217054,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "San Francisco",
+    "Chicago",
+    "Washington",
+    "Seattle",
+    "Boston",
+    "Philadelphia",
+    "San Jose",
+    "Denver"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "San Francisco",
+    "Washington",
+    "Seattle",
+    "Boston",
+    "Philadelphia",
+    "San Jose",
+    "Denver"
+   ],
+   "biggest_drops_1m": [
+    [
+     "San Francisco",
+     3157,
+     2075,
+     0.66
+    ],
+    [
+     "Washington",
+     2724,
+     1876,
+     0.69
+    ],
+    [
+     "San Jose",
+     1576,
+     1106,
+     0.7
+    ],
+    [
+     "Seattle",
+     2424,
+     1719,
+     0.71
+    ],
+    [
+     "Boston",
+     2380,
+     1692,
+     0.71
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "Jacksonville",
+     192,
+     170,
+     0.89
+    ],
+    [
+     "Oklahoma City",
+     183,
+     164,
+     0.89
+    ],
+    [
+     "Birmingham",
+     108,
+     96,
+     0.9
+    ],
+    [
+     "Tulsa",
+     87,
+     83,
+     0.95
+    ],
+    [
+     "Greenville",
+     92,
+     90,
+     0.97
+    ]
+   ]
+  },
+  "man, women, cons+Christian": {
+   "memphis": {
+    "old": 219.3860999454512,
+    "neu": 141.02213115103436,
+    "old_range": {
+     "lo": 102.3946892600677,
+     "hi": 365.54800465341316
+    },
+    "new_range": {
+     "lo": 65.87953416568182,
+     "hi": 231.48882388582146
+    },
+    "ratio_ci": [
+     0.5461768800790429,
+     0.7431357612590261
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.7005359672537551,
+    "ci": [
+     0.5869074118227979,
+     0.8178309391237928
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.570257878355578,
+    "p10": 0.6412515971715838,
+    "median": 0.6827519914651368,
+    "p90": 0.7529710905225593,
+    "max": 0.8803529660897521
+   },
+   "spearman": 0.9973583949376587,
+   "mean_abs_rank_change": 5.51421188630491,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Houston",
+    "Chicago",
+    "Atlanta",
+    "Miami",
+    "Philadelphia",
+    "Phoenix",
+    "Boston"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Houston",
+    "Chicago",
+    "Miami",
+    "Atlanta",
+    "Philadelphia",
+    "Phoenix",
+    "Boston"
+   ],
+   "biggest_drops_1m": [
+    [
+     "Atlanta",
+     1028,
+     658,
+     0.64
+    ],
+    [
+     "Birmingham",
+     270,
+     173,
+     0.64
+    ],
+    [
+     "Memphis",
+     219,
+     141,
+     0.64
+    ],
+    [
+     "Charlotte",
+     555,
+     362,
+     0.65
+    ],
+    [
+     "San Antonio",
+     415,
+     272,
+     0.66
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "San Francisco",
+     368,
+     277,
+     0.75
+    ],
+    [
+     "Las Vegas",
+     241,
+     186,
+     0.77
+    ],
+    [
+     "Portland",
+     232,
+     181,
+     0.78
+    ],
+    [
+     "Seattle",
+     323,
+     261,
+     0.81
+    ],
+    [
+     "San Jose",
+     148,
+     121,
+     0.82
+    ]
+   ]
+  },
+  "woman, men, cons+Christian": {
+   "memphis": {
+    "old": 227.54281872687903,
+    "neu": 144.21780758379816,
+    "old_range": {
+     "lo": 114.596478659825,
+     "hi": 374.15144964747554
+    },
+    "new_range": {
+     "lo": 72.46079932088205,
+     "hi": 229.4435991845519
+    },
+    "ratio_ci": [
+     0.5477823471082921,
+     0.7241587621053395
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.6871799743272823,
+    "ci": [
+     0.5899730037807353,
+     0.7935925566449833
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.5700671201237264,
+    "p10": 0.636301789059948,
+    "median": 0.67532848045775,
+    "p90": 0.7356531493851294,
+    "max": 0.8370061799629486
+   },
+   "spearman": 0.9982989711425506,
+   "mean_abs_rank_change": 4.537467700258398,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Chicago",
+    "Houston",
+    "Atlanta",
+    "Philadelphia",
+    "Boston",
+    "Miami",
+    "Washington"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Chicago",
+    "Houston",
+    "Atlanta",
+    "Boston",
+    "Miami",
+    "Philadelphia",
+    "Washington"
+   ],
+   "biggest_drops_1m": [
+    [
+     "Atlanta",
+     1369,
+     862,
+     0.63
+    ],
+    [
+     "Memphis",
+     228,
+     144,
+     0.63
+    ],
+    [
+     "Birmingham",
+     296,
+     189,
+     0.64
+    ],
+    [
+     "Charlotte",
+     705,
+     454,
+     0.64
+    ],
+    [
+     "San Antonio",
+     514,
+     333,
+     0.65
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "San Francisco",
+     656,
+     474,
+     0.72
+    ],
+    [
+     "Las Vegas",
+     300,
+     225,
+     0.75
+    ],
+    [
+     "Portland",
+     367,
+     277,
+     0.76
+    ],
+    [
+     "Seattle",
+     672,
+     525,
+     0.78
+    ],
+    [
+     "San Jose",
+     392,
+     310,
+     0.79
+    ]
+   ]
+  },
+  "man, women, prog+secular, no degree filter": {
+   "memphis": {
+    "old": 589.8483025150493,
+    "neu": 436.43139499311866,
+    "old_range": {
+     "lo": 303.90002614016475,
+     "hi": 950.9364831440728
+    },
+    "new_range": {
+     "lo": 235.49559721576892,
+     "hi": 683.1178105635568
+    },
+    "ratio_ci": [
+     0.70798464082531,
+     0.7711005899580756
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.7197029624416383,
+    "ci": [
+     0.6962562185367284,
+     0.7431932709865575
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.6797601377934694,
+    "p10": 0.7086191010278664,
+    "median": 0.7513366768392666,
+    "p90": 0.8061235725970765,
+    "max": 0.8535791147677976
+   },
+   "spearman": 0.999268325708103,
+   "mean_abs_rank_change": 3.1421188630490957,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Washington",
+    "San Francisco",
+    "Philadelphia",
+    "Seattle",
+    "Boston",
+    "Miami",
+    "Atlanta"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Washington",
+    "San Francisco",
+    "Philadelphia",
+    "Seattle",
+    "Boston",
+    "Miami",
+    "Atlanta"
+   ],
+   "biggest_drops_1m": [
+    [
+     "San Francisco",
+     4314,
+     2962,
+     0.69
+    ],
+    [
+     "San Jose",
+     1701,
+     1171,
+     0.69
+    ],
+    [
+     "Seattle",
+     3780,
+     2613,
+     0.69
+    ],
+    [
+     "Washington",
+     4588,
+     3190,
+     0.7
+    ],
+    [
+     "Portland",
+     2221,
+     1549,
+     0.7
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "Oklahoma City",
+     486,
+     373,
+     0.77
+    ],
+    [
+     "Jacksonville",
+     559,
+     431,
+     0.77
+    ],
+    [
+     "Tulsa",
+     317,
+     246,
+     0.78
+    ],
+    [
+     "Birmingham",
+     306,
+     239,
+     0.78
+    ],
+    [
+     "Greenville",
+     250,
+     198,
+     0.79
+    ]
+   ]
+  },
+  "woman, men, cons+Christian, no degree filter": {
+   "memphis": {
+    "old": 815.5656585192797,
+    "neu": 590.7150443300302,
+    "old_range": {
+     "lo": 411.56451704421653,
+     "hi": 1346.3251904926701
+    },
+    "new_range": {
+     "lo": 308.73640669481324,
+     "hi": 937.9421493912002
+    },
+    "ratio_ci": [
+     0.69881072061777,
+     0.7488485055566028
+    ]
+   },
+   "pop_weighted": {
+    "est": 0.7500404480145794,
+    "ci": [
+     0.7129010483962029,
+     0.7863490921673449
+    ]
+   },
+   "metro_ratio": {
+    "min": 0.6781172715144692,
+    "p10": 0.6992258298066892,
+    "median": 0.7250443216830331,
+    "p90": 0.7666848713652661,
+    "max": 0.854171606097037
+   },
+   "spearman": 0.9989687409032431,
+   "mean_abs_rank_change": 3.498708010335917,
+   "top10_old": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Houston",
+    "Chicago",
+    "Miami",
+    "Atlanta",
+    "Riverside",
+    "Phoenix",
+    "Philadelphia"
+   ],
+   "top10_new": [
+    "New York",
+    "Los Angeles",
+    "Dallas",
+    "Houston",
+    "Chicago",
+    "Miami",
+    "Phoenix",
+    "Atlanta",
+    "Riverside",
+    "Philadelphia"
+   ],
+   "biggest_drops_1m": [
+    [
+     "Birmingham",
+     899,
+     636,
+     0.71
+    ],
+    [
+     "Greenville",
+     733,
+     520,
+     0.71
+    ],
+    [
+     "Jacksonville",
+     1286,
+     926,
+     0.72
+    ],
+    [
+     "Nashville-Davidson",
+     1568,
+     1129,
+     0.72
+    ],
+    [
+     "San Antonio",
+     1877,
+     1355,
+     0.72
+    ]
+   ],
+   "smallest_drops_1m": [
+    [
+     "Washington",
+     2105,
+     1635,
+     0.78
+    ],
+    [
+     "Portland",
+     943,
+     749,
+     0.79
+    ],
+    [
+     "San Francisco",
+     1155,
+     928,
+     0.8
+    ],
+    [
+     "Seattle",
+     1378,
+     1117,
+     0.81
+    ],
+    [
+     "San Jose",
+     623,
+     510,
+     0.82
+    ]
+   ]
+  }
+ },
+ "feasibility_violations": 0
+}

@@ -35,7 +35,7 @@ Each funnel step multiplies the one before it. The steps that differ by metro us
 
 The behavioral steps use national rates: who is looking to date (Pew), who is open to dating each gender (Gallup), attraction rates (speed-dating studies), dating-app use (Pew) and diets (Gallup, NHANES, Pew and ISPU). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
 
-The range under the main number comes from a Monte Carlo simulation. The page reruns the funnel 2,000 times, and each run varies every input by how uncertain it is. Local counts vary by their Census margins of error, survey rates by their sample sizes, and modeling assumptions over stated ranges. The page shows the middle 80% of the results. That range covers uncertainty in the inputs, not in how the funnel is built.
+The range under the main number comes from a Monte Carlo simulation. The page reruns the funnel 2,000 times, and each run varies every input by how uncertain it is. Local counts vary by their Census margins of error, survey rates by their sample sizes, and modeling assumptions over stated ranges. The page shows the middle 80% of the results. That range covers uncertainty in the inputs, not in how the funnel is built. `docs/structural-uncertainty.md` checks how the funnel is built against survey microdata, with the scripts in `scripts/structure/`.
 
 ## Repository layout
 
