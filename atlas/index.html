@@ -402,13 +402,13 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
         <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
           <div class="seg">
-            <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive or liberal, non-religious</span></label>
-            <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative or very conservative, Christian</span></label>
+            <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive, liberal or moderate, non-religious</span></label>
+            <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Moderate, conservative or very conservative, Christian</span></label>
           </div>
         </div>
-        <div class="ctrl" id="g-pol"><span class="lbl" id="polL">Politics</span><div class="seg" role="group" aria-labelledby="polL" aria-describedby="polHint"><label><input type="checkbox" name="pol" value="any"><span>Any politics</span></label><label><input type="checkbox" name="pol" value="prog" checked><span>Progressive</span></label><label><input type="checkbox" name="pol" value="lib" checked><span>Liberal</span></label><label><input type="checkbox" name="pol" value="mod"><span>Moderate</span></label><label><input type="checkbox" name="pol" value="con"><span>Conservative</span></label><label><input type="checkbox" name="pol" value="vcon"><span>Very conservative</span></label><label><input type="checkbox" name="pol" value="apol"><span>Not political</span></label></div><small id="polHint">Pick one or more. How people describe their own views in the 2024 Cooperative Election Study; not political is "not sure".</small></div>
+        <div class="ctrl" id="g-pol"><span class="lbl" id="polL">Politics</span><div class="seg" role="group" aria-labelledby="polL" aria-describedby="polHint"><label><input type="checkbox" name="pol" value="any"><span>Any politics</span></label><label><input type="checkbox" name="pol" value="prog" checked><span>Progressive</span></label><label><input type="checkbox" name="pol" value="lib" checked><span>Liberal</span></label><label><input type="checkbox" name="pol" value="mod" checked><span>Moderate</span></label><label><input type="checkbox" name="pol" value="con"><span>Conservative</span></label><label><input type="checkbox" name="pol" value="vcon"><span>Very conservative</span></label><label><input type="checkbox" name="pol" value="apol"><span>Not political</span></label></div><small id="polHint">Pick one or more. How people describe their own views in the 2024 Cooperative Election Study; not political is "not sure".</small></div>
         <div class="ctrl" id="g-faith"><span class="lbl" id="faithL">Faith</span><div class="seg" role="group" aria-labelledby="faithL" aria-describedby="faithHint"><label><input type="checkbox" name="faith" value="any"><span>Any faith or none</span></label><label><input type="checkbox" name="faith" value="secular" checked><span>Any non-religious</span></label><label><input type="checkbox" name="faith" value="atheist"><span>Atheist</span></label><label><input type="checkbox" name="faith" value="agnostic"><span>Agnostic</span></label><label><input type="checkbox" name="faith" value="nothing"><span>Nothing in particular</span></label><label><input type="checkbox" name="faith" value="christian"><span>Any Christian</span></label><label><input type="checkbox" name="faith" value="catholic"><span>Catholic</span></label><label><input type="checkbox" name="faith" value="protestant"><span>Protestant</span></label><label><input type="checkbox" name="faith" value="lds"><span>Latter-day Saint</span></label><label><input type="checkbox" name="faith" value="otherchr"><span>Other Christian</span></label><label><input type="checkbox" name="faith" value="jewish"><span>Jewish</span></label><label><input type="checkbox" name="faith" value="muslim"><span>Muslim</span></label><label><input type="checkbox" name="faith" value="hindu"><span>Hindu</span></label><label><input type="checkbox" name="faith" value="buddhist"><span>Buddhist</span></label><label><input type="checkbox" name="faith" value="pagan"><span>Pagan or Wiccan</span></label></div><small id="faithHint">Pick one or more. Any non-religious counts atheists, agnostics and people with no religion in particular. Any Christian counts everyone who calls themselves Christian: Catholic, Protestant, Latter-day Saint, Orthodox, Jehovah's Witness and others.</small></div>
-        <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive or liberal and non-religious</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
+        <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive, liberal or moderate and non-religious</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
         <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
         </div></details>
         <details class="sec" open><summary>Whether it clicks</summary><div class="body">
@@ -588,7 +588,7 @@ const plackett = (p, q, psi) => { if (Math.abs(psi - 1) < 1e-9) return p*q; cons
 // Self-check: the joint gives back its odds ratio and stays inside both shares
 [[.7, .4, 4.76], [.9, .5, 1.82], [.3, .9, 5]].forEach(([p, q, psi]) => { const j = plackett(p, q, psi);
   console.assert(Math.abs(j*(1 - p - q + j)/((p - j)*(q - j)) - psi) < 1e-6 && j <= Math.min(p, q), "plackett", p, q, psi); });
-// Partner filters. The default is progressive or liberal, non-religious and any diet; the second preset is the opposite side.
+// Partner filters. The default is progressive, liberal or moderate, non-religious and any diet; the second preset is the opposite side.
 const POLS = {prog:"Progressive", lib:"Liberal", mod:"Moderate", con:"Conservative", vcon:"Very conservative", apol:"Not political", any:"Any politics"};
 const FAITHS = {secular:"Non-religious", atheist:"Atheist", agnostic:"Agnostic", nothing:"Nothing in particular", christian:"Christian", catholic:"Catholic", protestant:"Protestant", lds:"Latter-day Saint", otherchr:"Other Christian",
   jewish:"Jewish", muslim:"Muslim", hindu:"Hindu", buddhist:"Buddhist", pagan:"Pagan or Wiccan", any:"Any faith or none"};
@@ -604,7 +604,7 @@ const DIETS = {any:"Any diet", veg:"Vegetarian", vegan:"Vegan", pesc:"Pescataria
 const DIET_RATE = {veg:{w:.06, m:.02}, vegan:{w:.015, m:.005}, pesc:{w:.056, m:.038}};
 const DIET_POL = {prog:2.25, lib:2.25, mod:.75, con:.75, vcon:.75, apol:1};  // Gallup 2023: 9% of liberals vegetarian, 3% of moderates and conservatives, 4% overall
 const KOSHER = .17, HALAL = .83;  // Pew 2020: 17% of Jews keep kosher at home; ISPU 2022: 83% of Muslims only buy or prefer halal
-const PRESETS = {mine:{pol:"prog,lib", faith:"secular"}, opp:{pol:"con,vcon", faith:"christian"}};  // quick picks leave diet alone
+const PRESETS = {mine:{pol:"prog,lib,mod", faith:"secular"}, opp:{pol:"mod,con,vcon", faith:"christian"}};  // quick picks leave diet alone
 
 // What partners want in you, by the rater's gender. Sources are in the notes.
 // Acceptable age gap: how much older (hi) or younger (lo) a partner can be, lognormal with spread AGE_SD.
@@ -796,8 +796,9 @@ function dietFit(m, g, P){
 // "Progressive or liberal and Jewish or non-religious": politics and non-religious words are lower-cased after the
 // first word; faith names (Christian, Jewish) keep their capitals
 const lowerIf = (t, low) => low ? t.toLowerCase() : t;
-const polLabel = P => polList(P).map((k, i) => lowerIf(POLS[k], i > 0)).join(" or ");
-const faithLabel = (P, lower) => faithList(P).map((f, i) => lowerIf(FAITHS[f], (lower || i > 0) && SECULAR.includes(f))).join(" or ");
+const orList = a => a.length < 3 ? a.join(" or ") : a.slice(0, -1).join(", ") + " or " + a[a.length - 1];  // "a, b or c"
+const polLabel = P => orList(polList(P).map((k, i) => lowerIf(POLS[k], i > 0)));
+const faithLabel = (P, lower) => orList(faithList(P).map((f, i) => lowerIf(FAITHS[f], (lower || i > 0) && SECULAR.includes(f))));
 const valuesLabel = P => P.pol === "any" && P.faith === "any" ? "" : P.pol === "any" ? faithLabel(P) : P.faith === "any" ? polLabel(P)
   : `${polLabel(P)} and ${faithLabel(P, true)}`;
 // A recent mover's 1-bedroom rent as a share of median pay for your education level, in percent
@@ -932,8 +933,8 @@ const syncFaith = () => { syncChips("pol"); syncChips("faith"); };
   syncChips(n); saveProfile(); schedule();
 })));
 syncFaith();  // the default (Any non-religious) shows its parts as included from the start
-// Links and saved profiles from before the six politics groups: progressive meant left, conservative meant right
-const OLD_POL = {prog: "prog,lib", cons: "con,vcon"};
+// Links and saved profiles from before the six politics groups open the matching quick pick
+const OLD_POL = {prog: PRESETS.mine.pol, cons: PRESETS.opp.pol};
 // One loader for every setting, from the saved profile or a shared link. get(key) returns a string or null.
 function applySettings(get){
   const one = (k, ok, set) => { const v = get(k); if (v != null && ok(v)) set(v); };
