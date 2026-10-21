@@ -723,7 +723,10 @@ function faithShares(m, g, P, Q = VQ){
     if (f === "secular"){ x = Math.min(.8, Math.max(.05, Q.sec + (m.none - 23.1)/100 + .3*(48.6 - m.adh)/100 + ss));
       if (deg) x = shiftOdds(x, byGender(DEG_OR.sec, g)*Q.ds); }
     else { x = !F ? 0 : Q.fr*(f === "pagan" ? PAGAN*F[8]/OTHER_AVG : faithPct(F, f)/100);
-      if (deg && CHRISTIAN.includes(f)) x = shiftOdds(x, byGender(DEG_OR.christian, g)*Q.ds); }
+      // The degree shift was measured on Christians as a whole, so it shifts the Christian total and each part
+      // moves in proportion; that keeps the parts adding up to Any Christian
+      if (deg && CHRISTIAN.includes(f)){ const k = byGender(DEG_OR.christian, g)*Q.ds, C = Q.fr*F[0]/100;
+        x = f === "christian" ? shiftOdds(x, k) : C ? x*shiftOdds(C, k)/C : x; } }
     return [f, x];
   });
 }
