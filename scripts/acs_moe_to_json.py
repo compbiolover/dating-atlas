@@ -11,7 +11,7 @@ keeping only the header and the lines starting with 310M (metros) is enough.
 
 Standard error = margin of error / 1.645. Single people in a band are a sum of cells,
 so their SE is the root sum of squares (the Census Bureau's approximation). Each age
-band's degree share (18-24, 25-34, 35-44, 45-64) has its SE from the Census formula for a proportion,
+band's degree share (18-24, 25-34, 35-44, 45-64, 65+) has its SE from the Census formula for a proportion,
   SE(p) = sqrt(SE(x)^2 - p^2 SE(X)^2) / X,  with + instead of - if the root is negative.
 
 Writes the `const ACSE = {...};` in atlas/data.js, as

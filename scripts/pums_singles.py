@@ -6,7 +6,7 @@ an unmarried partner, and B15001's degree shares cover everyone, not singles. Fr
 by sex:
   free   share of B12002 singles NOT living with a partner, for each of the ACS object's B12002 age bands
   deg    degree share of those singles over B15001's degree share for everyone in the same B15001 age band
-         (18-24, 25-34, 35-44, 45-64); for 18-24, singles 21-24 over everyone 18-24, since the page starts at 21
+         (18-24, 25-34, 35-44, 45-64, 65+); for 18-24, singles 21-24 over everyone 18-24, since the page starts at 21
 
 A single person lives with a partner if they are the householder's unmarried partner (RELSHIPP 22, 24) or the
 householder of a home that has one. Couples where neither partner is the householder are missed, so the
@@ -25,7 +25,7 @@ import pandas as pd
 
 from acs_to_json import DATA, embed, read_const
 
-DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64)]
+DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64), (65, 100)]
 
 
 def main():
