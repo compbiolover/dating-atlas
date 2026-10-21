@@ -16,7 +16,7 @@ You pick a metro and say who you are and who you're looking for. The page then s
 - a ranked list you can sort by number of possibilities, competition, gender balance or rent
 - how many people are looking for the same partners as you, and what a 1-bedroom costs as a share of local pay
 
-You can filter by politics (progressive, conservative or any), faith (one or more of secular-leaning, Christian, Catholic, Protestant, Latter-day Saint, Jewish, Muslim, Hindu, Buddhist and Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive and secular) or the opposite one (conservative and Christian).
+You can filter by politics (one or more of progressive, liberal, moderate, conservative, very conservative and not political, or any), faith (one or more of non-religious, atheist, agnostic, nothing in particular, Christian, Catholic, Protestant, Latter-day Saint, other Christian, Jewish, Muslim, Hindu, Buddhist and Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive or liberal, non-religious) or the opposite one (conservative or very conservative, Christian).
 
 ![The settings panel: who you are and who you're looking for, your age and their ages 25 to 35 as number fields with minus and plus buttons, and the attraction and app rates as percentages](docs/atlas-settings.png)
 
@@ -52,7 +52,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 | 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022; from 65, times 16/36 (Pew 2022: 16% of unpartnered adults 65+ looking against 36% at 50 to 64) | none (constants) | `COMMITTED`, `LOOKING`, `LOOK_65`, `lookRate()`, `lookFit()` |
 | 6 | Has a degree (optional) | ACS B15001 degree share by sex and age band (*local*), times how often singles hold degrees against everyone (PUMS, national) | `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].dw/dm`, `PUMS.deg`, `degParts()` |
 | 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
-| 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; joint odds ratios from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/step2.mjs` for `PSI`, `DEG_OR` | `RAW` (dem), `REL`, `FAITH`, `PSI`, `DEG_OR`, `valRaw()` |
+| 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; politics groups, their degree shifts and their odds ratios with faith from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/ces_politics.py` for the `POL_*` constants and `NONE_SPLIT` | `RAW` (dem), `REL`, `FAITH`, `POL_FIT`, `POL_OR`, `NONE_SPLIT`, `polShares()`, `valRaw()` |
 | 9 | Shares your diet | Gallup 2023, NHANES, Pew 2020 (kosher), ISPU 2022 (halal); kosher and halal scale by the local Jewish or Muslim share | none | `DIET_RATE`, `DIET_POL`, `KOSHER`, `HALAL`, `dietFit()` |
 | 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents | `acs_to_json.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `kidsFit()` |
 | 11 | Mutual attraction | Speed-dating yes rates (Fisman et al. 2006), adjusted for your age, height, degree, job and kids (Antfolk 2017, Stulp 2013, NHANES, SCAL 2022, Pew 2019) | none; checked by `structure/speed_dating.py` | `ATTRACT`, `AGE_GAP`, `HT`, `EDU_PEN`, `JOB_PEN`, `traitRel()` |
@@ -79,9 +79,9 @@ The parts that aren't plain multiplication:
 
 - **Single years of age.** ACS reports age bands (20–24, 25–29, ...). `singleYears()` fits a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at each band edge and differences it by year, so any age range gets a smooth count and every band keeps its exact total. A self-check asserts the totals add back up.
 - **Degree share by age.** `degParts()` weights each B15001 band's share by the singles at each age in your range, then scales it by `PUMS.deg`, the ratio of singles' degree rate to everyone's in that band.
-- **Politics.** Progressive share = metro Harris share + 20 points (men −10, nonbinary +25), capped at 90%. Conservative is one minus that.
-- **Secular-leaning.** 40% + (metro unaffiliated − 23.1) + 0.3 × (48.6 − congregation share), men +4 points, clamped to 5–80%. Named faiths use PRRI's share directly; Pagan or Wiccan scales a national 0.3% by the metro's "other religion" share.
-- **Politics and faith together.** When they line up (progressive and secular, or conservative and Christian), the share fitting both is a Plackett joint with the odds ratio measured among single 25-to-35-year-olds in the 2024 CES (`PSI`), so it can never exceed either share alone. The degree filter shifts each share's odds by `DEG_OR` and uses the degree holders' odds ratio. Other combinations multiply.
+- **Politics.** Six groups from how people describe their views in the 2024 CES: progressive (very liberal), liberal, moderate, conservative, very conservative and not political ("not sure"). Among single 25-to-35-year-olds placed in their metros, left, moderate, right and not political each follow `logit P = a + b·logit(metro Harris share) + c·woman` (`POL_FIT`), normalized to sum to 1. Left and right then split by the national ratios (`POL_SPLIT`). Nonbinary people get CES's national shares for nonbinary singles (`POL_NB`). The degree filter scales each group by `POL_DEG` and renormalizes.
+- **Non-religious.** 40% + (metro unaffiliated − 23.1) + 0.3 × (48.6 − congregation share), men +4 points, clamped to 5–80%. Atheist, agnostic and nothing in particular split it by their shares within each politics group in CES (`NONE_SPLIT`). Named faiths use PRRI's share directly; Pagan or Wiccan scales a national 0.3% by the metro's "other religion" share.
+- **Politics and faith together.** Each picked politics group pairs with each picked faith as a Plackett joint, with that group's odds ratio with no religion or with Christian from CES (`POL_OR`), so a pair can never exceed either share alone. Other faiths pair independently. The pairs don't overlap, so they add, capped at your politics' share. With the degree filter, the degree holders' odds ratios apply; thin ones are shrunk toward the all-singles ratio.
 - **Your traits.** Age acceptance is lognormal around Antfolk's acceptable-age bounds, calibrated to Pew's shares rejecting a 10-year gap. Height acceptance is a normal CDF against NHANES heights and Stulp's preferred gap. Lacking a degree or a job counts as half a rejection, at SCAL 2022's rates. Having kids applies Pew's share who wouldn't date a parent. These multiply into their yes rate, relative to an average same-age person.
 - **Competition.** Everyone who is open to at least one of the genders you're looking for, treating openness to each as independent, over the people you're looking for.
 
@@ -101,14 +101,15 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 | Script | What it does |
 |---|---|
-| `ces_estimates.py` | From the 2024 CES, the joint rates of degree, politics, faith and openness among single 25-to-35-year-olds, with bootstrap intervals. Source of `PSI` and `DEG_OR`. |
+| `ces_estimates.py` | From the 2024 CES, the joint rates of degree, politics, faith and openness among single 25-to-35-year-olds, with bootstrap intervals. Source of `DEG_OR`. |
+| `ces_politics.py` | From the 2024 CES, the six politics groups among single 25-to-35-year-olds: how they vary with a metro's Harris share, how a degree shifts them, their odds ratios with no religion and Christian, and the atheist, agnostic and nothing-in-particular split, with bootstrap intervals. Source of the `POL_*` constants and `NONE_SPLIT`. |
 | `ces_metro_form.py` | Checks the shape of the progressive and secular formulas against CES respondents placed in their metros. |
 | `secular_level.py` | Checks the 40% secular-leaning base against CES and the GSS, and how it falls with age. |
 | `pums_degree.py` | Degree rates and cohabiting rates of singles against everyone, from 2023 PUMS with replicate-weight standard errors. |
 | `speed_dating.py` | Tests whether mutual attraction is the product of the two yes rates (lift ≈ 1.03). |
 | `harness.mjs` | Loads the page in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
 | `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
-| `step2.mjs` | Builds the politics-and-faith change now in the page, checks it against the harness, and writes `step2-values-joint.patch`. |
+| `step2.mjs` | Built the earlier two-group politics-and-faith change, checks it against the harness, and writes `step2-values-joint.patch`. The six-group model has since replaced it. |
 
 ### Data scripts
 
@@ -119,7 +120,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `scripts/acs_to_json.py` | Turns that ACS extract into the page's `ACS` object: single people by age band, degree shares by age band and single parents. |
 | `scripts/pums_singles.py` | Embeds `PUMS` from the 2023 ACS 1-year microdata: the share of singles not living with a partner, by sex and age band, and how often singles hold degrees against everyone in each age band. |
 | `scripts/acs_moe_to_json.py` | Embeds ACS standard errors (`ACSE`) for the uncertainty range, from the Census table-based summary files. No API key needed. |
-| `scripts/religion_to_json.py` | Embeds congregation membership and the unaffiliated share (`REL`), which feed the secular-leaning share. Writes `data/metro_religion.csv`. |
+| `scripts/religion_to_json.py` | Embeds congregation membership and the unaffiliated share (`REL`), which feed the non-religious share. Writes `data/metro_religion.csv`. |
 | `scripts/faith_to_json.py` | Embeds PRRI's share for each faith group (`FAITH`), used by the faith filter. Writes `data/metro_faith.csv`. |
 | `scripts/housing_to_json.py` | Embeds rent and pay (`HOUSE`) from the Census summary files. Writes `data/metro_housing.csv`. |
 | `scripts/build_map.mjs` | Rebuilds the map's metro positions and state outlines (`MAPXY`, `USMAP`) from the 2023 Census Gazetteer and us-atlas. |
