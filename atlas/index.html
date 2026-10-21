@@ -291,6 +291,7 @@ code{font-family:var(--mono);font-size:12.5px}
 .status i{width:8px;height:8px;border-radius:50%;background:var(--hot);display:block}
 .status.live i{background:var(--accent)}
 .ctrl input:disabled{opacity:.45}
+.seg input:disabled{opacity:0}  /* a chip hides its checkbox; the span shows the locked state */
 .ctrl select{font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
 .chk{display:flex;gap:8px;align-items:center;font-size:13.5px;font-weight:400}
 .chk input{accent-color:var(--accent);margin:0}
@@ -401,13 +402,13 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
         <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
           <div class="seg">
-            <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive and secular</span></label>
-            <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative and Christian</span></label>
+            <label><input type="radio" name="preset" id="preset-mine" value="mine"><span>Progressive or liberal, non-religious</span></label>
+            <label><input type="radio" name="preset" id="preset-opp" value="opp"><span>Conservative or very conservative, Christian</span></label>
           </div>
         </div>
-        <div class="ctrl" id="g-pol"><label for="pol">Politics</label><select id="pol"><option value="prog" selected>Progressive</option><option value="cons">Conservative</option><option value="any">Any politics</option></select></div>
-        <div class="ctrl" id="g-faith"><span class="lbl" id="faithL">Faith</span><div class="seg" role="group" aria-labelledby="faithL" aria-describedby="faithHint"><label><input type="checkbox" name="faith" value="any"><span>Any faith or none</span></label><label><input type="checkbox" name="faith" value="secular" checked><span>Secular-leaning</span></label><label><input type="checkbox" name="faith" value="christian"><span>Any Christian</span></label><label><input type="checkbox" name="faith" value="catholic"><span>Catholic</span></label><label><input type="checkbox" name="faith" value="protestant"><span>Protestant</span></label><label><input type="checkbox" name="faith" value="lds"><span>Latter-day Saint</span></label><label><input type="checkbox" name="faith" value="otherchr"><span>Other Christian</span></label><label><input type="checkbox" name="faith" value="jewish"><span>Jewish</span></label><label><input type="checkbox" name="faith" value="muslim"><span>Muslim</span></label><label><input type="checkbox" name="faith" value="hindu"><span>Hindu</span></label><label><input type="checkbox" name="faith" value="buddhist"><span>Buddhist</span></label><label><input type="checkbox" name="faith" value="pagan"><span>Pagan or Wiccan</span></label></div><small id="faithHint">Pick one or more. Any Christian counts everyone who calls themselves Christian: Catholic, Protestant, Latter-day Saint, Orthodox, Jehovah's Witness and others.</small></div>
-        <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive and secular-leaning</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
+        <div class="ctrl" id="g-pol"><span class="lbl" id="polL">Politics</span><div class="seg" role="group" aria-labelledby="polL" aria-describedby="polHint"><label><input type="checkbox" name="pol" value="any"><span>Any politics</span></label><label><input type="checkbox" name="pol" value="prog" checked><span>Progressive</span></label><label><input type="checkbox" name="pol" value="lib" checked><span>Liberal</span></label><label><input type="checkbox" name="pol" value="mod"><span>Moderate</span></label><label><input type="checkbox" name="pol" value="con"><span>Conservative</span></label><label><input type="checkbox" name="pol" value="vcon"><span>Very conservative</span></label><label><input type="checkbox" name="pol" value="apol"><span>Not political</span></label></div><small id="polHint">Pick one or more. How people describe their own views in the 2024 Cooperative Election Study; not political is "not sure".</small></div>
+        <div class="ctrl" id="g-faith"><span class="lbl" id="faithL">Faith</span><div class="seg" role="group" aria-labelledby="faithL" aria-describedby="faithHint"><label><input type="checkbox" name="faith" value="any"><span>Any faith or none</span></label><label><input type="checkbox" name="faith" value="secular" checked><span>Any non-religious</span></label><label><input type="checkbox" name="faith" value="atheist"><span>Atheist</span></label><label><input type="checkbox" name="faith" value="agnostic"><span>Agnostic</span></label><label><input type="checkbox" name="faith" value="nothing"><span>Nothing in particular</span></label><label><input type="checkbox" name="faith" value="christian"><span>Any Christian</span></label><label><input type="checkbox" name="faith" value="catholic"><span>Catholic</span></label><label><input type="checkbox" name="faith" value="protestant"><span>Protestant</span></label><label><input type="checkbox" name="faith" value="lds"><span>Latter-day Saint</span></label><label><input type="checkbox" name="faith" value="otherchr"><span>Other Christian</span></label><label><input type="checkbox" name="faith" value="jewish"><span>Jewish</span></label><label><input type="checkbox" name="faith" value="muslim"><span>Muslim</span></label><label><input type="checkbox" name="faith" value="hindu"><span>Hindu</span></label><label><input type="checkbox" name="faith" value="buddhist"><span>Buddhist</span></label><label><input type="checkbox" name="faith" value="pagan"><span>Pagan or Wiccan</span></label></div><small id="faithHint">Pick one or more. Any non-religious counts atheists, agnostics and people with no religion in particular. Any Christian counts everyone who calls themselves Christian: Catholic, Protestant, Latter-day Saint, Orthodox, Jehovah's Witness and others.</small></div>
+        <div class="ctrl"><div class="lbl"><span id="valuesL">Progressive or liberal and non-religious</span> <output id="valuesO"></output></div><small id="valuesHint"></small></div>
         <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
         </div></details>
         <details class="sec" open><summary>Whether it clicks</summary><div class="body">
@@ -527,11 +528,11 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>Singlehood and degree share come from the Census Bureau's American Community Survey for 2019 to 2023. Table B12002 counts never-married, divorced and widowed women and men in 5-year age bands; when a band straddles your age range, the page splits it into single years with a smooth curve that keeps each band's total exactly (a monotone cubic fitted to the running count across band edges), so neighboring years don't jump at band boundaries. The survey can't see unmarried couples who live together. In the 2023 ACS microdata, 26% of single women and 21% of single men aged 25 to 29 live with a partner, against 6% and 12% at 55 to 59, so the page removes that share for each age band and sex. Table B15001 gives the share of women and men with a bachelor's degree or higher in five age bands (18 to 24, 25 to 34, 35 to 44, 45 to 64, and 65 and older), and the page uses the band for each year of your age range. Singles hold degrees less often than everyone their age (in the microdata, 0.93 times as often for women aged 25 to 34 and 0.91 times for men, and 0.71 to 0.86 times from 35 up), so each band's share is scaled by that ratio. Nonbinary people get the average of women and men, adjusted by the gaps below. All 387 metros matched an ACS row by name. Small metros have wide margins of error in the ACS, so read their ratios loosely.</p>
       <p>If a metro had no ACS row, the page would fall back to 50% single for women (6 points higher for men, 10 for nonbinary people) and to the metro's adult bachelor's rate for degrees, times 1.25 for women, 0.97 for men and 1.15 for nonbinary people.</p>
       <p>The map puts each metro at its internal point from the Census Bureau's <a href="https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html">2023 Gazetteer</a>, with state outlines from <a href="https://github.com/topojson/us-atlas">us-atlas</a>, in the Albers USA projection that moves Alaska and Hawaii into insets. Circle area is proportional to the number of possibilities on the apps right now.</p>
-      <p>The range under the main number comes from a Monte Carlo simulation. The page redraws every input 2,000 times from a distribution that reflects how sure we are of it, runs the funnel for each draw, and shows the middle 80% of the results (10th to 90th percentile). The spreads come from the sources themselves: the Census Bureau's published margins of error for each metro's single people by age band and degree share in each age band (standard error = margin of error ÷ 1.645, summed across bands as root sum of squares); survey sample sizes for Gallup's openness rates and PRRI's faith shares; ±8% for Pew's share of singles who are looking and ±3.5% for the cohabiting cut; ±7 points on the progressive offset and ±5 points on the secular-leaning base, since those are modeling choices; ±15% on the odds ratio between politics and faith (±24% among degree holders) and ±10% on how a degree shifts politics and faith, from bootstrap resamples of the survey; ±25% each on the two attraction rates, which spans the published yes-rates from 22% to 49%; ±6% on the kids step; and ±5% to ±30% on the diet rates, depending on the survey. The page also reports which group of inputs drives most of the range, from how much each varies the result on its own. The range only covers uncertainty in the inputs. It does not cover errors in how the funnel is built, like assuming the steps are independent.</p>
+      <p>The range under the main number comes from a Monte Carlo simulation. The page redraws every input 2,000 times from a distribution that reflects how sure we are of it, runs the funnel for each draw, and shows the middle 80% of the results (10th to 90th percentile). The spreads come from the sources themselves: the Census Bureau's published margins of error for each metro's single people by age band and degree share in each age band (standard error = margin of error ÷ 1.645, summed across bands as root sum of squares); survey sample sizes for Gallup's openness rates and PRRI's faith shares; ±8% for Pew's share of singles who are looking and ±3.5% for the cohabiting cut; ±15% on the share of your politics groups (CES puts each group's sampling error at 6% to 15%, and the metro fit adds more) and ±5 points on the non-religious base, a modeling choice; ±24% on the odds ratios between politics and faith (±38% among degree holders) and ±10% on how a degree shifts faith, from bootstrap resamples of the survey; ±25% each on the two attraction rates, which spans the published yes-rates from 22% to 49%; ±6% on the kids step; and ±5% to ±30% on the diet rates, depending on the survey. The page also reports which group of inputs drives most of the range, from how much each varies the result on its own. The range only covers uncertainty in the inputs. It does not cover errors in how the funnel is built, like assuming the steps are independent.</p>
       <p>Not every single person is available or looking. In Pew's 2022 survey, 20% of people who were neither married nor living with a partner were in a committed relationship (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">topline, p. 64</a>), and Pew doesn't break that out by age, so the page removes 20% at every age. Of the rest, Pew's 2019 survey found 67% of men and 61% of women under 40 looking for a relationship or dates, against 55% of men and only 29% of women 40 and older (<a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2020/08/PSDT_08.20.20.dating-relationships.full_.report.pdf">report, p. 18</a>). By 2022 the share looking had fallen from 61% to 50% for single men and from 38% to 35% for single women (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so the page scales each age split by that drop: 55% and 45% for men, 56% and 27% for women. Older singles look much less: in the same 2022 survey, 36% of unpartnered adults aged 50 to 64 were looking against 16% of those 65 and older (<a href="https://www.pewresearch.org/short-reads/2023/02/08/for-valentines-day-5-facts-about-single-americans/">Pew</a>), so from 65 the page multiplies the 40-and-older rate by 16/36. Nonbinary people get the average. The same step applies to the competition, since people who aren't looking aren't competing.</p>
       <p>The competition ratio divides the single, looking, degree-holding people of the genders you picked by every single, looking, degree-holding person in the same age range who is open to dating them, whatever their gender. A straight man in a metro with equal numbers of men and women gets about 0.93, because some women also date women. The sex ratio in the list is simpler: single, looking, degree-holding women per man. Because far fewer women than men over 40 are looking, it tilts toward men at older ages. Unchecking the degree filter drops the degree step from your pool and the competition alike.</p>
-      <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The progressive share is the Harris share plus 20 points, capped at 90%. The secular-leaning share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 10 points less progressive and 4 points more secular, and nonbinary people 25 points more progressive and 15 points more secular.</p>
-      <p>Politics and faith can be changed in "Who you're looking for". Conservative is everyone outside the progressive share above, so the two always add to 100%. The faith shares come from the same <a href="https://www.prri.org/census/">PRRI county estimates</a>, weighted by population across each metro's counties: Christian (Catholic, Protestant, Latter-day Saint, Orthodox and Jehovah's Witness), Catholic, Protestant, Latter-day Saint, Jewish, Muslim, Hindu and Buddhist. PRRI has no Pagan or Wiccan estimate, so the page starts from 0.3% of adults (<a href="https://www.pewresearch.org/religion/religious-landscape-study/">Pew's 2014 Religious Landscape Study</a>) and scales it by each metro's PRRI share of other religions against the atlas average of 1.44%. These are shares of all adults, not of young singles, so they will be off for groups that skew young or old. You can pick more than one faith. The groups don't overlap, so the page works out each one with your politics as below and adds them, capped at your politics' share; Any Christian already counts Catholics, Protestants, Latter-day Saints and other Christians (Orthodox, Jehovah's Witness and others, which is what PRRI's Christian share leaves after the three named groups). Christian follows how people describe themselves, not a theological definition. Matching pairs, progressive with secular-leaning and conservative with a Christian faith, go together more often than chance. The share who fit both comes from the odds ratio between politics and faith among single 25 to 35 year olds in the <a href="https://doi.org/10.7910/DVN/X11EP6">2024 Cooperative Election Study</a>: 1.8 for women and 2.3 for men for progressive with no religion, and 2.0 and 1.9 for conservative with a Christian faith. Worked out this way (a Plackett joint), it can never exceed either share on its own. Degree holders are more progressive (odds 1.4 to 1.4 times higher), more often Christian (1.2 to 1.3 times) and less often unaffiliated, and their politics and faith line up more tightly (odds ratios of 4.1 to 5.0), so the degree filter uses those figures. Progressive counts Democrats and leaners, with independents as half.</p>
+      <p>The values estimate is a model, not survey data. It starts from the 2024 vote, with county results summed for each metro (<a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg county results</a>). Connecticut and Alaska don't report by county in that file, so their metros use the statewide Harris share. The politics shares come from how people describe their own views in the <a href="https://doi.org/10.7910/DVN/X11EP6">2024 Cooperative Election Study</a> (CES): very liberal (shown as progressive), liberal, moderate, conservative, very conservative or not sure (shown as not political). Among single women and men aged 25 to 35 placed in their metros, the page fits how each group's share moves with the metro's Harris share. Single groups are too thin for that, so four broader ones get the fit (left, moderate, right and not political, with one slope for women and men and a shift for women), and left and right split into their two groups by the national ratios. In a metro where Harris got 50%, that gives about 19% progressive, 20% liberal, 29% moderate, 11% conservative, 5% very conservative and 17% not political for women. The left grows and the right shrinks as the Harris share rises. Nonbinary singles (275 in CES, aged 18 to 40) are mostly progressive (59%) or liberal (17%), with too few respondents for a metro fit, so they get those shares everywhere. The non-religious share combines two religion sources: <code>40% + (unaffiliated share − 23.1%) + 0.3 × (48.6% − congregation share)</code>. The unaffiliated share is the metro's share of adults with no religion, from PRRI's county estimates in its <a href="https://www.prri.org/census/">Census of American Religion</a>, weighted by population across each metro's counties. The congregation share is the share of residents counted as members of a congregation in the <a href="https://www.usreligioncensus.org/node/1639">2020 U.S. Religion Census</a>; metros created since 2020 use the old metro or county they came from. Both figures are metro averages across the atlas (23.1% and 48.6%). The PRRI estimates carry most of the weight because they measure what people say they believe. The congregation share adds how much organized religion is around, but only lightly, since Catholic parishes count everyone they baptized. PRRI's county model already uses education and the vote, so neither enters this formula again. Men are shifted 4 points more non-religious, and nonbinary people 15 points.</p>
+      <p>Politics and faith can be changed in "Who you're looking for", and you can pick more than one of each. The six politics groups always add to 100%. The faith shares come from the same <a href="https://www.prri.org/census/">PRRI county estimates</a>, weighted by population across each metro's counties: Christian (Catholic, Protestant, Latter-day Saint, Orthodox and Jehovah's Witness), Catholic, Protestant, Latter-day Saint, Jewish, Muslim, Hindu and Buddhist. PRRI has no Pagan or Wiccan estimate, so the page starts from 0.3% of adults (<a href="https://www.pewresearch.org/religion/religious-landscape-study/">Pew's 2014 Religious Landscape Study</a>) and scales it by each metro's PRRI share of other religions against the atlas average of 1.44%. These are shares of all adults, not of young singles, so they will be off for groups that skew young or old. You can pick more than one faith. The groups don't overlap, so the page works out each one with your politics as below and adds them, capped at your politics' share; Any Christian already counts Catholics, Protestants, Latter-day Saints and other Christians (Orthodox, Jehovah's Witness and others, which is what PRRI's Christian share leaves after the three named groups). Christian follows how people describe themselves, not a theological definition. Any non-religious counts atheists, agnostics and people with no religion in particular. PRRI has only the total, so the three parts split it by the shares within each politics group in CES: about 31% atheist, 25% agnostic and 44% nothing in particular among progressives, against 9%, 21% and 70% among conservatives. Politics and faith go together more often than chance, so each politics group pairs with no religion and with Christian through its own odds ratio from CES, among single 25 to 35 year olds: for example 2.4 (women) and 2.7 (men) for progressive with no religion, and 4.2 and 2.3 for very conservative with Christian. Worked out this way (a Plackett joint), a pair can never exceed either share on its own. Other faiths pair independently. Degree holders differ: they are more often progressive or liberal (1.4 to 1.5 times), far less often not political (0.3 to 0.4 times), more often Christian (1.2 to 1.3 times odds) and less often unaffiliated, and their politics and faith line up more tightly. So the degree filter uses their shares and odds ratios, with the thinnest of those ratios pulled toward the all-singles ones.</p>
       <p>The diet step uses national rates. In <a href="https://news.gallup.com/poll/510038/identify-vegetarian-vegan.aspx">Gallup's 2023 poll</a>, 4% of Americans were vegetarian (6% of women, 2% of men) and 1% vegan, and 9% of liberals were vegetarian against 3% of moderates and conservatives, so vegetarian and vegan rates are scaled by 2.25 for progressives and 0.75 for conservatives. Vegan rates split by gender the same way as vegetarian. An <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2023.1113792/full">analysis of NHANES</a> found 4.7% of adults eat a pescatarian diet, 59.5% of them women; the pescatarian option also counts vegetarians, and only that vegetarian part is scaled by politics. Kosher and halal follow the local faith shares: 17% of Jewish Americans keep kosher at home (<a href="https://www.pewresearch.org/religion/2021/05/11/jewish-practices-and-customs/">Pew 2020</a>), and 83% of Muslim Americans only buy halal or prefer it (<a href="https://ispu.org/halal-preferences/">ISPU 2022</a>).</p>
       <p>The adult bachelor's rate in the fallback above is the county share of adults 25 and older with a bachelor's degree or higher, from the 2015 to 2019 ACS (<a href="https://github.com/OpenIntroStat/usdata">OpenIntro usdata</a>), weighted by population across each metro's counties and scaled up to today's national rate (32.1% to 36.9%). The degree step in the funnel uses Table B15001.</p>
       <p>Housing cost is a recent mover's rent for a 1-bedroom as a share of median yearly pay, from the 2019 to 2023 ACS. Table B25031 gives each metro's median gross rent, including utilities, for a 1-bedroom. That median includes people on long leases and in rent-stabilized units, so it is scaled by the metro's ratio of rent for people who moved in from 2021 on to rent for all renters (Table B25113). Pay is the median earnings of people 25 and older with a bachelor's degree, or with some college if you set no bachelor's (Table B20004), and it covers part-time workers too. The 30% line is HUD's definition of a cost-burdened renter. Rents have risen since 2023, so treat the dollar figures as a floor. The ranking between metros holds up better. Housing cost doesn't change the pool. It's a separate measure of what living there costs.</p>
@@ -563,15 +564,23 @@ const G = {w:{noun:"women", one:"woman", share:.50}, m:{noun:"men", one:"man", s
 const OPEN = {w:{w:.14, m:.88, n:.10}, m:{w:.94, m:.07, n:.05}, n:{w:.60, m:.50, n:.60}};
 const SINGLE_ADJ = {w:0, m:6, n:10};  // points above SINGLE (modeled) or above the women/men average (ACS, nonbinary)
 const DEG_MULT = {w:1.25, m:.97, n:1.15};
-const VAL_SHIFT = {w:[0,0], m:[-.10,.04], n:[.25,.15]}; // [progressive, secular]
-// Matching politics and faith go together more often than chance: progressives skew secular and conservatives
-// Christian. The share who fit both comes from the odds ratio between the two among single 25-to-35-year-olds in
-// the 2024 Cooperative Election Study (a Plackett joint), so it can never exceed either share on its own.
-// Degree holders are more progressive, more often Christian and less often unaffiliated, and their politics and
-// faith line up more tightly, so the degree filter shifts both shares and uses the degree holders' odds ratio.
-// Nonbinary people get the average of women and men.
-const PSI = {prog:{all:{w:1.82, m:2.26}, ba:{w:4.76, m:4.1}}, cons:{all:{w:2.05, m:1.86}, ba:{w:5.01, m:4.28}}};
-const DEG_OR = {prog:{w:1.38, m:1.45}, sec:{w:.93, m:.76}, christian:{w:1.2, m:1.3}};
+const SEC_SHIFT = {w:0, m:.04, n:.15}; // points added to the non-religious share
+// Politics: six groups from the 2024 CES ideology question among single 25-to-35-year-olds (scripts/structure/ces_politics.py).
+// POL_FIT: [a, b, c] for logit P(group) = a + b*logit(metro Harris share) + c*woman, for left (progressive or liberal),
+// moderate, right (conservative or very conservative) and not political; the four are normalized to sum to 1.
+// POL_SPLIT: progressive's share of the left and conservative's share of the right. POL_NB: nonbinary singles 18-40,
+// the same in every metro (too few for a slope). POL_DEG: P(group | bachelor's or higher)/P(group).
+// POL_OR: odds ratio of each group with no religion [all, degree holders] and with Christian [all, degree holders];
+// the degree holders' ratios are shrunk toward the all-singles ones where their cells are thin.
+// NONE_SPLIT: atheist, agnostic and nothing in particular among the non-religious in each group, and overall.
+const POL_FIT = {left:[-0.846,0.437,0.382], mod:[-0.64,0.324,-0.287], right:[-1.287,-0.883,-0.404], apol:[-1.91,-0.199,0.281]};
+const POL_SPLIT = {w:[0.483,0.679], m:[0.501,0.644]};
+const POL_NB = {prog:0.588, lib:0.173, mod:0.065, con:0.002, vcon:0.002, apol:0.173};
+const POL_DEG = {w:{prog:1.513, lib:1.362, mod:0.832, con:0.783, vcon:1.147, apol:0.381}, m:{prog:1.458, lib:1.534, mod:0.874, con:0.91, vcon:0.981, apol:0.323}};
+const POL_OR = {w:{prog:[2.413,3.946,0.443,0.204], lib:[1.455,1.377,0.643,0.612], mod:[0.737,0.28,1.623,4.223], con:[0.619,0.545,1.786,2.388], vcon:[0.177,0.119,4.219,4.397], apol:[0.882,1.477,0.716,0.552]}, m:{prog:[2.74,4.261,0.393,0.206], lib:[1.276,1.771,1.021,0.585], mod:[0.694,0.555,0.982,1.053], con:[0.304,0.091,2.929,15.879], vcon:[0.455,0.315,2.266,3.101], apol:[2.957,3.344,0.389,0.376]}};
+const NONE_SPLIT = {prog:[0.315,0.25,0.435], lib:[0.202,0.272,0.526], mod:[0.093,0.205,0.702], con:[0.087,0.213,0.7], vcon:[0.089,0.114,0.797], apol:[0.068,0.056,0.876], all:[0.157,0.197,0.646]};
+// Degree holders are more often Christian and less often unaffiliated (CES), so the degree filter shifts those shares
+const DEG_OR = {sec:{w:.93, m:.76}, christian:{w:1.2, m:1.3}};
 const byGender = (o, g) => o[g] ?? (o.w + o.m)/2;
 const shiftOdds = (p, k) => p <= 0 || p >= 1 ? p : p*k/(1 - p + p*k);
 const plackett = (p, q, psi) => { if (Math.abs(psi - 1) < 1e-9) return p*q; const S = 1 + (psi - 1)*(p + q);
@@ -579,12 +588,13 @@ const plackett = (p, q, psi) => { if (Math.abs(psi - 1) < 1e-9) return p*q; cons
 // Self-check: the joint gives back its odds ratio and stays inside both shares
 [[.7, .4, 4.76], [.9, .5, 1.82], [.3, .9, 5]].forEach(([p, q, psi]) => { const j = plackett(p, q, psi);
   console.assert(Math.abs(j*(1 - p - q + j)/((p - j)*(q - j)) - psi) < 1e-6 && j <= Math.min(p, q), "plackett", p, q, psi); });
-// Partner filters. The default is progressive, secular-leaning and any diet; the second preset is the opposite side.
-const POLS = {prog:"Progressive", cons:"Conservative", any:"Any politics"};
-const FAITHS = {secular:"Secular-leaning", christian:"Christian", catholic:"Catholic", protestant:"Protestant", lds:"Latter-day Saint", otherchr:"Other Christian",
+// Partner filters. The default is progressive or liberal, non-religious and any diet; the second preset is the opposite side.
+const POLS = {prog:"Progressive", lib:"Liberal", mod:"Moderate", con:"Conservative", vcon:"Very conservative", apol:"Not political", any:"Any politics"};
+const FAITHS = {secular:"Non-religious", atheist:"Atheist", agnostic:"Agnostic", nothing:"Nothing in particular", christian:"Christian", catholic:"Catholic", protestant:"Protestant", lds:"Latter-day Saint", otherchr:"Other Christian",
   jewish:"Jewish", muslim:"Muslim", hindu:"Hindu", buddhist:"Buddhist", pagan:"Pagan or Wiccan", any:"Any faith or none"};
 const FAITH_COL = {christian:0, catholic:1, protestant:2, lds:3, jewish:4, muslim:5, hindu:6, buddhist:7};  // columns of FAITH
 const CHRISTIAN = ["christian","catholic","protestant","lds","otherchr"];
+const SECULAR = ["secular","atheist","agnostic","nothing"];  // Any non-religious, then its parts in NONE_SPLIT order
 // A faith's PRRI share in %. Other Christian (Orthodox, Jehovah's Witness and others) is what Christian leaves after the named groups.
 const faithPct = (F, f) => f === "otherchr" ? Math.max(0, F[0] - F[1] - F[2] - F[3]) : F[FAITH_COL[f]];
 const PAGAN = .003, OTHER_AVG = 1.44;  // Pew 2014: 0.3% Pagan or Wiccan, scaled by the metro's PRRI "other religion" share over the atlas average
@@ -592,9 +602,9 @@ const DIETS = {any:"Any diet", veg:"Vegetarian", vegan:"Vegan", pesc:"Pescataria
 // Gallup 2023: 4% vegetarian (6% of women, 2% of men) and 1% vegan; NHANES 2023 analysis: 4.7% pescatarian, 59.5% of them women.
 // The pescatarian option also counts vegetarians, since they don't eat meat either; only the vegetarian part shifts with politics.
 const DIET_RATE = {veg:{w:.06, m:.02}, vegan:{w:.015, m:.005}, pesc:{w:.056, m:.038}};
-const DIET_POL = {prog:2.25, cons:.75, any:1};  // Gallup 2023: 9% of liberals vegetarian, 3% of moderates and conservatives, 4% overall
+const DIET_POL = {prog:2.25, lib:2.25, mod:.75, con:.75, vcon:.75, apol:1};  // Gallup 2023: 9% of liberals vegetarian, 3% of moderates and conservatives, 4% overall
 const KOSHER = .17, HALAL = .83;  // Pew 2020: 17% of Jews keep kosher at home; ISPU 2022: 83% of Muslims only buy or prefer halal
-const PRESETS = {mine:{pol:"prog", faith:"secular"}, opp:{pol:"cons", faith:"christian"}};  // quick picks leave diet alone
+const PRESETS = {mine:{pol:"prog,lib", faith:"secular"}, opp:{pol:"con,vcon", faith:"christian"}};  // quick picks leave diet alone
 
 // What partners want in you, by the rater's gender. Sources are in the notes.
 // Acceptable age gap: how much older (hi) or younger (lo) a partner can be, lognormal with spread AGE_SD.
@@ -711,16 +721,32 @@ const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
 });
 // Share of single people of gender g in metro m who fit your politics and faith, 0 to 1
 // Q holds the modeled constants, so the uncertainty simulation can vary them
-const VQ = {off:.2, sec:.40, fr:1, psi:1, dp:1, ds:1};
-// Faith is one or more groups as a comma list ("jewish,secular"); "any" means no filter
-const faithList = P => P.faith.split(",");
-// Share of single people of gender g in metro m in each faith you picked, after the degree shift. The groups don't
-// overlap: Christian includes Catholic, Protestant and Latter-day Saint, but the picker never sends both.
+const VQ = {pol:1, sec:.40, fr:1, psi:1, ds:1};
+// Politics and faith are each one or more groups as a comma list ("prog,lib", "jewish,secular"); "any" means no filter
+const polList = P => P.pol.split(","), faithList = P => P.faith.split(",");
+const inv = z => 1/(1 + Math.exp(-z)), logit = p => Math.log(p/(1 - p));
+// Share of single people of gender g in metro m in each politics group, after the degree filter. Women and men follow
+// the metro's Harris share (POL_FIT, then POL_SPLIT); nonbinary people get POL_NB everywhere.
+function polShares(m, g, P){
+  let r;
+  if (g === "n") r = {...POL_NB};
+  else { const x = logit(Math.min(.98, Math.max(.02, m.dem/100))), w = g === "w" ? 1 : 0, sp = POL_SPLIT[g];
+    const f = Object.fromEntries(Object.entries(POL_FIT).map(([k, [a, b, c]]) => [k, inv(a + b*x + c*w)]));
+    const t = f.left + f.mod + f.right + f.apol;
+    r = {prog: f.left*sp[0]/t, lib: f.left*(1 - sp[0])/t, mod: f.mod/t, con: f.right*sp[1]/t, vcon: f.right*(1 - sp[1])/t, apol: f.apol/t}; }
+  if (P.degOnly){ let t = 0; for (const k in r){ r[k] *= byGender({w: POL_DEG.w[k], m: POL_DEG.m[k]}, g); t += r[k]; } for (const k in r) r[k] /= t; }
+  return r;
+}
+// Odds ratio between politics group k and no religion (c = 0) or Christian (c = 1), for the degree filter's setting
+const polOR = (g, k, c, deg) => byGender({w: POL_OR.w[k][2*c + deg], m: POL_OR.m[k][2*c + deg]}, g);
+// Share of single people of gender g in metro m in each faith you picked, after the degree shift, as [faith, share].
+// The groups don't overlap: an umbrella (Any Christian, Any non-religious) and its parts are never sent together.
+// A non-religious part carries the umbrella's share; its fraction of it depends on politics (NONE_SPLIT).
 function faithShares(m, g, P, Q = VQ){
-  const ss = VAL_SHIFT[g][1], F = m.faith, deg = P.degOnly;
+  const F = m.faith, deg = P.degOnly;
   return faithList(P).filter(f => f !== "any").map(f => {
     let x;
-    if (f === "secular"){ x = Math.min(.8, Math.max(.05, Q.sec + (m.none - 23.1)/100 + .3*(48.6 - m.adh)/100 + ss));
+    if (SECULAR.includes(f)){ x = Math.min(.8, Math.max(.05, Q.sec + (m.none - 23.1)/100 + .3*(48.6 - m.adh)/100 + SEC_SHIFT[g]));
       if (deg) x = shiftOdds(x, byGender(DEG_OR.sec, g)*Q.ds); }
     else { x = !F ? 0 : Q.fr*(f === "pagan" ? PAGAN*F[8]/OTHER_AVG : faithPct(F, f)/100);
       // The degree shift was measured on Christians as a whole, so it shifts the Christian total and each part
@@ -730,36 +756,50 @@ function faithShares(m, g, P, Q = VQ){
     return [f, x];
   });
 }
+// Share of single people of gender g in metro m who fit your politics and faith, 0 to 1.
+// Q holds the modeled constants, so the uncertainty simulation can vary them.
 function valRaw(m, g, P, Q = VQ){
-  let prog = Math.min(.9, m.dem/100 + Q.off + VAL_SHIFT[g][0]);
-  if (P.degOnly) prog = shiftOdds(prog, byGender(DEG_OR.prog, g)*Q.dp);
-  const pol = P.pol === "prog" ? prog : P.pol === "cons" ? 1 - prog : 1, fs = faithShares(m, g, P, Q);
-  if (!fs.length) return pol;
-  // Each faith pairs with your politics on its own, then the shares add, since the groups don't overlap. The total
-  // can't pass your politics' share, which also stops the range's draws putting a faith above 100%
-  const psi = () => byGender(PSI[P.pol][P.degOnly ? "ba" : "all"], g)*Q.psi;
-  const sum = fs.reduce((t, [f, x]) => t + (aligned(P.pol, f) ? plackett(pol, x, psi()) : f === "secular" ? Math.max(.02, pol*x) : pol*x), 0);
-  return Math.min(pol, sum);
+  const any = P.pol === "any", sel = any ? [] : polList(P), ps = polShares(m, g, P), fs = faithShares(m, g, P, Q);
+  // The range's politics uncertainty scales the share of your groups up or down together
+  const S0 = sel.reduce((t, k) => t + ps[k], 0), S = any ? 1 : Math.min(.995, S0*Q.pol), sc = S0 ? S/S0 : 1;
+  if (!fs.length) return S;
+  const part = f => SECULAR.indexOf(f) - 1;  // 0-2 for atheist, agnostic, nothing; -1 otherwise
+  if (any) return Math.min(1, fs.reduce((t, [f, x]) => t + x*(part(f) >= 0 ? NONE_SPLIT.all[part(f)] : 1), 0));
+  // Each politics group pairs with each faith through its own odds ratio from CES (no religion and Christian; others
+  // independent); the pairs don't overlap, so they add. The total can't pass your politics' share.
+  const deg = P.degOnly ? 1 : 0;
+  let sum = 0;
+  sel.forEach(k => { const p = ps[k]*sc;
+    fs.forEach(([f, x]) => { const c = SECULAR.includes(f) ? 0 : CHRISTIAN.includes(f) ? 1 : -1;
+      const j = c < 0 ? p*x : plackett(p, x, polOR(g, k, c, deg)*Q.psi);
+      sum += part(f) >= 0 ? j*NONE_SPLIT[k][part(f)] : j; }); });
+  return Math.min(S, sum);
 }
-const aligned = (pol, f) => (pol === "prog" && f === "secular") || (pol === "cons" && CHRISTIAN.includes(f));
 const valFit = (m, g, P, Q = VQ) => Math.min(1, valRaw(m, g, P, Q));
 // Share of those who also fit your diet. Kosher and halal follow the local Jewish and Muslim shares.
 function dietFit(m, g, P){
   if (P.diet === "any") return 1;
   // Jewish (Muslim) share of the people who fit your faith: all of a Jewish (Muslim) pick, the local share of a
-  // secular-leaning pick or of any faith, none of the other faiths; weighted by each faith's share
+  // non-religious pick or of any faith, none of the other faiths; weighted by each faith's share
   const F = m.faith || [], fs = faithShares(m, g, P), tot = fs.reduce((t, [, x]) => t + x, 0);
   const frac = (f, col) => !fs.length ? (F[col] || 0)/100 : !tot ? 0
-    : fs.reduce((t, [k, x]) => t + x*(k === f ? 1 : k === "secular" ? (F[col] || 0)/100 : 0), 0)/tot;
+    : fs.reduce((t, [k, x]) => t + x*(k === f ? 1 : SECULAR.includes(k) ? (F[col] || 0)/100 : 0), 0)/tot;
   if (P.diet === "kosher") return KOSHER*frac("jewish", 4);
   if (P.diet === "halal") return HALAL*frac("muslim", 5);
   const rate = d => g === "n" ? (DIET_RATE[d].w + DIET_RATE[d].m)/2 : DIET_RATE[d][g];
-  return Math.min(1, P.diet === "pesc" ? rate("pesc") + rate("veg")*DIET_POL[P.pol] : rate(P.diet)*DIET_POL[P.pol]);
+  // Vegetarians lean liberal: weight each picked politics group's rate by its share
+  let pol = 1;
+  if (P.pol !== "any"){ const ps = polShares(m, g, P), sel = polList(P), t = sel.reduce((a, k) => a + ps[k], 0);
+    pol = t ? sel.reduce((a, k) => a + ps[k]*DIET_POL[k], 0)/t : 1; }
+  return Math.min(1, P.diet === "pesc" ? rate("pesc") + rate("veg")*pol : rate(P.diet)*pol);
 }
-// "Jewish or secular-leaning"; lower-cases secular-leaning after politics or another faith
-const faithLabel = (P, lower) => faithList(P).map((f, i) => f === "secular" && (lower || i) ? "secular-leaning" : FAITHS[f]).join(" or ");
-const valuesLabel = P => P.pol === "any" && P.faith === "any" ? "" : P.pol === "any" ? faithLabel(P) : P.faith === "any" ? POLS[P.pol]
-  : `${POLS[P.pol]} and ${faithLabel(P, true)}`;
+// "Progressive or liberal and Jewish or non-religious": politics and non-religious words are lower-cased after the
+// first word; faith names (Christian, Jewish) keep their capitals
+const lowerIf = (t, low) => low ? t.toLowerCase() : t;
+const polLabel = P => polList(P).map((k, i) => lowerIf(POLS[k], i > 0)).join(" or ");
+const faithLabel = (P, lower) => faithList(P).map((f, i) => lowerIf(FAITHS[f], (lower || i > 0) && SECULAR.includes(f))).join(" or ");
+const valuesLabel = P => P.pol === "any" && P.faith === "any" ? "" : P.pol === "any" ? faithLabel(P) : P.faith === "any" ? polLabel(P)
+  : `${polLabel(P)} and ${faithLabel(P, true)}`;
 // A recent mover's 1-bedroom rent as a share of median pay for your education level, in percent
 const rentShare = (m, P) => m.house ? Math.round(m.house[0]*12/m.house[P.edu === "ba" ? 1 : 2]*100) : NaN;
 const BURDEN = 30; // HUD counts renters paying more than 30% of income as cost-burdened
@@ -790,7 +830,7 @@ const ZS = (() => { let a = 20251002; const rnd = () => { a |= 0; a = a + 0x6D2B
   return z; })();
 const LN = (sd, z) => Math.exp(sd*z - sd*sd/2);       // mean-one lognormal scale
 const NR = (sd, z) => Math.max(.05, 1 + sd*z);        // mean-one normal scale, kept positive
-const UNC = {cohab:.035, look:.08, openAdapt:.05, off:.07, sec:.05, psi:{all:.15, ba:.24}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
+const UNC = {cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
   diet:{veg:.15, vegan:.3, pesc:.08, kosher:.05, halal:.05}};
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
@@ -810,7 +850,7 @@ function interval(m, s, P, f){
   if (!parts.length || !f.click) return null;
   // PRRI faith shares vary by their sampling error, from the combined share of the PRRI faiths you picked.
   // shortcut: Pagan picked with other faiths uses theirs, since the Pagan share is tiny; split it if that matters
-  const pr = faithList(P).filter(f => !["any","secular"].includes(f));
+  const pr = faithList(P).filter(f => f !== "any" && !SECULAR.includes(f));
   const fs = m.faith ? pr.reduce((t, f) => t + (f === "pagan" ? 0 : faithPct(m.faith, f)/100), 0) : .5;
   const frSD = !pr.length ? 0 : pr.every(f => f === "pagan") ? UNC.pagan : Math.max(.08, Math.sqrt((1 - fs)/(fs*400)));
   const g0 = parts.map(({t, v}) => ({t, v0: v, rs: singlesRelSE(m, t, s),
@@ -824,8 +864,8 @@ function interval(m, s, P, f){
   const Q = {...VQ}, fac = new Float64Array(K), one = new Float64Array(K);
   for (let d = 0; d < NSIM; d++){
     const z = i => ZS[d*DIMS + i];
-    Q.off = VQ.off + UNC.off*z(0); Q.sec = VQ.sec + UNC.sec*z(1); Q.fr = frSD ? LN(frSD, z(2)) : 1; Q.psi = LN(UNC.psi[s.deg ? "ba" : "all"], z(3));
-    Q.dp = s.deg ? LN(UNC.degOR, z(30)) : 1; Q.ds = s.deg ? LN(UNC.degOR, z(31)) : 1;
+    Q.pol = LN(UNC.pol, z(0)); Q.sec = VQ.sec + UNC.sec*z(1); Q.fr = frSD ? LN(frSD, z(2)) : 1; Q.psi = LN(UNC.psi[s.deg ? "ba" : "all"], z(3));
+    Q.ds = s.deg ? LN(UNC.degOR, z(31)) : 1;
     const cohab = NR(UNC.cohab, z(4)), click = LN(UNC.his, z(5))*LN(UNC.her, z(6)), diet = (dietSD ? LN(dietSD, z(7)) : 1)*(dietPolSD ? LN(dietPolSD, z(8)) : 1);
     let all = 0; one.fill(0);
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
@@ -857,7 +897,7 @@ function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
   const kids = document.querySelector('input[name="kids"]:checked').value;
-  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:$("pol").value, faith:faithPicked(), diet:$("diet").value};
+  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -872,22 +912,28 @@ let htSet = false; // until you pick a height, it follows the average for your g
 const heightFor = you => { const mu = you === "n" ? (HT.w[0] + HT.m[0])/2 : HT[you][0];
   return HEIGHTS.reduce((b, c) => Math.abs(c - mu) < Math.abs(b - mu) ? c : b); };
 const defaultHt = () => heightFor(document.querySelector('input[name="you"]:checked').value);
-// Faith chips: "Any" and the faiths exclude each other, and Christian covers its three subgroups, shown ticked
-// and locked. faithPicked() reads them as the profile's comma list.
-const faithBoxes = () => [...document.querySelectorAll('input[name="faith"]')], faithBox = v => faithBoxes().find(x => x.value === v);
-const SUBS = CHRISTIAN.slice(1);
-function syncFaith(){
-  const chr = faithBox("christian").checked;
-  SUBS.forEach(v => { const x = faithBox(v); if (chr){ x.checked = true; x.disabled = true; } else if (x.disabled){ x.disabled = false; x.checked = false; } });
-  if (!faithBoxes().some(x => x.checked)) faithBox("any").checked = true;
+// Chip groups (politics, faith): "Any" and the rest exclude each other, and an umbrella (Any Christian, Any
+// non-religious) covers its parts, shown ticked and locked. picked() reads a group as the profile's comma list.
+const CHIPS = {pol: {}, faith: {christian: CHRISTIAN.slice(1), secular: SECULAR.slice(1)}};
+const boxes = n => [...document.querySelectorAll(`input[name="${n}"]`)], box = (n, v) => boxes(n).find(x => x.value === v);
+function syncChips(n){
+  Object.entries(CHIPS[n]).forEach(([u, subs]) => { const on = box(n, u).checked;
+    subs.forEach(v => { const x = box(n, v); if (on){ x.checked = true; x.disabled = true; } else if (x.disabled){ x.disabled = false; x.checked = false; } }); });
+  if (!boxes(n).some(x => x.checked)) box(n, "any").checked = true;
 }
-const faithPicked = () => faithBoxes().filter(x => x.checked && !x.disabled && x.value !== "any").map(x => x.value).join(",") || "any";
-function setFaith(v){ const on = new Set(v.split(",")); faithBoxes().forEach(x => { x.disabled = false; x.checked = on.has(x.value); }); syncFaith(); }
-faithBoxes().forEach(x => x.addEventListener("change", () => {
-  if (x.value === "any" && x.checked) faithBoxes().forEach(y => { if (y !== x){ y.checked = false; y.disabled = false; } });
-  else if (x.checked) faithBox("any").checked = false;
-  syncFaith(); saveProfile(); schedule();
-}));
+// Every politics group ticked is everyone, so it reads as Any
+const picked = n => { const on = boxes(n).filter(x => x.checked && !x.disabled && x.value !== "any").map(x => x.value);
+  return !on.length || (n === "pol" && on.length === boxes(n).length - 1) ? "any" : on.join(","); };
+function setChips(n, v){ const on = new Set(v.split(",")); boxes(n).forEach(x => { x.disabled = false; x.checked = on.has(x.value); }); syncChips(n); }
+const syncFaith = () => { syncChips("pol"); syncChips("faith"); };
+["pol", "faith"].forEach(n => boxes(n).forEach(x => x.addEventListener("change", () => {
+  if (x.value === "any" && x.checked) boxes(n).forEach(y => { if (y !== x){ y.checked = false; y.disabled = false; } });
+  else if (x.checked) box(n, "any").checked = false;
+  syncChips(n); saveProfile(); schedule();
+})));
+syncFaith();  // the default (Any non-religious) shows its parts as included from the start
+// Links and saved profiles from before the six politics groups: progressive meant left, conservative meant right
+const OLD_POL = {prog: "prog,lib", cons: "con,vcon"};
 // One loader for every setting, from the saved profile or a shared link. get(key) returns a string or null.
 function applySettings(get){
   const one = (k, ok, set) => { const v = get(k); if (v != null && ok(v)) set(v); };
@@ -901,8 +947,8 @@ function applySettings(get){
   one("kids", inList(["any","want","dont","have"]), v => $("kids-" + v).checked = true);
   one("openP", bool, v => $("openP").checked = v === "1");
   one("deg", bool, v => $("degOnly").checked = v === "1");
-  one("pol", v => v in POLS, v => $("pol").value = v);
-  one("faith", v => v.split(",").every(f => f in FAITHS), setFaith);
+  one("pol", v => (OLD_POL[v] || v).split(",").every(k => k in POLS), v => setChips("pol", OLD_POL[v] || v));
+  one("faith", v => v.split(",").every(f => f in FAITHS), v => setChips("faith", v));
   one("diet", v => v in DIETS, v => $("diet").value = v);
 }
 const saved = (() => { try { return JSON.parse(store.get("atlas.profile") || "null"); } catch(e){ return null; } })();
@@ -1136,11 +1182,11 @@ $("yAge").addEventListener("input", () => {
   $("ageMin").value = clamp($("ageMin"), a + rangeOff[0]); $("ageMax").value = clamp($("ageMax"), a + rangeOff[1]);
 });
 ["ageMin","ageMax"].forEach(k => $(k).addEventListener("input", () => rangeOff = null));
-["yAge","yHt","yEdu","yJob","openP","degOnly","pol","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
+["yAge","yHt","yEdu","yJob","openP","degOnly","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 ["yfit","ry"].forEach(n => document.querySelectorAll(`input[name="${n}"]`).forEach(el => el.addEventListener("change", () => { store.set("atlas." + n, el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); })));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
-  Object.entries(PRESETS[el.value]).forEach(([k, v]) => k === "faith" ? setFaith(v) : $(k).value = v); saveProfile(); update(); }));
+  Object.entries(PRESETS[el.value]).forEach(([k, v]) => setChips(k, v)); saveProfile(); update(); }));
 
 function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
@@ -1156,11 +1202,12 @@ function update(){
   $("valuesL").textContent = valuesLabel(P) || "Any politics or faith";
   $("rbSum").textContent = `${cap(G[P.you].one)}, ${P.age} · ${cap(who)} ${s.ageMin} to ${s.ageMax} · ` +
     `${valuesLabel(P) || "Any politics or faith"}${P.diet !== "any" ? " · " + DIETS[P.diet] : ""}${s.deg ? "" : " · Any education"}`;
-  const vote = `the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""})`, F = m.faith;
+  const vote = `the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""}) with CES politics`, F = m.faith;
   const note = f => f === "secular" ? `${m.none}% with no religion and ${m.adh}% in a congregation`
+    : SECULAR.includes(f) ? `${m.none}% with no religion here and CES's share of the non-religious who say ${FAITHS[f].toLowerCase()}`
     : f === "pagan" ? "about 0.3% nationally, scaled by the local share of other religions"
     : F ? `PRRI's estimate that ${+faithPct(F, f).toFixed(2)}% of adults here are ${FAITHS[f]}` : "no PRRI estimate for this metro";
-  const faithNote = P.faith === "any" ? "" : faithList(P).map(note).join(", ");
+  const faithNote = P.faith === "any" ? "" : [...new Set(faithList(P).map(note))].join(", ");
   const parts = [P.pol !== "any" ? vote : "", faithNote].filter(Boolean);
   $("valuesHint").textContent = parts.length ? `Modeled for ${m.short} from ${parts.join(" and ")}.` : `Not used as a filter.`;
   $("dietHint").textContent = P.diet === "any" ? "Not used as a filter." : P.diet === "kosher" ? `About ${pct(b.diet)} of them. 17% of Jewish Americans keep kosher at home.`
