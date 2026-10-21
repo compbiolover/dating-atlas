@@ -1,0 +1,7 @@
+# Python packages for the scripts in scripts/ and scripts/structure/ (Python 3.13).
+# Pinned to the versions that reproduce the committed data and scripts/structure/out/ exactly.
+#   python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+numpy==2.5.3
+pandas==3.0.5
+statsmodels==0.15.0   # the CES regressions (ces_estimates.py, ces_metro_form.py, ces_politics.py)
+openpyxl==3.1.5       # pandas.read_excel for the Census CBSA delineation file
