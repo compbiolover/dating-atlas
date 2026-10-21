@@ -735,11 +735,11 @@ function valRaw(m, g, P, Q = VQ){
   if (P.degOnly) prog = shiftOdds(prog, byGender(DEG_OR.prog, g)*Q.dp);
   const pol = P.pol === "prog" ? prog : P.pol === "cons" ? 1 - prog : 1, fs = faithShares(m, g, P, Q);
   if (!fs.length) return pol;
-  // Each faith pairs with your politics on its own, then the shares add, since the groups don't overlap; a sum
-  // can't pass your politics' share (one faith is left uncapped, as it always was)
+  // Each faith pairs with your politics on its own, then the shares add, since the groups don't overlap. The total
+  // can't pass your politics' share, which also stops the range's draws putting a faith above 100%
   const psi = () => byGender(PSI[P.pol][P.degOnly ? "ba" : "all"], g)*Q.psi;
   const sum = fs.reduce((t, [f, x]) => t + (aligned(P.pol, f) ? plackett(pol, x, psi()) : f === "secular" ? Math.max(.02, pol*x) : pol*x), 0);
-  return fs.length > 1 ? Math.min(pol, sum) : sum;
+  return Math.min(pol, sum);
 }
 const aligned = (pol, f) => (pol === "prog" && f === "secular") || (pol === "cons" && CHRISTIAN.includes(f));
 const valFit = (m, g, P, Q = VQ) => Math.min(1, valRaw(m, g, P, Q));
