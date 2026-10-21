@@ -186,6 +186,19 @@ def estimate(row, var):
     return 0.0 if value in ("", "NA") else float(value)
 
 
+def read_sf(path):
+    """{GEO_ID: {column: number or None}} for the nation and the metros (310M) in a pipe-delimited ACS
+    table-based summary file. Blanks and negative jam values (Census codes such as -666666666) are None."""
+    num = lambda v: float(v) if re.fullmatch(r"\d+(\.\d+)?", v or "") else None
+    out = {}
+    with open(path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f, delimiter="|"):
+            g = row["GEO_ID"]
+            if g == "0100000US" or g.startswith("310M"):
+                out[g] = {k: num(v) for k, v in row.items() if k != "GEO_ID"}
+    return out
+
+
 def atlas_names(html_path):
     html = open(html_path, encoding="utf-8").read()
     m = re.search(r"^const RAW = (\[.*\]);$", html, re.M)

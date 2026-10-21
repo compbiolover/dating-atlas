@@ -32,7 +32,7 @@ scripts/structure/out/    their results, as JSON
 .github/workflows/        publishes atlas/ to GitHub Pages
 ```
 
-There is no build step. Each data script prints or patches a JS constant (`ACS`, `PUMS`, `REL`, ...) that lives near the top of the `<script>` in `atlas/index.html`, and the page computes everything else in the browser.
+There is no build step. Each data script rewrites a JS constant (`ACS`, `PUMS`, `REL`, ...) that lives near the top of the `<script>` in `atlas/index.html`, and the page computes everything else in the browser.
 
 ## How the estimate works
 
@@ -42,14 +42,14 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 
 | # | Funnel step | Data | Built by | In the page |
 |---|---|---|---|---|
-| 1 | Population | Census Bureau 2025 estimates for the 387 MSAs (2023 definitions), via Wikipedia's metro list. *Local* | Entered by hand, no script | `RAW` (pop) |
+| 1 | Population | Census Bureau 2025 estimates for the 387 MSAs (2023 definitions), via Wikipedia's metro list. *Local* | `data/metro_raw.csv` → `raw_to_json.py` | `RAW` (pop) |
 | 2 | Your genders | Fixed shares: women 50%, men 48.5%, nonbinary 1.5% | none | `G` |
 | 3 | In your age range | ACS 2019–2023 B12002 totals by sex and age band. *Local* | `pull_acs.R` → `acs_to_json.py` | `ACS.metros[...].wt/mt` |
 | 4 | Single, not living with a partner | ACS B12002 never married, divorced or widowed (*local*), times the share of singles not cohabiting by sex and age band from 2023 PUMS (national) | `pull_acs.R` → `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].w/m`, `PUMS.free` |
 | 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022 | none (constants) | `COMMITTED`, `LOOKING`, `lookFit()` |
 | 6 | Has a degree (optional) | ACS B15001 degree share by sex and age band (*local*), times how often singles hold degrees against everyone (PUMS, national) | `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].dw/dm`, `PUMS.deg`, `degParts()` |
 | 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
-| 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; joint odds ratios from the 2024 CES. *Local* | `religion_to_json.py`, `faith_to_json.py`; `structure/step2.mjs` for `PSI`, `DEG_OR` | `RAW` (dem), `REL`, `FAITH`, `PSI`, `DEG_OR`, `valRaw()` |
+| 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; joint odds ratios from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/step2.mjs` for `PSI`, `DEG_OR` | `RAW` (dem), `REL`, `FAITH`, `PSI`, `DEG_OR`, `valRaw()` |
 | 9 | Shares your diet | Gallup 2023, NHANES, Pew 2020 (kosher), ISPU 2022 (halal); kosher and halal scale by the local Jewish or Muslim share | none | `DIET_RATE`, `DIET_POL`, `KOSHER`, `HALAL`, `dietFit()` |
 | 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents | `acs_to_json.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `kidsFit()` |
 | 11 | Mutual attraction | Speed-dating yes rates (Fisman et al. 2006), adjusted for your age, height, degree, job and kids (Antfolk 2017, Stulp 2013, NHANES, SCAL 2022, Pew 2019) | none; checked by `structure/speed_dating.py` | `ATTRACT`, `AGE_GAP`, `HT`, `EDU_PEN`, `JOB_PEN`, `traitRel()` |
@@ -111,6 +111,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 | Script | What it rebuilds |
 |---|---|
+| `scripts/raw_to_json.py` | Embeds the metro list (`RAW`: name, population, degree share, Harris share) from `data/metro_raw.csv`, the one source for which metros exist and their order. Edit the CSV, then run it. |
 | `scripts/pull_acs.R` | Pulls ACS tables B12002, B15001 and B11012 for every metro with tidycensus, into `data/metro_acs_2023.csv` and `data/acs_variables_2023.csv`. Needs a Census API key. |
 | `scripts/acs_to_json.py` | Turns that ACS extract into the page's `ACS` object: single people by age band, degree shares by age band and single parents. |
 | `scripts/pums_singles.py` | Embeds `PUMS` from the 2023 ACS 1-year microdata: the share of singles not living with a partner, by sex and age band, and how often singles hold degrees against everyone in each age band. |
@@ -119,6 +120,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `scripts/faith_to_json.py` | Embeds PRRI's share for each faith group (`FAITH`), used by the faith filter. Writes `data/metro_faith.csv`. |
 | `scripts/housing_to_json.py` | Embeds rent and pay (`HOUSE`) from the Census summary files. Writes `data/metro_housing.csv`. |
 | `scripts/build_map.mjs` | Rebuilds the map's metro positions and state outlines (`MAPXY`, `USMAP`) from the 2023 Census Gazetteer and us-atlas. |
+| `scripts/check_page.mjs` | Not a data script: loads the page in headless Chromium and fails on a script error, a failed self-check or a missing result. The deploy workflow runs it before publishing. |
 
 ## Rebuilding the data
 
@@ -126,16 +128,18 @@ The 2019 to 2023 data is already in `data/` and embedded in the page. To rebuild
 
 ```sh
 Rscript scripts/pull_acs.R    # needs a Census API key
+python3 scripts/raw_to_json.py   # after editing data/metro_raw.csv
 python3 scripts/acs_to_json.py data/metro_acs_2023.csv data/acs_variables_2023.csv
 cd scripts && python3 pums_singles.py csv_pus.zip --page ../atlas/index.html && cd ..
 PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx
 python3 scripts/housing_to_json.py acsdt5y2023-b25031.dat acsdt5y2023-b25113.dat acsdt5y2023-b20004.dat
-npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs > map.json
+npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs
+node scripts/check_page.mjs   # needs Playwright
 ```
 
-Each script's header says where to download its inputs. The national summary files are large, but you only need the header and the lines that start with `310M`, which are the metros.
+Each script's header says where to download its inputs. The national summary files are large, but you only need the header, the national line (`0100000US`) and the lines that start with `310M`, which are the metros.
 
 ## Limitations
 

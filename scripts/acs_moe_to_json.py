@@ -26,27 +26,18 @@ import math
 import re
 import sys
 
-from acs_to_json import atlas_names, b12002_plan, b15001_bands, embed, load_labels, matcher
+from acs_to_json import atlas_names, b12002_plan, b15001_bands, embed, load_labels, matcher, read_sf
 
 Z90 = 1.645
 
 
-def read_sf(path):
-    """{CBSA code: {variable: (estimate, standard error)}} from a pipe-delimited summary file."""
+def est_se(path):
+    """{CBSA code: {variable: (estimate, standard error)}} for the metros in a summary file."""
     out = {}
-    num = lambda v: float(v) if re.fullmatch(r"-?\d+(\.\d+)?", v or "") else 0.0
-    with open(path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f, delimiter="|"):
-            g = row["GEO_ID"]
-            if not g.startswith("310M"):
-                continue
-            rec = {}
-            for k, v in row.items():
-                m = re.fullmatch(r"(B\d+)_E(\d+)", k)
-                if m:
-                    var = f"{m.group(1)}_{m.group(2)}"
-                    rec[var] = (num(v), max(0.0, num(row.get(f"{m.group(1)}_M{m.group(2)}"))) / Z90)
-            out[g[-5:]] = rec
+    for g, row in read_sf(path).items():
+        if g.startswith("310M"):
+            out[g[-5:]] = {f"{m[1]}_{m[2]}": (row[k] or 0.0, (row.get(f"{m[1]}_M{m[2]}") or 0.0) / Z90)
+                           for k in row if (m := re.fullmatch(r"(B\d+)_E(\d+)", k))}
     return out
 
 
@@ -63,7 +54,7 @@ def main():
     plan, bands = b12002_plan(labels)
     degs = b15001_bands(labels)
     idx = {band: i for i, band in enumerate(bands)}
-    mar, edu = read_sf(a.b12002), read_sf(a.b15001)
+    mar, edu = est_se(a.b12002), est_se(a.b15001)
 
     atlas = atlas_names(a.page)
     match = matcher(atlas)
