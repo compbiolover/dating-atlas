@@ -20,32 +20,94 @@ You can filter by politics (progressive, conservative or any), faith (secular-le
 
 On a first visit, a three-step setup asks who you are, who you're looking for and where, then shows the result. The result shows the funnel, the map, the scatter plot and the key numbers in a 2×2 grid, with your search summarized in a bar you can open to edit. The ranked list and the methods open when you ask for them. The page saves your settings in your browser and in its address, so a copied link reopens the same result and skips the setup.
 
-## How the estimate works
-
-Each funnel step multiplies the one before it. The steps that differ by metro use local data:
-
-| Step | Source |
-|---|---|
-| Population | Census Bureau 2025 estimates for the 387 metropolitan statistical areas |
-| Single people by age, and the degree share | American Community Survey 2019 to 2023, tables B12002 and B15001 (degree share by age band) |
-| Who lives with a partner, and how often singles hold degrees | 2023 ACS microdata (PUMS), by sex and age band, applied nationally |
-| Politics | 2024 presidential vote by county, summed to metros |
-| Faith | PRRI Census of American Religion county estimates, and the 2020 U.S. Religion Census |
-| Single parents | ACS table B11012 |
-| Rent and pay | ACS tables B25031, B25113 and B20004 |
-
-The behavioral steps use national rates: who is looking to date (Pew), who is open to dating each gender (Gallup), attraction rates (speed-dating studies), dating-app use (Pew) and diets (Gallup, NHANES, Pew and ISPU). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
-
-The range under the main number comes from a Monte Carlo simulation. The page reruns the funnel 2,000 times, and each run varies every input by how uncertain it is. Local counts vary by their Census margins of error, survey rates by their sample sizes, and modeling assumptions over stated ranges. The page shows the middle 80% of the results. That range covers uncertainty in the inputs, not in how the funnel is built. `docs/structural-uncertainty.md` checks how the funnel is built against survey microdata, with the scripts in `scripts/structure/`.
-
 ## Repository layout
 
 ```
-atlas/index.html    the whole page, with all metro data embedded
-data/               the extracted metro data the page is built from
-docs/               research notes and the screenshot above
-scripts/            scripts that rebuild the embedded data
+atlas/index.html          the whole page: HTML, CSS, the funnel code and every metro's data, embedded as JS constants
+data/                     CSV extracts the embedded data is built from
+docs/                     research notes and the screenshot above
+scripts/                  scripts that rebuild the embedded data (one per constant, below)
+scripts/structure/        checks of how the funnel is built, against survey microdata
+scripts/structure/out/    their results, as JSON
+.github/workflows/        publishes atlas/ to GitHub Pages
 ```
+
+There is no build step. Each data script prints or patches a JS constant (`ACS`, `PUMS`, `REL`, ...) that lives near the top of the `<script>` in `atlas/index.html`, and the page computes everything else in the browser.
+
+## How the estimate works
+
+### Where each funnel step's data comes from
+
+The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/index.html`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
+
+| # | Funnel step | Data | Built by | In the page |
+|---|---|---|---|---|
+| 1 | Population | Census Bureau 2025 estimates for the 387 MSAs (2023 definitions), via Wikipedia's metro list. *Local* | Entered by hand, no script | `RAW` (pop) |
+| 2 | Your genders | Fixed shares: women 50%, men 48.5%, nonbinary 1.5% | none | `G` |
+| 3 | In your age range | ACS 2019–2023 B12002 totals by sex and age band. *Local* | `pull_acs.R` → `acs_to_json.py` | `ACS.metros[...].wt/mt` |
+| 4 | Single, not living with a partner | ACS B12002 never married, divorced or widowed (*local*), times the share of singles not cohabiting by sex and age band from 2023 PUMS (national) | `pull_acs.R` → `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].w/m`, `PUMS.free` |
+| 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022 | none (constants) | `COMMITTED`, `LOOKING`, `lookFit()` |
+| 6 | Has a degree (optional) | ACS B15001 degree share by sex and age band (*local*), times how often singles hold degrees against everyone (PUMS, national) | `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].dw/dm`, `PUMS.deg`, `degParts()` |
+| 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
+| 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; joint odds ratios from the 2024 CES. *Local* | `religion_to_json.py`, `faith_to_json.py`; `structure/step2.mjs` for `PSI`, `DEG_OR` | `RAW` (dem), `REL`, `FAITH`, `PSI`, `DEG_OR`, `valRaw()` |
+| 9 | Shares your diet | Gallup 2023, NHANES, Pew 2020 (kosher), ISPU 2022 (halal); kosher and halal scale by the local Jewish or Muslim share | none | `DIET_RATE`, `DIET_POL`, `KOSHER`, `HALAL`, `dietFit()` |
+| 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents | `acs_to_json.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `kidsFit()` |
+| 11 | Mutual attraction | Speed-dating yes rates (Fisman et al. 2006), adjusted for your age, height, degree, job and kids (Antfolk 2017, Stulp 2013, NHANES, SCAL 2022, Pew 2019) | none; checked by `structure/speed_dating.py` | `ATTRACT`, `AGE_GAP`, `HT`, `EDU_PEN`, `JOB_PEN`, `traitRel()` |
+| 12 | On the apps now | Pew 2022 (28% of singles looking), LGB singles ×1.5 (Pew 2019) | none | `APPS`, `LGB_APPS` |
+
+Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
+
+### The math
+
+For each gender *t* you're looking for, in metro *m*, with age range *a*:
+
+```
+singles_t   = Σ_age  ACS singles_t(age) × PUMS.free_t(band)       × 0.985 (nonbinary carved out)
+looking_t   = singles_t × (1 − 0.20) × LOOKING_t(under/over 40)
+degree_t    = looking_t × degree share_t(a)                          (only if the degree filter is on)
+open_t      = degree_t  × OPEN[t][you]
+fit_t       = open_t × values_t × diet_t × kids_t
+clicks_t    = fit_t × (your yes rate) × (their yes rate × your trait adjustments, capped at 95%)
+apps_t      = clicks_t × app share_t
+total       = Σ_t clicks_t
+```
+
+The parts that aren't plain multiplication:
+
+- **Single years of age.** ACS reports age bands (20–24, 25–29, ...). `singleYears()` fits a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at each band edge and differences it by year, so any age range gets a smooth count and every band keeps its exact total. A self-check asserts the totals add back up.
+- **Degree share by age.** `degParts()` weights each B15001 band's share by the singles at each age in your range, then scales it by `PUMS.deg`, the ratio of singles' degree rate to everyone's in that band.
+- **Politics.** Progressive share = metro Harris share + 20 points (men −10, nonbinary +25), capped at 90%. Conservative is one minus that.
+- **Secular-leaning.** 40% + (metro unaffiliated − 23.1) + 0.3 × (48.6 − congregation share), men +4 points, clamped to 5–80%. Named faiths use PRRI's share directly; Pagan or Wiccan scales a national 0.3% by the metro's "other religion" share.
+- **Politics and faith together.** When they line up (progressive and secular, or conservative and Christian), the share fitting both is a Plackett joint with the odds ratio measured among single 25-to-35-year-olds in the 2024 CES (`PSI`), so it can never exceed either share alone. The degree filter shifts each share's odds by `DEG_OR` and uses the degree holders' odds ratio. Other combinations multiply.
+- **Your traits.** Age acceptance is lognormal around Antfolk's acceptable-age bounds, calibrated to Pew's shares rejecting a 10-year gap. Height acceptance is a normal CDF against NHANES heights and Stulp's preferred gap. Lacking a degree or a job counts as half a rejection, at SCAL 2022's rates. Having kids applies Pew's share who wouldn't date a parent. These multiply into their yes rate, relative to an average same-age person.
+- **Competition.** Everyone who is open to at least one of the genders you're looking for, treating openness to each as independent, over the people you're looking for.
+
+### The uncertainty range
+
+`interval()` reruns the funnel 2,000 times with fixed seeded normal draws, so the range doesn't jitter as you move sliders. Each draw scales every factor by a mean-one lognormal or normal:
+
+- local counts by their ACS standard errors (`ACSE`, from `acs_moe_to_json.py`), combined across age bands as a root sum of squares
+- survey rates by their sample sizes (binomial standard errors)
+- modeled constants by stated ranges (`UNC`)
+
+The page shows the 10th and 90th percentiles. It also reruns each group of inputs alone and names the group with the largest log-variance as what the number "mostly depends on". The range covers the inputs, not how the funnel is built.
+
+### Structural checks
+
+`scripts/structure/` tests how the funnel is built, as opposed to its inputs. Results are in `scripts/structure/out/` and written up in `docs/structural-uncertainty.md`.
+
+| Script | What it does |
+|---|---|
+| `ces_estimates.py` | From the 2024 CES, the joint rates of degree, politics, faith and openness among single 25-to-35-year-olds, with bootstrap intervals. Source of `PSI` and `DEG_OR`. |
+| `ces_metro_form.py` | Checks the shape of the progressive and secular formulas against CES respondents placed in their metros. |
+| `secular_level.py` | Checks the 40% secular-leaning base against CES and the GSS, and how it falls with age. |
+| `pums_degree.py` | Degree rates and cohabiting rates of singles against everyone, from 2023 PUMS with replicate-weight standard errors. |
+| `speed_dating.py` | Tests whether mutual attraction is the product of the two yes rates (lift ≈ 1.03). |
+| `harness.mjs` | Loads the page in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
+| `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
+| `step2.mjs` | Builds the politics-and-faith change now in the page, checks it against the harness, and writes `step2-values-joint.patch`. |
+
+### Data scripts
 
 | Script | What it rebuilds |
 |---|---|
