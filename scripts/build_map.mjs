@@ -1,12 +1,14 @@
-// Rebuilds the map data embedded in atlas/index.html (MAPXY and USMAP).
+// Rebuilds the map data in atlas/data.js (MAPXY and USMAP).
 // Usage: download and unzip 2023_Gaz_cbsa_national.zip from the Census Gazetteer next to this script, then
-//   npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs > map.json
-// and paste xy into MAPXY and nation/borders into USMAP.
+//   npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs
+// It rewrites MAPXY and USMAP in atlas/data.js in place.
 import fs from 'fs';
 import { geoAlbersUsa, geoPath } from 'd3-geo';
 import * as topo from 'topojson-client';
-const html = fs.readFileSync(new URL('../atlas/index.html', import.meta.url),'utf8');
-const RAW = JSON.parse(html.match(/const RAW = (\[\[.*?\]\]);/)[1]);
+const PAGE = new URL('../atlas/data.js', import.meta.url);
+let html = fs.readFileSync(PAGE,'utf8');
+const constRe = name => new RegExp(`^const ${name} = ([\\s\\S]*?);$`, 'm');  // to the first line ending in ;
+const RAW = JSON.parse(html.match(constRe('RAW'))[1]);
 const gaz = fs.readFileSync(new URL('2023_Gaz_cbsa_national.txt', import.meta.url),'utf8').trim().split('\n').slice(1).map(l=>l.split('\t').map(x=>x.trim()));
 const ALIAS = {'virginia beach-norfolk-newport news, va-nc':'virginia beach-chesapeake-norfolk, va-nc'};
 const norm0 = s => s.replace(/–/g,'-').replace(/--/g,'-').replace(/ (Metro|Micro) Area$/,'').toLowerCase();
@@ -22,4 +24,15 @@ const round = d => d.replace(/(\d+)\.\d+/g,'$1');
 const nation = round(path(topo.feature(us, us.objects.nation)));
 const borders = round(path(topo.mesh(us, us.objects.states, (a,b)=>a!==b)));
 console.error('nation', nation.length, 'borders', borders.length);
-console.log(JSON.stringify({xy, nation, borders}));
+// Same as to_js() and embed() in acs_to_json.py: more than 20 entries go one per line
+const J = JSON.stringify, big = v => v && typeof v === 'object' && Object.keys(v).length > 20;
+const toJs = v => Array.isArray(v) ? (big(v) ? '[\n' + v.map(x => J(x)).join(',\n') + '\n]' : J(v))
+  : v && typeof v === 'object' ? (big(v) ? '{\n' + Object.entries(v).map(([k, x]) => J(k) + ':' + J(x)).join(',\n') + '\n}'
+    : '{' + Object.entries(v).map(([k, x]) => J(k) + ':' + toJs(x)).join(',') + '}') : J(v);
+const embed = (name, obj) => { const re = constRe(name);
+  if (!re.test(html)) throw new Error(`No 'const ${name} = ...;' in atlas/data.js`);
+  html = html.replace(re, () => `const ${name} = ${toJs(obj)};`); };
+embed('MAPXY', xy);
+embed('USMAP', {nation, borders});
+fs.writeFileSync(PAGE, html);
+console.error('embedded MAPXY and USMAP into atlas/data.js');

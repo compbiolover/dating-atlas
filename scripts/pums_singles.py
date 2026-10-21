@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed two national corrections from the ACS microdata as the page's PUMS object.
+"""Embed two national corrections from the ACS microdata as the PUMS object in atlas/data.js.
 
 The ACS tables count single people (B12002: never married, divorced or widowed) but can't see who lives with
 an unmarried partner, and B15001's degree shares cover everyone, not singles. From the 2023 ACS 1-year PUMS,
@@ -19,12 +19,11 @@ Usage:
 """
 import argparse
 import json
-import re
 import zipfile
 
 import pandas as pd
 
-from acs_to_json import embed
+from acs_to_json import DATA, embed, read_const
 
 DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64)]
 
@@ -32,11 +31,10 @@ DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64)]
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("pums_zip")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
-    html = open(a.page, encoding="utf-8").read()
-    bands = json.loads(re.search(r"^const ACS = (\{.*\});$", html, re.M).group(1))["bands"]
+    bands = read_const(a.page, "ACS")["bands"]
 
     z = zipfile.ZipFile(a.pums_zip)
     parts, partner_hh = [], set()

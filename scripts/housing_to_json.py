@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed housing cost per metro in the atlas page.
+"""Embed housing cost per metro in atlas/data.js.
 
 Inputs, from the ACS 2019-23 table-based summary files (no API key needed):
   https://www2.census.gov/programs-surveys/acs/summary_file/2023/table-based-SF/data/5YRData/
@@ -14,7 +14,7 @@ long leases and rent-stabilized units. So each metro's 1-bedroom median is scale
 its own ratio of recent-mover rent (moved in 2021 or later) to all-tenant rent. A metro
 missing either median uses the national ratio instead.
 
-Writes data/metro_housing.csv and the `const HOUSE = {...};` line in the page,
+Writes data/metro_housing.csv and the `const HOUSE = {...};` in atlas/data.js,
 as {metro: [1-bedroom rent for a recent mover, bachelor's earnings, some-college earnings]}.
 
 Usage:
@@ -22,21 +22,9 @@ Usage:
 """
 import argparse
 import csv
-import re
 import sys
 
-from acs_to_json import atlas_names, embed, matcher
-
-
-def read_sf(path, cols):
-    """{GEO_ID: {col: number or None}} from a pipe-delimited summary file."""
-    out = {}
-    with open(path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f, delimiter="|"):
-            g = row["GEO_ID"]
-            if g == "0100000US" or g.startswith("310M"):
-                out[g] = {c: (float(row[c]) if re.fullmatch(r"\d+(\.\d+)?", row[c] or "") else None) for c in cols}
-    return out
+from acs_to_json import DATA, atlas_names, embed, matcher, read_sf
 
 
 def main():
@@ -45,12 +33,12 @@ def main():
     ap.add_argument("movers")
     ap.add_argument("earnings")
     ap.add_argument("--names", default="data/metro_acs_2023.csv", help="CSV with GEOID and NAME per CBSA")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
-    rent = read_sf(a.rent, ["B25031_E001", "B25031_E003"])
-    movers = read_sf(a.movers, ["B25113_E001", "B25113_E002"])
-    earn = read_sf(a.earnings, ["B20004_E004", "B20004_E005"])
+    rent = read_sf(a.rent)
+    movers = read_sf(a.movers)
+    earn = read_sf(a.earnings)
     us = rent["0100000US"]
     one_bed_ratio = us["B25031_E003"] / us["B25031_E001"]
     recent_ratio = movers["0100000US"]["B25113_E002"] / movers["0100000US"]["B25113_E001"]

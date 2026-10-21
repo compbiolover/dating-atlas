@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn tidycensus ACS output into the ACS object the atlas page reads.
+"""Turn tidycensus ACS output into the ACS object in atlas/data.js.
 
 Inputs (both written by scripts/pull_acs.R):
   metro_acs_2023.csv      wide get_acs() output for B12002, B15001 and B11012, one row per CBSA
@@ -73,18 +73,46 @@ def matcher(names):
     return match
 
 
+# The data constants live in atlas/data.js; every script reads and writes them there
+DATA = "atlas/data.js"
+
+
+def to_js(obj):
+    """Compact JSON, except a list or dict of more than 20 entries (one per metro, say) puts each entry on
+    its own line, so a diff shows which metros changed. scripts/build_map.mjs has the same function."""
+    dump = lambda v: json.dumps(v, ensure_ascii=False, separators=(",", ":"))
+    if isinstance(obj, list) and len(obj) > 20:
+        return "[\n" + ",\n".join(dump(v) for v in obj) + "\n]"
+    if isinstance(obj, dict) and len(obj) > 20:
+        return "{\n" + ",\n".join(dump(k) + ":" + dump(v) for k, v in obj.items()) + "\n}"
+    if isinstance(obj, dict):
+        return "{" + ",".join(dump(k) + ":" + to_js(v) for k, v in obj.items()) + "}"
+    return dump(obj)
+
+
+# A constant runs from `const NAME = ` to the first line that ends in `;`
+const_re = lambda name: re.compile(rf"^const {name} = (.*?);$", re.M | re.S)
+
+
+def read_const(path, name):
+    m = const_re(name).search(open(path, encoding="utf-8").read())
+    if not m:
+        sys.exit(f"No 'const {name} = ...;' in {path}")
+    return json.loads(m.group(1))
+
+
 def embed(page, name, obj, after=None):
-    """Write obj as the page's `const NAME = ...;` line. If the page has none yet, insert it after the
-    `const AFTER = ...;` line. Returns the line's length."""
-    line = f"const {name} = " + json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + ";"
+    """Write obj as the file's `const NAME = ...;`. If it has none yet, insert it after `const AFTER = ...;`.
+    Returns the constant's length."""
+    text = f"const {name} = " + to_js(obj) + ";"
     html = open(page, encoding="utf-8").read()
-    html, n = re.subn(rf"^const {name} = .*;$", lambda _: line, html, count=1, flags=re.M)
+    html, n = const_re(name).subn(lambda _: text, html, count=1)
     if not n and after:
-        html, n = re.subn(rf"^(const {after} = .*;)$", lambda m: m.group(1) + "\n" + line, html, count=1, flags=re.M)
+        html, n = const_re(after).subn(lambda m: m.group(0) + "\n" + text, html, count=1)
     if not n:
-        sys.exit(f"No 'const {name} = ...;' line in {page}")
+        sys.exit(f"No 'const {name} = ...;' in {page}")
     open(page, "w", encoding="utf-8").write(html)
-    return len(line)
+    return len(text)
 
 
 def load_labels(path):
@@ -186,19 +214,28 @@ def estimate(row, var):
     return 0.0 if value in ("", "NA") else float(value)
 
 
-def atlas_names(html_path):
-    html = open(html_path, encoding="utf-8").read()
-    m = re.search(r"^const RAW = (\[.*\]);$", html, re.M)
-    if not m:
-        sys.exit(f"No RAW data line in {html_path}")
-    return [r[0] for r in json.loads(m.group(1))]
+def read_sf(path):
+    """{GEO_ID: {column: number or None}} for the nation and the metros (310M) in a pipe-delimited ACS
+    table-based summary file. Blanks and negative jam values (Census codes such as -666666666) are None."""
+    num = lambda v: float(v) if re.fullmatch(r"\d+(\.\d+)?", v or "") else None
+    out = {}
+    with open(path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f, delimiter="|"):
+            g = row["GEO_ID"]
+            if g == "0100000US" or g.startswith("310M"):
+                out[g] = {k: num(v) for k, v in row.items() if k != "GEO_ID"}
+    return out
+
+
+def atlas_names(path):
+    return [r[0] for r in read_const(path, "RAW")]
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("data")
     ap.add_argument("labels")
-    ap.add_argument("--page", default="atlas/index.html", help="page to match metro names against and embed into")
+    ap.add_argument("--page", default=DATA, help="data file to match metro names against and embed into")
     a = ap.parse_args()
 
     labels = load_labels(a.labels)

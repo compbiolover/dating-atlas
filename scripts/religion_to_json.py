@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed two religion measures per metro in the atlas page.
+"""Embed two religion measures per metro in atlas/data.js.
 
 Inputs:
   2020_USRC_Summaries.xlsx  2020 U.S. Religion Census, https://www.usreligioncensus.org/node/1639
@@ -14,7 +14,7 @@ Inputs:
 Religion Census metros that use 2020 CBSA names match by name; ones created or
 renamed in the 2023 delineations are mapped in ALIAS.
 
-Writes data/metro_religion.csv and the `const REL = {...};` line in the page,
+Writes data/metro_religion.csv and the `const REL = {...};` in atlas/data.js,
 as {metro: [adherent %, unaffiliated %]}.
 
 Usage:
@@ -27,7 +27,7 @@ import sys
 import xml.etree.ElementTree as ET
 import zipfile
 
-from acs_to_json import atlas_names, embed, matcher, norm
+from acs_to_json import DATA, atlas_names, embed, matcher, norm
 
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
@@ -106,7 +106,7 @@ def main():
     ap.add_argument("xlsx")
     ap.add_argument("prri")
     ap.add_argument("delineation")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     ap.add_argument("--out", default="data/metro_religion.csv")
     a = ap.parse_args()
 

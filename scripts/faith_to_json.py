@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed PRRI religious group shares per metro in the atlas page, for the faith filter.
+"""Embed PRRI religious group shares per metro in atlas/data.js, for the faith filter.
 
 Inputs:
   prri_county.csv   PRRI Census of American Religion county estimates, the dataset.csv
@@ -9,7 +9,7 @@ Inputs:
                     https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx
 
 Shares are weighted by county population. Writes data/metro_faith.csv and the
-`const FAITH = {...};` line in the page, as {metro: [christian, catholic, protestant,
+`const FAITH = {...};` in atlas/data.js, as {metro: [christian, catholic, protestant,
 latter-day saint, jewish, muslim, hindu, buddhist, other religion]} in percent of adults.
 
 Usage:
@@ -19,7 +19,7 @@ import argparse
 import csv
 import sys
 
-from acs_to_json import atlas_names, embed
+from acs_to_json import DATA, atlas_names, embed
 from religion_to_json import metro_means
 
 # Each output column is a sum of PRRI columns
@@ -38,7 +38,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("prri")
     ap.add_argument("delineation")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     ap.add_argument("--out", default="data/metro_faith.csv")
     a = ap.parse_args()
 

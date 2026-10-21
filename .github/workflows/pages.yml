@@ -20,6 +20,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # Don't deploy a page that throws, fails a self-check or shows no result; uses the runner's Chrome
+      - name: Check the page
+        run: |
+          npm i --no-save playwright-core@1.63.0
+          CHROME="$(command -v google-chrome)" node scripts/check_page.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
