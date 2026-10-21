@@ -96,7 +96,18 @@ p{margin:0}
 .ctrl output{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums}
 .ctrl small{color:var(--muted);font-size:12.5px;line-height:1.4}
 .ctrl small button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
-input[type=range]{width:100%;accent-color:var(--accent)}
+fieldset.ctrl{border:0;margin:0;padding:0;min-width:0}
+.ctrl legend{padding:0;margin-bottom:3px;font-size:14px;font-weight:500}
+/* Number field with − and + buttons: type a value or step it */
+.step{display:inline-flex;align-items:stretch;width:fit-content;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.step:has(input:focus-visible){outline:2px solid var(--hot);outline-offset:2px}
+.step input{font:inherit;font-size:16px;font-variant-numeric:tabular-nums;width:3.2ch;padding:4px 2px;border:0;background:transparent;color:var(--ink);text-align:center;appearance:textfield;-moz-appearance:textfield}
+.step input:focus-visible{outline:none}
+.step input::-webkit-inner-spin-button,.step input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.step .unit{align-self:center;padding-right:4px;color:var(--muted)}
+.step .sb{font:inherit;font-size:18px;line-height:1;width:36px;padding:0;border:0;background:var(--accent-soft);color:var(--accent);cursor:pointer;touch-action:manipulation}
+.step .sb:hover{background:color-mix(in srgb, var(--accent) 22%, var(--surface))}
+.range{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .result,.more{display:grid;gap:20px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:600}
 .btn.primary:hover{filter:brightness(1.08)}
@@ -302,6 +313,16 @@ code{font-family:var(--mono);font-size:12.5px}
   #readout{display:none}
   .lede{font-size:15px}
 }
+/* Touch screens: 44px targets, and 16px text in fields so phones don't zoom in on focus */
+@media (pointer:coarse){
+  .seg span,.chips button,.btn{min-height:44px;box-sizing:border-box;display:inline-flex;align-items:center}
+  .step{min-height:44px}
+  .step .sb{width:44px;min-height:44px}
+  .chk{min-height:44px}
+  .chk input{width:20px;height:20px}
+  .linkbtn{padding:10px 0}
+  .ctrl select,.tools select,#cmpSel,.pick input{font-size:16px;min-height:44px}
+}
 </style>
 
 <div class="wrap">
@@ -359,7 +380,7 @@ code{font-family:var(--mono);font-size:12.5px}
             <label><input type="checkbox" name="seek" id="seek-n" value="n"><span>Nonbinary people</span></label>
           </div>
         </div>
-        <div class="ctrl" id="g-age"><label for="yAge">Your age <output id="yAgeO"></output></label><input type="range" id="yAge" min="21" max="85" value="30"><small>The age range you're looking for moves with it.</small></div>
+        <div class="ctrl" id="g-age"><label for="yAge">Your age</label><div class="step"><button type="button" class="sb" data-for="yAge" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="yAge" inputmode="numeric" min="21" max="85" value="30"><button type="button" class="sb" data-for="yAge" data-d="1" tabindex="-1" aria-hidden="true">+</button></div><small>21 to 85. The age range you're looking for moves with it.</small></div>
         <div class="ctrl"><label for="yHt">Your height</label><select id="yHt"></select></div>
         <div class="ctrl"><label for="yEdu">Your education</label><select id="yEdu"><option value="ba">Bachelor's or higher</option><option value="no">No bachelor's</option></select></div>
         <div class="ctrl"><label for="yJob">Your work</label><select id="yJob"><option value="job">Steady job</option><option value="less">Steady job, but you earn much less than most of them</option><option value="none">No steady job</option></select></div>
@@ -374,8 +395,7 @@ code{font-family:var(--mono);font-size:12.5px}
         <label class="chk"><input type="checkbox" id="openP" checked> Open to partners who have kids</label>
         </div></details>
         <details class="sec" open><summary>Who you're looking for</summary><div class="body">
-        <div class="ctrl" id="g-amin"><label for="ageMin">Youngest age <output id="ageMinO"></output></label><input type="range" id="ageMin" min="21" max="80" value="25"></div>
-        <div class="ctrl" id="g-amax"><label for="ageMax">Oldest age <output id="ageMaxO"></output></label><input type="range" id="ageMax" min="23" max="90" value="35"></div>
+        <fieldset class="ctrl" id="g-ages"><legend>Their ages</legend><div class="range"><div class="step"><button type="button" class="sb" data-for="ageMin" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="ageMin" inputmode="numeric" min="21" max="80" value="25" aria-label="Youngest age"><button type="button" class="sb" data-for="ageMin" data-d="1" tabindex="-1" aria-hidden="true">+</button></div><span aria-hidden="true">to</span><div class="step"><button type="button" class="sb" data-for="ageMax" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="ageMax" inputmode="numeric" min="23" max="90" value="35" aria-label="Oldest age"><button type="button" class="sb" data-for="ageMax" data-d="1" tabindex="-1" aria-hidden="true">+</button></div></div><small>21 to 90.</small></fieldset>
         <div class="ctrl"><div class="lbl">Share single <output id="singleO"></output></div><small id="singleHint"></small></div>
         <div class="ctrl"><div class="lbl">Bachelor's or higher <output id="eduO"></output></div><small id="eduHint"></small><label class="chk"><input type="checkbox" id="degOnly" checked> Only partners with a bachelor's or higher</label></div>
         <div class="fq" id="g-preset" role="radiogroup" aria-labelledby="presetL"><span id="presetL">Quick picks</span>
@@ -390,9 +410,9 @@ code{font-family:var(--mono);font-size:12.5px}
         <div class="ctrl" id="g-diet"><label for="diet">Diet</label><select id="diet"><option value="any" selected>Any diet</option><option value="veg">Vegetarian</option><option value="vegan">Vegan</option><option value="pesc">Pescatarian</option><option value="kosher">Keeps kosher</option><option value="halal">Eats halal</option></select><small id="dietHint"></small></div>
         </div></details>
         <details class="sec" open><summary>Whether it clicks</summary><div class="body">
-        <div class="ctrl"><label for="his">You're attracted to them <output id="hisO"></output></label><input type="range" id="his" min="5" max="65" value="35"><small id="hisHint"></small></div>
-        <div class="ctrl"><label for="her">They're interested back <output id="herO"></output></label><input type="range" id="her" min="5" max="65" value="25"><small id="herHint"></small></div>
-        <div class="ctrl"><label for="apps">On the apps at any time <output id="appsO"></output></label><input type="range" id="apps" min="10" max="60" value="23"><small id="appsHint"></small></div>
+        <div class="ctrl"><label for="his">You're attracted to them, in %</label><div class="step"><button type="button" class="sb" data-for="his" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="his" inputmode="numeric" min="5" max="65" value="35"><span class="unit" aria-hidden="true">%</span><button type="button" class="sb" data-for="his" data-d="1" tabindex="-1" aria-hidden="true">+</button></div><small id="hisHint"></small></div>
+        <div class="ctrl"><label for="her">They're interested back, in %</label><div class="step"><button type="button" class="sb" data-for="her" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="her" inputmode="numeric" min="5" max="65" value="25"><span class="unit" aria-hidden="true">%</span><button type="button" class="sb" data-for="her" data-d="1" tabindex="-1" aria-hidden="true">+</button></div><small id="herHint"></small></div>
+        <div class="ctrl"><label for="apps">On the apps at any time, in %</label><div class="step"><button type="button" class="sb" data-for="apps" data-d="-1" tabindex="-1" aria-hidden="true">−</button><input type="number" id="apps" inputmode="numeric" min="10" max="60" value="23"><span class="unit" aria-hidden="true">%</span><button type="button" class="sb" data-for="apps" data-d="1" tabindex="-1" aria-hidden="true">+</button></div><small id="appsHint"></small></div>
         </div></details>
       </form>
     </details>
@@ -523,7 +543,7 @@ code{font-family:var(--mono);font-size:12.5px}
       <p>These studies are mostly about women and men dating each other, so for nonbinary people the page uses the average of the two.</p>
       <p><strong>Whether it clicks.</strong> The attraction defaults come from speed dating, where people say whether they'd like to see each partner again. Men said yes to 47% and women to 37% of partners in the <a href="http://www.stat.columbia.edu/~gelman/arm/examples/speed.dating/">Columbia speed-dating data</a> (<a href="https://wiwi.hs-duesseldorf.de/personen/christian.schwarz/Documents/genderDifferences.pdf">Fisman and colleagues, 2006</a>), and 49% and 34% among 10,526 non-student adults at HurryDate (<a href="https://static1.squarespace.com/static/5252b095e4b06da77026f5e5/t/528d1b22e4b0c1452601cb08/1384979234029/hurrydate-mate-preferences-in-action.pdf">Kurzban and Weeden, 2005</a>). A yes there only means another conversation, and when people chose after the event instead, in a <a href="https://www.iser.essex.ac.uk/wp-content/uploads/files/working-papers/iser/2007-17.pdf">UK study</a>, rates halved to 22% and 12%. So the page uses 35% for men and 25% for women judging someone, and 30% for nonbinary people. Both click sliders depend on who is judging: the first on you, the second on the people you're looking for. In the Columbia data mutual matches came out at about the rate you'd get by multiplying the two, which is how the page combines them. There is no comparable data for same-sex or nonbinary daters.</p>
       <p>The app default comes from <a href="https://www.pewresearch.org/wp-content/uploads/sites/20/2023/01/PI_2023.02.02_Onilne-Dating_FINAL.pdf">Pew's 2022 survey</a>: 28% of singles who are looking for dates were using a dating app or site. Pew's past-year figures (50% of looking men, 37% of looking women) give about 31% for men and 23% for women. LGB singles were about 1.5 times as likely to be dating online (<a href="https://www.pewresearch.org/social-trends/2020/08/20/a-profile-of-single-americans/">Pew 2019</a>), so same-gender and nonbinary matches use 1.5 times those rates. App use has slipped since, with Match Group's paying users down 6% in the year to mid-2026.</p>
-      <p>These rates are the same in every metro, so the comparison isolates what the metro itself changes. Moving a slider scales every gender's rate by the same factor.</p>
+      <p>These rates are the same in every metro, so the comparison isolates what the metro itself changes. Changing one of these rates scales every gender's rate by the same factor.</p>
     </details>
     </section>
   </div>
@@ -808,7 +828,7 @@ function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
   const kids = document.querySelector('input[name="kids"]:checked').value;
-  return {you, seek, age:+$("yAge").value, ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:$("pol").value, faith:$("faith").value, diet:$("diet").value};
+  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:$("pol").value, faith:$("faith").value, diet:$("diet").value};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -871,7 +891,9 @@ function quickPicks(m){
     b.setAttribute("aria-pressed", x === m); b.onclick = () => select(x); return b; }));
 }
 
-function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] = +$(k).value);
+// A number field's value as a whole number in its range; mid-typing values ("7" on the way to 70) are clamped
+function numVal(el){ return Math.min(+el.max, Math.max(+el.min, Math.round(+el.value || +el.defaultValue))); }
+function S(){ const s = {deg: $("degOnly").checked}; SLIDERS.forEach(k => s[k] = numVal($(k)));
   if (s.ageMax <= s.ageMin){ s.ageMax = s.ageMin + 1; $("ageMax").value = s.ageMax; } return s; }
 
 // Single-year counts from ACS bands: a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at
@@ -1051,6 +1073,16 @@ $("geoBtn").addEventListener("click", () => {
 // permission (Chromium's featurePolicy) or a denied permission (Permissions API, Chromium and recent Safari)
 if (!navigator.geolocation || document.featurePolicy?.allowsFeature?.("geolocation") === false) $("geoBtn").hidden = true;
 else navigator.permissions?.query({name: "geolocation"}).then(st => { if (st.state === "denied") $("geoBtn").hidden = true; }, () => {});
+// Number fields: only a whole value in range reaches the page while typing; leaving the field snaps it into
+// range. The − and + buttons step it. Registered before any other listener on these fields, so it runs first.
+["yAge", ...SLIDERS].forEach(k => { const el = $(k);
+  el.addEventListener("input", e => { if (el.value === "" || !el.validity.valid) e.stopImmediatePropagation(); });
+  el.addEventListener("change", () => { const v = String(numVal(el)); if (v !== el.value){ el.value = v; el.dispatchEvent(new Event("input")); } });
+});
+document.querySelectorAll(".sb").forEach(b => b.addEventListener("click", () => {
+  const el = $(b.dataset.for); el.value = numVal(el) + +b.dataset.d; el.value = numVal(el); el.dispatchEvent(new Event("input")); }));
+// A hint's Reset link puts its % back to the default for this profile. One listener, since update() redraws the hints
+$("refine").addEventListener("click", e => { const k = e.target.dataset?.r; if (k){ $(k).value = Math.round(clickDefaults(profile())[k]); update(); } });
 let rangeOff = null;
 $("yAge").addEventListener("input", () => {
   if (!LAST) return;
@@ -1068,8 +1100,6 @@ document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListe
 function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
   quickPicks(m);
-  $("ageMinO").textContent = s.ageMin; $("ageMaxO").textContent = s.ageMax; $("yAgeO").textContent = P.age;
-  SLIDERS.slice(2).forEach(k => $(k+"O").textContent = s[k] + "%");
 
   const b = blends(m, s, P);
   const sg = P.seek.reduce((t, g) => { const x = base(m, g, s); return [t[0] + x.single, t[1] + x.age]; }, [0, 0]);
@@ -1093,7 +1123,6 @@ function update(){
   const D = clickDefaults(P), rst = k => s[k] !== Math.round(D[k]) ? ` <button type="button" data-r="${k}">Reset</button>` : "";
   $("hisHint").innerHTML = `Speed-dating data suggest about 35% for men and 25% for women judging the people they meet. Default for you: ${Math.round(D.his)}%.` + rst("his");
   $("appsHint").innerHTML = `Share of singles looking to date who are on an app now. Pew found 28% in 2022, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
-  document.querySelectorAll("[data-r]").forEach(x => x.onclick = () => { const k = x.dataset.r; $(k).value = Math.round(D[k]); update(); });
 
   // Everything the pool needs that doesn't depend on the metro, computed once per update
   const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
@@ -1129,8 +1158,6 @@ function update(){
   $("herHint").innerHTML = `For someone their own age, of average height, with a degree, a steady job and no kids. Default for the ${who} you picked: ${Math.round(D.her)}%. ` +
     (xs.length ? (herEff === s.her ? `${cap(tl)} barely change${xs.length > 1 || tl === "having kids" ? "" : "s"} it.` :
       `${cap(tl)} ${herEff < s.her ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it from ${s.her}% to about ${herEff}%.`) : "Your traits match that.") + rst("her");
-  // The readout shows the slider's setting and, when your traits change it, the rate the model actually uses
-  $("herO").textContent = herEff !== s.her ? `${s.her}% → ${herEff}%` : `${s.her}%`;
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
   // Each step: [label, count, cut note, phase]
@@ -1517,7 +1544,7 @@ function rentPlot(m, P, all){
     (!me ? `There's no data for ${m.short} on this measure.` : better ? `${better} metro${better === 1 ? " has" : "s have"} more possibilities than ${m.short} and ${what}.` : `No metro has more possibilities than ${m.short} and ${what}.`) + " Blue dots are the 25 largest metros.";
 }
 
-// Dragging a slider fires input faster than a full update; coalesce to one update per frame
+// Holding a key on a number field fires input faster than a full update; coalesce to one update per frame
 let raf = 0;
 const schedule = () => { raf = raf || requestAnimationFrame(() => { raf = 0; update(); }); };
 SLIDERS.forEach(k => $(k).addEventListener("input", schedule));
@@ -1553,7 +1580,7 @@ $("metro").value = cur.name; update();
 const STEPS = [
   {t:"Start with you", help:"Who you are sets who's likely to be open to dating you, and how your age plays into it.", ids:["g-you","g-age"]},
   {t:"Who are you looking for?", help:"Pick the genders and ages you date, and the politics, faith and diet you want them to share. Quick picks fill in politics and faith.",
-   ids:["g-seek","g-amin","g-amax","g-preset","g-pol","g-faith","g-diet"]},
+   ids:["g-seek","g-ages","g-preset","g-pol","g-faith","g-diet"]},
   {t:"Where are you looking?", help:"Type one of 387 U.S. metros, tap a city, or use your location. You can switch metros anytime.", ids:["g-pick"]}];
 let stepI = -1;
 const homes = new Map();  // borrowed element -> placeholder marking where it lives on the page
