@@ -1,6 +1,6 @@
 # Dating Atlas™
 
-Dating Atlas estimates how many people in a U.S. metro could realistically be your match, and compares that number across all 387 metro areas. It is a single web page with its data built in.
+Dating Atlas estimates how many people in a U.S. metro could realistically be your match, and compares that number across all 387 metro areas. It is a single web page and one data file, with no server.
 
 Live page: https://datingatlas.dev/
 
@@ -23,16 +23,17 @@ On a first visit, a three-step setup asks who you are, who you're looking for an
 ## Repository layout
 
 ```
-atlas/index.html          the whole page: HTML, CSS, the funnel code and every metro's data, embedded as JS constants
-data/                     CSV extracts the embedded data is built from
+atlas/index.html          the whole page: HTML, CSS and the funnel code
+atlas/data.js             every metro's data, as JS constants with one metro per line
+data/                     CSV extracts the data in atlas/data.js is built from
 docs/                     research notes and the screenshot above
-scripts/                  scripts that rebuild the embedded data (one per constant, below)
+scripts/                  scripts that rebuild atlas/data.js (one per constant, below)
 scripts/structure/        checks of how the funnel is built, against survey microdata
 scripts/structure/out/    their results, as JSON
 .github/workflows/        publishes atlas/ to GitHub Pages
 ```
 
-There is no build step. Each data script rewrites a JS constant (`ACS`, `PUMS`, `REL`, ...) that lives near the top of the `<script>` in `atlas/index.html`, and the page computes everything else in the browser.
+There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`, `REL`, ...) in `atlas/data.js`, which the page loads before its own script, and the page computes everything else in the browser. Per-metro data sits one metro per line, so a diff of a data update shows which metros changed.
 
 ## How the estimate works
 
@@ -124,13 +125,13 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 ## Rebuilding the data
 
-The 2019 to 2023 data is already in `data/` and embedded in the page. To rebuild it:
+The 2019 to 2023 data is already in `data/` and `atlas/data.js`. To rebuild it:
 
 ```sh
 Rscript scripts/pull_acs.R    # needs a Census API key
 python3 scripts/raw_to_json.py   # after editing data/metro_raw.csv
 python3 scripts/acs_to_json.py data/metro_acs_2023.csv data/acs_variables_2023.csv
-cd scripts && python3 pums_singles.py csv_pus.zip --page ../atlas/index.html && cd ..
+python3 scripts/pums_singles.py csv_pus.zip
 PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx

@@ -81,9 +81,9 @@ for name, df, extra in [("gss", g, {}), ("gss_in_person", g[g["mode"] == 1], {})
     out[name] = o
 
 # ---- The page's own numbers ----
-html = open(os.path.join(ROOT, "atlas", "index.html"), encoding="utf-8").read()
-raw = json.loads(re.search(r"const RAW = (\[.*?\]);\n", html).group(1))
-rel = json.loads(re.search(r"const REL = (\{.*?\});\n", html).group(1))
+html = open(os.path.join(ROOT, "atlas", "data.js"), encoding="utf-8").read()
+raw = json.loads(re.search(r"^const RAW = (.*?);$", html, re.M | re.S).group(1))
+rel = json.loads(re.search(r"^const REL = (.*?);$", html, re.M | re.S).group(1))
 m = pd.DataFrame([{"metro": r[0], "pop": r[1]} for r in raw])
 m["adh"] = m.metro.map(lambda k: rel.get(k, [48.6, 23.1])[0]); m["none"] = m.metro.map(lambda k: rel.get(k, [48.6, 23.1])[1])
 page = {}

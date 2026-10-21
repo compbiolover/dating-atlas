@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed the metro list (RAW) in the atlas page from data/metro_raw.csv.
+"""Embed the metro list (RAW) in atlas/data.js from data/metro_raw.csv.
 
 data/metro_raw.csv has one row per metro, largest first; the page and every other script take the
 metro list and its order from it. Columns:
@@ -16,13 +16,13 @@ Edit the CSV, then run:
 import argparse
 import csv
 
-from acs_to_json import embed
+from acs_to_json import DATA, embed
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--csv", default="data/metro_raw.csv")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
     num = lambda v: int(v) if v.lstrip("-").isdigit() else float(v)

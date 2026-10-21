@@ -19,9 +19,9 @@ import numpy as np, pandas as pd
 import statsmodels.api as sm
 
 DATA, ROOT = sys.argv[1], os.path.join(os.path.dirname(__file__), "..", "..")
-html = open(os.path.join(ROOT, "atlas", "index.html"), encoding="utf-8").read()
-raw = json.loads(re.search(r"const RAW = (\[.*?\]);\n", html).group(1))
-rel = json.loads(re.search(r"const REL = (\{.*?\});\n", html).group(1))
+html = open(os.path.join(ROOT, "atlas", "data.js"), encoding="utf-8").read()
+raw = json.loads(re.search(r"^const RAW = (.*?);$", html, re.M | re.S).group(1))
+rel = json.loads(re.search(r"^const REL = (.*?);$", html, re.M | re.S).group(1))
 geo = pd.read_csv(os.path.join(ROOT, "data", "metro_housing.csv"))[["metro", "geoid"]]
 m = pd.DataFrame([{"metro": r[0], "dem": r[4]/100} for r in raw])
 m["adh"] = m.metro.map(lambda k: rel.get(k, [48.6, 23.1])[0]); m["none"] = m.metro.map(lambda k: rel.get(k, [48.6, 23.1])[1])

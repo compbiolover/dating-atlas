@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed housing cost per metro in the atlas page.
+"""Embed housing cost per metro in atlas/data.js.
 
 Inputs, from the ACS 2019-23 table-based summary files (no API key needed):
   https://www2.census.gov/programs-surveys/acs/summary_file/2023/table-based-SF/data/5YRData/
@@ -14,7 +14,7 @@ long leases and rent-stabilized units. So each metro's 1-bedroom median is scale
 its own ratio of recent-mover rent (moved in 2021 or later) to all-tenant rent. A metro
 missing either median uses the national ratio instead.
 
-Writes data/metro_housing.csv and the `const HOUSE = {...};` line in the page,
+Writes data/metro_housing.csv and the `const HOUSE = {...};` in atlas/data.js,
 as {metro: [1-bedroom rent for a recent mover, bachelor's earnings, some-college earnings]}.
 
 Usage:
@@ -24,7 +24,7 @@ import argparse
 import csv
 import sys
 
-from acs_to_json import atlas_names, embed, matcher, read_sf
+from acs_to_json import DATA, atlas_names, embed, matcher, read_sf
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
     ap.add_argument("movers")
     ap.add_argument("earnings")
     ap.add_argument("--names", default="data/metro_acs_2023.csv", help="CSV with GEOID and NAME per CBSA")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
     rent = read_sf(a.rent)

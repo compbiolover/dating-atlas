@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Embed ACS standard errors per metro in the atlas page, for the estimate's uncertainty range.
+"""Embed ACS standard errors per metro in atlas/data.js, for the estimate's uncertainty range.
 
 Inputs, from the ACS 2019-23 table-based summary files (no API key needed):
   https://www2.census.gov/programs-surveys/acs/summary_file/2023/table-based-SF/data/5YRData/
@@ -14,7 +14,7 @@ so their SE is the root sum of squares (the Census Bureau's approximation). Each
 band's degree share (18-24, 25-34, 35-44, 45-64) has its SE from the Census formula for a proportion,
   SE(p) = sqrt(SE(x)^2 - p^2 SE(X)^2) / X,  with + instead of - if the root is negative.
 
-Writes the `const ACSE = {...};` line in the page, as
+Writes the `const ACSE = {...};` in atlas/data.js, as
 {metro: {w: [SE of single women per age band], m: [... men], dw: [SE of women's degree % per B15001 band], dm: ...}}.
 
 Usage:
@@ -26,7 +26,7 @@ import math
 import re
 import sys
 
-from acs_to_json import atlas_names, b12002_plan, b15001_bands, embed, load_labels, matcher, read_sf
+from acs_to_json import DATA, atlas_names, b12002_plan, b15001_bands, embed, load_labels, matcher, read_sf
 
 Z90 = 1.645
 
@@ -47,7 +47,7 @@ def main():
     ap.add_argument("b15001")
     ap.add_argument("--labels", default="data/acs_variables_2023.csv")
     ap.add_argument("--names", default="data/metro_acs_2023.csv", help="CSV with GEOID and NAME per CBSA")
-    ap.add_argument("--page", default="atlas/index.html")
+    ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
     labels = load_labels(a.labels)
