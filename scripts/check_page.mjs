@@ -1,5 +1,5 @@
 // Smoke test for atlas/index.html and its data.js, run before every deploy: load the page in headless Chromium and fail on any
-// script error or failed console.assert self-check, or if the main number never renders.
+// script error or failed console.assert self-check, or if the main number never renders. Every section is opened.
 // Usage: node scripts/check_page.mjs   (CHROME=/path/to/chrome to use an installed Chrome instead of Playwright's)
 import path from "node:path";
 import { execSync } from "node:child_process";
@@ -27,6 +27,14 @@ await p.goto(`http://127.0.0.1:${server.address().port}/`);
 // The first visit shows the setup, but the result behind it is computed on load
 await p.waitForFunction(() => /^#\d+$/.test(document.getElementById("sRank")?.textContent), null, {timeout: 15000})
   .catch(() => problems.push("the result never rendered (#sRank is still empty)"));
+// Charts draw only when visible, so skip the setup, open every section and redraw, to run that code too
+if (!problems.length){
+  await p.click("#setupSkip");
+  await p.waitForFunction(() => document.getElementById("ageCard").offsetParent !== null, null, {timeout: 10000});
+  await p.evaluate(() => { document.querySelectorAll("details").forEach(d => d.open = true); drawCharts(); })
+    .catch(e => problems.push("script error: " + e.message.split("\n")[0]));
+  if (!await p.$eval("#ages", el => el.querySelector("rect"))) problems.push("the age chart didn't draw");
+}
 const pool = await p.textContent("#sPool");
 if (!/^(<1|[\d,]+)$/.test(pool)) problems.push(`the main number reads "${pool}"`);
 await browser.close(); server.close();

@@ -7,7 +7,7 @@ Inputs (both written by scripts/pull_acs.R):
 
 Per metro and sex it keeps, by B12002 age band:
   single people (never married + divorced + widowed) and everyone
-from B15001 the share with a bachelor's or higher in each age band from 18-24 to 45-64,
+from B15001 the share with a bachelor's or higher in each age band from 18-24 to 65 and over,
 and from B11012 the number of single parents (householders with no spouse
 or partner present and their own children under 18).
 
@@ -176,13 +176,13 @@ def b15001_plan(labels):
 
 
 def b15001_bands(labels):
-    """[(age band, total variable, bachelor's-plus variables)] by sex, for the bands from 18-24 to 45-64."""
+    """[(age band, total variable, bachelor's-plus variables)] by sex, for the bands from 18-24 to 65 and over."""
     out = defaultdict(dict)
     for var, parts in labels.items():
         if not var.startswith("B15001_") or len(parts) < 2 or parts[0] not in SEXES:
             continue
         band = parse_age(parts[1])
-        if not band or band[0] >= 65:
+        if not band:
             continue
         cell = out[SEXES[parts[0]]].setdefault(band, [None, []])
         if len(parts) == 2:
@@ -190,7 +190,7 @@ def b15001_bands(labels):
         elif parts[2].startswith(("bachelor", "graduate")):
             cell[1].append(var)
     plan = {sex: [(band, t, d) for band, (t, d) in sorted(out[sex].items())] for sex in ("w", "m")}
-    if [b for b, _, _ in plan["w"]] != [(18, 24), (25, 34), (35, 44), (45, 64)] or any(not t or len(d) != 2 for p in plan.values() for _, t, d in p):
+    if [b for b, _, _ in plan["w"]] != [(18, 24), (25, 34), (35, 44), (45, 64), (65, 100)] or any(not t or len(d) != 2 for p in plan.values() for _, t, d in p):
         sys.exit("Could not find the B15001 degree cells for each age band")
     return plan
 

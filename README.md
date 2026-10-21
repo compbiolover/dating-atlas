@@ -47,7 +47,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 | 2 | Your genders | Fixed shares: women 50%, men 48.5%, nonbinary 1.5% | none | `G` |
 | 3 | In your age range | ACS 2019–2023 B12002 totals by sex and age band. *Local* | `pull_acs.R` → `acs_to_json.py` | `ACS.metros[...].wt/mt` |
 | 4 | Single, not living with a partner | ACS B12002 never married, divorced or widowed (*local*), times the share of singles not cohabiting by sex and age band from 2023 PUMS (national) | `pull_acs.R` → `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].w/m`, `PUMS.free` |
-| 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022 | none (constants) | `COMMITTED`, `LOOKING`, `lookFit()` |
+| 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022; from 65, times 16/36 (Pew 2022: 16% of unpartnered adults 65+ looking against 36% at 50 to 64) | none (constants) | `COMMITTED`, `LOOKING`, `LOOK_65`, `lookRate()`, `lookFit()` |
 | 6 | Has a degree (optional) | ACS B15001 degree share by sex and age band (*local*), times how often singles hold degrees against everyone (PUMS, national) | `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].dw/dm`, `PUMS.deg`, `degParts()` |
 | 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
 | 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; joint odds ratios from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/step2.mjs` for `PSI`, `DEG_OR` | `RAW` (dem), `REL`, `FAITH`, `PSI`, `DEG_OR`, `valRaw()` |
@@ -149,6 +149,7 @@ Each script's header says where to download its inputs. The national summary fil
 - No source estimates Pagans or Wiccans by metro, so that option scales a national figure (about 0.3% of adults) by each metro's share of other religions.
 - The funnel treats its steps as independent, apart from a boost for matching politics and faith.
 - Small metros have wide ACS margins of error, and their ranges are wider to match.
+- Ages go up to 85 for you and 90 for partners, but older ages rest on thinner evidence. How people's age limits change with age comes from a study of 18-to-50-year-olds, extended past 50. The looking rate steps down at 40 and 65, because Pew only reports age groups, and app use is taken as the same at every age. That last assumption is supported by Pew: 26% of single-and-looking adults 50 and older used an app in the past year.
 
 ## Trademark
 
