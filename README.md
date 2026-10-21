@@ -97,7 +97,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 ### Structural checks
 
-`scripts/structure/` tests how the funnel is built, as opposed to its inputs. Results are in `scripts/structure/out/` and written up in `docs/structural-uncertainty.md`.
+`scripts/structure/` tests how the funnel is built, as opposed to its inputs. Results are in `scripts/structure/out/` and written up in `docs/structural-uncertainty.md`. They use the same `requirements.txt`.
 
 | Script | What it does |
 |---|---|
@@ -127,7 +127,13 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 ## Rebuilding the data
 
-The 2019 to 2023 data is already in `data/` and `atlas/data.js`. To rebuild it:
+The 2019 to 2023 data is already in `data/` and `atlas/data.js`. To rebuild it, first install the Python packages the scripts use (pinned in `requirements.txt` to the versions that reproduce the committed data), plus R with tidycensus for `pull_acs.R` and Node for the map and the page check:
+
+```sh
+python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt
+```
+
+Then:
 
 ```sh
 Rscript scripts/pull_acs.R    # needs a Census API key
