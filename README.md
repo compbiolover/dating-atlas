@@ -6,6 +6,20 @@ Live page: https://datingatlas.dev/
 
 ![Dating Atlas showing 140 possibilities in Memphis, with the funnel from 1.3 million people down to 32 on the apps and a map of every metro](docs/atlas-screenshot.png)
 
+## Contents
+
+- [What it does](#what-it-does)
+- [Repository layout](#repository-layout)
+- [How the estimate works](#how-the-estimate-works)
+  - [Where each funnel step's data comes from](#where-each-funnel-steps-data-comes-from)
+  - [The math](#the-math)
+  - [The uncertainty range](#the-uncertainty-range)
+  - [Structural checks](#structural-checks)
+  - [Data scripts](#data-scripts)
+- [Rebuilding the data](#rebuilding-the-data)
+- [Limitations](#limitations)
+- [Trademark](#trademark)
+
 ## What it does
 
 You pick a metro and say who you are and who you're looking for. The page then shows:
@@ -43,6 +57,9 @@ There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`
 
 The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/index.html`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
 
+<details>
+<summary>Show the data source for each funnel step (12 steps)</summary>
+
 | # | Funnel step | Data | Built by | In the page |
 |---|---|---|---|---|
 | 1 | Population | Census Bureau 2025 estimates for the 387 MSAs (2023 definitions), via Wikipedia's metro list. *Local* | `data/metro_raw.csv` → `raw_to_json.py` | `RAW` (pop) |
@@ -57,6 +74,8 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 | 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents | `acs_to_json.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `kidsFit()` |
 | 11 | Mutual attraction | Speed-dating yes rates (Fisman et al. 2006), adjusted for your age, height, degree, job and kids (Antfolk 2017, Stulp 2013, NHANES, SCAL 2022, Pew 2019) | none; checked by `structure/speed_dating.py` | `ATTRACT`, `AGE_GAP`, `HT`, `EDU_PEN`, `JOB_PEN`, `traitRel()` |
 | 12 | On the apps now | Pew 2022 (28% of singles looking), LGB singles ×1.5 (Pew 2019) | none | `APPS`, `LGB_APPS` |
+
+</details>
 
 Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
 
@@ -99,6 +118,9 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 
 `scripts/structure/` tests how the funnel is built, as opposed to its inputs. Results are in `scripts/structure/out/` and written up in `docs/structural-uncertainty.md`. They use the same `requirements.txt`.
 
+<details>
+<summary>Show the structural check scripts</summary>
+
 | Script | What it does |
 |---|---|
 | `ces_estimates.py` | From the 2024 CES, the joint rates of degree, politics, faith and openness among single 25-to-35-year-olds, with bootstrap intervals. Source of `DEG_OR`. |
@@ -111,7 +133,12 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
 | `step2.mjs` | Built the earlier two-group politics-and-faith change, checks it against the harness, and writes `step2-values-joint.patch`. The six-group model has since replaced it. |
 
+</details>
+
 ### Data scripts
+
+<details>
+<summary>Show the data scripts</summary>
 
 | Script | What it rebuilds |
 |---|---|
@@ -125,6 +152,8 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `scripts/housing_to_json.py` | Embeds rent and pay (`HOUSE`) from the Census summary files. Writes `data/metro_housing.csv`. |
 | `scripts/build_map.mjs` | Rebuilds the map's metro positions and state outlines (`MAPXY`, `USMAP`) from the 2023 Census Gazetteer and us-atlas. |
 | `scripts/check_page.mjs` | Not a data script: loads the page in headless Chromium and fails on a script error, a failed self-check or a missing result. The deploy workflow runs it before publishing. |
+
+</details>
 
 ## Rebuilding the data
 
