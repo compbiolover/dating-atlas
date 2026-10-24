@@ -720,8 +720,7 @@ const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
   const house = HOUSE[name] || null;
   return {i, name, short:name.split(",")[0].split("–")[0], pop, bach, dem, demNote, adh, none, acs, deg, house, faith:FAITH[name] || null};
 });
-// Share of single people of gender g in metro m who fit your politics and faith, 0 to 1
-// Q holds the modeled constants, so the uncertainty simulation can vary them
+// The modeled constants of the values step at their best guesses; the uncertainty simulation passes draws instead
 const VQ = {pol:1, sec:.40, fr:1, psi:1, ds:1};
 // Politics and faith are each one or more groups as a comma list ("prog,lib", "jewish,secular"); "any" means no filter
 const polList = P => P.pol.split(","), faithList = P => P.faith.split(",");
@@ -776,7 +775,6 @@ function valRaw(m, g, P, Q = VQ){
       sum += part(f) >= 0 ? j*NONE_SPLIT[k][part(f)] : j; }); });
   return Math.min(S, sum);
 }
-const valFit = (m, g, P, Q = VQ) => Math.min(1, valRaw(m, g, P, Q));
 // Share of those who also fit your diet. Kosher and halal follow the local Jewish and Muslim shares.
 function dietFit(m, g, P){
   if (P.diet === "any") return 1;
@@ -787,7 +785,7 @@ function dietFit(m, g, P){
     : fs.reduce((t, [k, x]) => t + x*(k === f ? 1 : SECULAR.includes(k) ? (F[col] || 0)/100 : 0), 0)/tot;
   if (P.diet === "kosher") return KOSHER*frac("jewish", 4);
   if (P.diet === "halal") return HALAL*frac("muslim", 5);
-  const rate = d => g === "n" ? (DIET_RATE[d].w + DIET_RATE[d].m)/2 : DIET_RATE[d][g];
+  const rate = d => byGender(DIET_RATE[d], g);
   // Vegetarians lean liberal: weight each picked politics group's rate by its share
   let pol = 1;
   if (P.pol !== "any"){ const ps = polShares(m, g, P), sel = polList(P), t = sel.reduce((a, k) => a + ps[k], 0);
@@ -819,7 +817,6 @@ const fmt1 = n => n.toFixed(1);
 const fmtX = n => n >= 10 ? fmt(n) : fmt1(n); // multiples like "2.3×"
 // Round to two significant figures for the range under the main number
 const nice = n => { if (n < 10) return Math.round(n); const q = 10**(Math.floor(Math.log10(n)) - 1); return Math.round(n/q)*q; };
-// Judgment range for stacked estimates: wider where ACS margins of error are wider
 // Uncertainty range: a Monte Carlo over the inputs. Each draw scales every funnel factor by a random amount
 // whose spread comes from that factor's source (ACS standard errors, survey sample sizes, or a stated range for
 // modeled constants). The same 2,000 seeded draws are reused on every update, so the range moves smoothly.
@@ -858,7 +855,7 @@ function interval(m, s, P, f){
   const g0 = parts.map(({t, v}) => ({t, v0: v, rs: singlesRelSE(m, t, s),
     ds: s.deg ? degParts(m, t, s).rel : 0,
     os: Math.hypot(Math.sqrt((1 - OPEN[t][P.you])/(OPEN[t][P.you]*1000)), UNC.openAdapt)}));
-  const vf = parts.map(({t}) => valFit(m, t, P));
+  const vf = parts.map(({t}) => valRaw(m, t, P));
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
   // One pass computes the total for every draw with all groups varying, and with each group varying alone.
   // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
@@ -872,7 +869,7 @@ function interval(m, s, P, f){
     let all = 0; one.fill(0);
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
       fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2)); fac[2] = NR(g.os, z(b+3));
-      fac[3] = vf[j] ? Math.min(1, valFit(m, p.t, P, Q))/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4)); fac[6] = click;
+      fac[3] = vf[j] ? valRaw(m, p.t, P, Q)/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4)); fac[6] = click;
       let prod = 1; for (let k = 0; k < K; k++){ prod *= fac[k]; one[k] += p.ck*fac[k]; }
       all += p.ck*prod; });
     tot[d] = all; for (let k = 0; k < K; k++) solo[k][d] = one[k];
@@ -885,6 +882,7 @@ function interval(m, s, P, f){
   return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
 }
 const pct = n => fmtX(n) + "%";
+const rangeText = iv => `${iv.hi < 10 ? "Likely fewer than 10" : `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}`}, mostly depending on ${UGROUPS[iv.top]}.`;
 const nACS = M.filter(m => m.acs).length;
 const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const near = (x, m) => x.pop >= m.pop*.6 && x.pop <= m.pop*1.4;
@@ -1073,6 +1071,13 @@ function blends(m, s, P){
   return {edu: e/w1, val: w2 ? v/w2 : 0, diet: w2 ? dt/w2 : 0};
 }
 
+// Everything pool() needs that doesn't depend on the metro: trait effects by gender, the click defaults D, and the
+// looking and kids-plan rates
+function poolCtx(s, P, D){
+  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
+  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); });
+  return T;
+}
 // The full funnel for one metro
 function pool(m, s, P, T){
   const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, diet:0, kids:0, click:0, apps:0, parts:[]}, dg = {}, D = T.D;
@@ -1085,7 +1090,7 @@ function pool(m, s, P, T){
   P.seek.forEach(t => {
     const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
-    const v = o*valFit(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, T.want[t], s);
+    const v = o*valRaw(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, T.want[t], s);
     const tr = T[t], ba = s.deg ? 1 : dg[t].d/100, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
     r.parts.push({t, ck, v});
@@ -1221,8 +1226,7 @@ function update(){
   $("appsHint").innerHTML = `Share of singles looking to date who are on an app now. Pew found 28% in 2022, so about ${Math.round(D.apps)}% for the ${who} you picked${P.seek.some(t => appsRate(t, P) > APPS[t]) ? ", with LGB singles at about 1.5 times the rate" : ""}.` + rst("apps");
 
   // Everything the pool needs that doesn't depend on the metro, computed once per update
-  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
-  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); });
+  const T = poolCtx(s, P, D);
   const f = pool(m, s, P, T);
   const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, apps:r.apps, vals:r.vals, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
@@ -1231,14 +1235,12 @@ function update(){
   // The funnel rerun for one year of age at a time, across the range the sliders allow
   const byAge = [];
   for (let a = +$("ageMin").min; a <= +$("ageMax").max; a++){
-    const sa = {...s, ageMin:a, ageMax:a}, Ta = traitRel(sa, P); Ta.D = D; Ta.look = {}; Ta.want = {};
-    GK.forEach(g => { Ta.look[g] = lookFit(g, sa); Ta.want[g] = kidsWant(g, P, sa); });
-    byAge.push({a, v: pool(m, sa, P, Ta).click});
+    const sa = {...s, ageMin:a, ageMax:a};
+    byAge.push({a, v: pool(m, sa, P, poolCtx(sa, P, D)).click});
   }
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
   $("sPoolL").textContent = `real possibilities in ${m.short}`;
-  $("sRange").textContent = !iv ? "" : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` :
-    `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}, mostly depending on ${UGROUPS[iv.top]}.`;
+  $("sRange").textContent = iv ? rangeText(iv) : "";
   $("sRatio").textContent = fmt1(f.ratio);
   const rs = rentShare(m, P), pay = P.edu === "ba" ? "pay for someone with a bachelor's" : "pay for someone with some college";
   const byRent = all.filter(a => a.rent === a.rent).sort((a,b) => a.rent - b.rent), hRank = byRent.findIndex(a => a.m === m) + 1;
@@ -1256,19 +1258,25 @@ function update(){
       `${cap(tl)} ${herEff < s.her ? "lower" : "raise"}${xs.length > 1 || tl === "having kids" ? "" : "s"} it from ${s.her}% to about ${herEff}%.`) : "Your traits match that.") + rst("her");
   const openTo = `Open to dating a ${G[P.you].one}`;
   const pc = (a, b) => b ? `×${pct(a/b*100)}` : "";
-  // Each step: [label, count, cut note, phase]
-  const steps = [["Everyone in the metro", m.pop, "", 0],
-    ...(P.seek.length < 3 ? [[cap(who), f.total, pc(f.total, m.pop), 0]] : []),
-    [`Ages ${s.ageMin} to ${s.ageMax}`, f.age, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`, 0],
-    ["Single", f.single, pc(f.single, f.age), 1],
-    ["Unattached and looking to date", f.look, pc(f.look, f.single), 1],
-    ...(s.deg ? [["Bachelor's or higher", f.deg, pc(f.deg, f.look), 1]] : []),
-    [openTo, f.open, pc(f.open, f.deg), 2],
-    ...(valuesLabel(P) ? [[valuesLabel(P), f.vals, pc(f.vals, f.open), 2]] : []),
-    ...(P.diet !== "any" ? [[DIETS[P.diet], f.diet, pc(f.diet, f.vals), 2]] : []),
-    ...(Math.abs(f.kids - f.diet) > .5 ? [["Compatible on kids", f.kids, pc(f.kids, f.diet), 2]] : []),
-    ["Mutual attraction", f.click, pc(f.click, f.kids), 3],
-    ["On the apps now", f.apps, pc(f.apps, f.click), 3]];
+  // The funnel steps, shared by the funnel and the comparison: [label, count from a metro and its pool, phase, shown, cut note].
+  // Without a note, a step's cut is its keep rate from the step before, shown or not.
+  const allSteps = [["Everyone in the metro", x => x.pop, 0, true, ""],
+    [cap(who), (x, r) => r.total, 0, P.seek.length < 3],
+    [`Ages ${s.ageMin} to ${s.ageMax}`, (x, r) => r.age, 0, true, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`],
+    ["Single", (x, r) => r.single, 1, true],
+    ["Unattached and looking to date", (x, r) => r.look, 1, true],
+    ["Bachelor's or higher", (x, r) => r.deg, 1, s.deg],
+    [openTo, (x, r) => r.open, 2, true],
+    [valuesLabel(P), (x, r) => r.vals, 2, !!valuesLabel(P)],
+    [DIETS[P.diet], (x, r) => r.diet, 2, P.diet !== "any"],
+    ["Compatible on kids", (x, r) => r.kids, 2, Math.abs(f.kids - f.diet) > .5],
+    ["Mutual attraction", (x, r) => r.click, 3, true],
+    ["On the apps now", (x, r) => r.apps, 3, true]]
+    .map(([t, get, ph, show, note]) => ({t, get, ph, show, v: get(m, f), note}));
+  allSteps.forEach((r, i) => r.note ??= pc(r.v, allSteps[i - 1].v));
+  const rows = allSteps.filter(r => r.show);
+  // Each funnel step: [label, count, cut note, phase]
+  const steps = rows.map(r => [r.t, r.v, r.note, r.ph]);
   $("funnelTitle").textContent = `The funnel in ${m.short}`;
   $("funnelSub").textContent = `How ${fmt(m.pop)} people narrow to ${fmt(f.click)} possibilities.`;
   // Widths on a log scale from 1 person to the whole metro, so every stage stays visible
@@ -1315,16 +1323,8 @@ function update(){
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
   const cm = $("cmpSel").value !== "" ? M[+$("cmpSel").value] : (peer || byPool.find(a => a.m !== m)).m;
-  // One row per funnel step, as functions of a metro and its pool so both metros share the same steps
-  const kidsRow = Math.abs(f.kids - f.diet) > .5;
-  const cmpRows = [["Everyone in the metro", (x, r) => x.pop],
-    ...(P.seek.length < 3 ? [[cap(who), (x, r) => r.total]] : []),
-    [`Ages ${s.ageMin} to ${s.ageMax}`, (x, r) => r.age], ["Single", (x, r) => r.single], ["Looking to date", (x, r) => r.look],
-    ...(s.deg ? [["Bachelor's or higher", (x, r) => r.deg]] : []), [openTo, (x, r) => r.open],
-    ...(valuesLabel(P) ? [[valuesLabel(P), (x, r) => r.vals]] : []), ...(P.diet !== "any" ? [[DIETS[P.diet], (x, r) => r.diet]] : []),
-    ...(kidsRow ? [["Compatible on kids", (x, r) => r.kids]] : []), ["Mutual attraction", (x, r) => r.click], ["On the apps now", (x, r) => r.apps]];
   const cf = cm === m ? f : pool(cm, s, P, T);
-  const cmp = {cm, rows: cmpRows.map(([t, get]) => ({t, a: get(m, f), b: get(cm, cf)}))};
+  const cmp = {cm, rows: rows.map(r => ({t: r.t, a: r.v, b: r.get(cm, cf)}))};
   LAST = {m, all, who, s, P, iv, est: f.click, byAge, age: P.age, cmp};
   drawCharts();
   writeHash(s, P);
@@ -1415,7 +1415,7 @@ function answers({m, all, s, P, iv, byAge, cmp}){
     (cheaper ? `${cheaper} metro${cheaper === 1 ? " has" : "s have"} more than ${m.short} with rent under ${BURDEN}% of pay.` : `No metro has more than ${m.short} with rent under ${BURDEN}% of pay.`);
   const peak = byAge.reduce((p, x) => x.v > p.v ? x : p), sr = sexInRange(m, s, P), sv = sexView(P);
   $("qWhoA").textContent = `The most possibilities are at age ${peak.a}.` + (sr ? ` Counting all singles in your age range, there are about ${fmt2(sr)} ${sv.label}.` : "");
-  $("qSureA").textContent = !iv ? "The pool is too small to put a range on." : iv.hi < 10 ? `Likely fewer than 10, mostly depending on ${UGROUPS[iv.top]}.` : `Likely between ${fmt(nice(iv.lo))} and ${fmt(nice(iv.hi))}, mostly depending on ${UGROUPS[iv.top]}.`;
+  $("qSureA").textContent = iv ? rangeText(iv) : "The pool is too small to put a range on.";
 }
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 
@@ -1463,8 +1463,22 @@ $("map").addEventListener("pointermove", e => {
 $("map").addEventListener("pointerleave", () => { const tip = $("mapTip"); if (tip) tip.hidden = true; });
 $("map").addEventListener("click", e => { const h = mapHit(e); if (h) select(h.a.m); });
 
+// The two metro scatters share a frame: size, axis titles, a dot per metro, the selected metro labeled, and the list
+// a tap picks the nearest dot from. pts are {m, x, y, tip} in drawing units; g holds the caller's grid.
+const frame = () => { const nw = plotNarrow(); return {nw, W: nw ? 400 : 760, H: nw ? 380 : 470, L: nw ? 40 : 48, R: 16, T: 16, B: 40, k: nw ? 1.4 : 1}; };
+function scatter(id, {nw, W, H, L, R, T, B, k}, m, pts, g, xT, yT, aria){
+  g += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle">${xT}</text>`;
+  if (!nw) g += `<text transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${yT}</text>`;
+  const others = pts.filter(p => p.m !== m), me = pts.find(p => p.m === m);
+  g += others.map(p => `<circle class="${BIG.has(p.m) ? "big" : ""}" data-i="${p.m.i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(BIG.has(p.m) ? 4.5 : 3)*k}"><title>${p.m.name}: ${p.tip}</title></circle>`).join("");
+  if (me){ const right = me.x > W - (nw ? 90 : 140);
+    g += `<circle class="on" cx="${me.x}" cy="${me.y}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? me.x-11 : me.x+11}" y="${me.y+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; }
+  $(id).innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}">${g}</svg>`;
+  return others.map(p => [p.m, p.x, p.y]);
+}
+
 function plot(m, s, P, all){
-  const nw = plotNarrow(), W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
+  const c = frame(), {W, H, L, R, T, B} = c;
   const raw = document.querySelector('input[name="yfit"]:checked').value === "n";
   const fit = raw ? new Map(all.map(a => [a.m, a.vals])) : new Map(M.map(x => [x, blends(x, s, P).val]));
   const yMax = Math.max(70, Math.ceil(Math.max(...fit.values())/10)*10);
@@ -1477,16 +1491,12 @@ function plot(m, s, P, all){
   [1e5, 3e5, 1e6, 3e6, 1e7].forEach(p => g += `<line class="gridl" x1="${X(p)}" x2="${X(p)}" y1="${T}" y2="${H-B}"/><text x="${X(p)}" y="${H-B+16}" text-anchor="middle">${p >= 1e6 ? p/1e6 + "M" : p/1e3 + "k"}</text>`);
   (raw ? Array.from({length: y1 - y0 + 1}, (_, i) => 10**(y0 + i)) : Array.from({length: yMax/10 + 1}, (_, i) => i*10))
     .forEach(v => g += `<line class="gridl" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${yLbl(v)}</text>`);
-  g += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle">Metro population (log scale)</text>`;
-  if (!nw) g += `<text transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${raw ? "Share your values (log scale)" : "Values fit"}</text>`;
-  const dots = M.filter(x => x !== m).map(x => `<circle class="${BIG.has(x) ? "big" : ""}" data-i="${x.i}" cx="${X(x.pop).toFixed(1)}" cy="${Y(fit.get(x)).toFixed(1)}" r="${(BIG.has(x) ? 4.5 : 3)*k}"><title>${x.name}: ${raw ? fmt(fit.get(x)) + " share your values" : Math.round(fit.get(x)) + "%"}, ${fmt(x.pop)} people</title></circle>`).join("");
-  const cx = X(m.pop), cy = Y(fit.get(m)), right = cx > W - (nw ? 90 : 140);
-  const on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`;
-  PTS = M.filter(x => x !== m).map(x => [x, X(x.pop), Y(fit.get(x))]);
   const vf = [...fit.values()], mine = fit.get(m);
   $("plotT").textContent = raw ? `${fmt(mine)} of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`
     : `${Math.round(mine)}% of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`;
-  $("plot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(fit.get(m))} who share your values` : `a values fit of ${Math.round(fit.get(m))}%`}.">${g}${dots}${on}</svg>`;
+  PTS = scatter("plot", c, m, M.map(x => ({m: x, x: X(x.pop), y: Y(fit.get(x)), tip: `${raw ? fmt(fit.get(x)) + " share your values" : Math.round(fit.get(x)) + "%"}, ${fmt(x.pop)} people`})),
+    g, "Metro population (log scale)", raw ? "Share your values (log scale)" : "Values fit",
+    `Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(mine)} who share your values` : `a values fit of ${Math.round(mine)}%`}.`);
 }
 
 // Dumbbell lollipops: the 10th to 90th percentile of the result when only one input group varies
@@ -1612,7 +1622,7 @@ function rentPlot(m, P, all){
       ax: "Possibilities per competitor (log scale)", tick: v => fmtAx(v), tip: a => `${fmt1(a.ratio)} per competitor`},
     sex: {t:"gender balance", get: a => a.sex, ok: v => v > 0, ref: 1, refT: "Even",
       ax: `${cap(sv.label)} among singles looking to date (log scale)`, tick: v => fmtAx(v), tip: a => `${fmt2(a.sex)} ${sv.label}`}}[mode];
-  const nw = plotNarrow(), W = nw ? 400 : 760, H = nw ? 380 : 470, L = nw ? 40 : 48, R = 16, T = 16, B = 40, k = nw ? 1.4 : 1;
+  const c = frame(), {W, H, L, R, T, B} = c;
   const pts = all.filter(a => C.ok(C.get(a)) && a.v > 0), vs = pts.map(a => a.v), ys = pts.map(C.get);
   const x0 = Math.floor(Math.log10(Math.min(...vs))), x1 = Math.max(x0 + 1, Math.ceil(Math.log10(Math.max(...vs))));
   const X = v => L + (Math.log10(v) - x0)/(x1 - x0)*(W - L - R);
@@ -1624,18 +1634,12 @@ function rentPlot(m, P, all){
   for (let e = x0; e <= x1; e++) g += `<line class="gridl" x1="${X(10**e)}" x2="${X(10**e)}" y1="${T}" y2="${H-B}"/><text x="${X(10**e)}" y="${H-B+16}" text-anchor="${e === x1 ? "end" : "middle"}">${fmtAx(10**e)}</text>`;
   yt.forEach(v => g += `<line class="gridl" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${C.tick(v)}</text>`);
   g += `<line class="burdenl" x1="${L}" x2="${W-R}" y1="${Y(C.ref)}" y2="${Y(C.ref)}"/><text class="burdent" x="${L+6}" y="${Y(C.ref)-6}">${C.refT}</text>`;
-  g += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle">Possibilities (log scale)</text>`;
-  if (!nw) g += `<text transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${C.ax}</text>`;
-  const dots = pts.filter(a => a.m !== m).map(a => `<circle class="${BIG.has(a.m) ? "big" : ""}" data-i="${a.m.i}" cx="${X(a.v).toFixed(1)}" cy="${Y(C.get(a)).toFixed(1)}" r="${(BIG.has(a.m) ? 4.5 : 3)*k}"><title>${a.m.name}: ${fmt(a.v)} possibilities, ${C.tip(a)}</title></circle>`).join("");
   const me = pts.find(a => a.m === m);
-  let on = "";
-  if (me){ const cx = X(me.v), cy = Y(C.get(me)), right = cx > W - (nw ? 90 : 140);
-    on = `<circle class="on" cx="${cx}" cy="${cy}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? cx-11 : cx+11}" y="${cy+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; }
-  RPTS = pts.filter(a => a.m !== m).map(a => [a.m, X(a.v), Y(C.get(a))]);
+  RPTS = scatter("rplot", c, m, pts.map(a => ({m: a.m, x: X(a.v), y: Y(C.get(a)), tip: `${fmt(a.v)} possibilities, ${C.tip(a)}`})), g, "Possibilities (log scale)", C.ax,
+    `Scatter plot of ${pts.length} metros by possibilities and ${C.t}.${me ? ` ${m.short} has ${fmt(me.v)} possibilities, ${C.tip(me)}.` : ""}`);
   $("rentT").textContent = !me ? `Pool versus ${C.t}` : mode === "rent" ? `Rent in ${m.short} takes ${me.rent}% of pay, ${me.rent <= BURDEN ? "under" : "over"} the ${BURDEN}% line`
     : mode === "ratio" ? `${m.short} has ${fmt1(me.ratio)} for every competitor, ${vsMetros(ys, me.ratio, "better", "worse")}`
     : `Among singles looking to date${LAST.s.deg ? " with a degree" : ""}, ${m.short} has ${fmt2(me.sex)} ${sv.label}, ${vsMetros(ys, me.sex, "higher", "lower")}`;
-  $("rplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter plot of ${pts.length} metros by possibilities and ${C.t}.${me ? ` ${m.short} has ${fmt(me.v)} possibilities, ${C.tip(me)}.` : ""}">${g}${dots}${on}</svg>`;
   // "Better" means more possibilities and a better value on this axis: under the burden line for rent, higher for the others
   const better = me ? pts.filter(a => a.v > me.v && (C.low ? C.get(a) <= C.ref : C.get(a) > C.get(me))).length : 0, what = C.low ? `rent under ${BURDEN}%` : mode === "ratio" ? "better odds" : `more ${sv.label.split(" ")[0]} per ${sv.label.split(" ").pop()}`;
   $("rentNote").textContent = (C.low ? `The best spots sit low and to the right: more possibilities, rent under ${BURDEN}% of ${P.edu === "ba" ? "a grad's" : "typical"} pay. `
