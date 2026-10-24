@@ -58,6 +58,12 @@ def metro_means(prri_csv, delin_xlsx, atlas, columns):
     with open(prri_csv, newline="", encoding="utf-8") as f:
         county = {r["fipsstcnty"].zfill(5): (float(r["Population"]), {k: sum(float(r[c]) for c in cols) for k, cols in columns.items()})
                   for r in csv.DictReader(f)}
+    return rollup(county, delin_xlsx, atlas)
+
+
+def rollup(county, delin_xlsx, atlas):
+    """{atlas metro: {key: population-weighted mean}} from county = {FIPS: (population, {key: value})}, with
+    counties rolled up by the 2023 delineations (Connecticut's planning regions back to its old counties)."""
     counties = {}
     for r in sheets(delin_xlsx)["List 1"]:
         if r.get("Metropolitan/Micropolitan Statistical Area") == "Metropolitan Statistical Area":
@@ -69,7 +75,7 @@ def metro_means(prri_csv, delin_xlsx, atlas, columns):
         rows = [county[c] for c in dict.fromkeys(counties.get(match(name), [])) if c in county]
         if rows:
             tot = sum(p for p, _ in rows)
-            out[name] = {k: sum(p * v[k] for p, v in rows) / tot for k in columns}
+            out[name] = {k: sum(p * v[k] for p, v in rows) / tot for k in rows[0][1]}
     return out
 
 

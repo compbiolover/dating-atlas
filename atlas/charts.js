@@ -105,10 +105,10 @@ function usMap(m, all, who){
   const lbl = me ? (() => { const right = me.x > 780; return `<circle class="on" cx="${me.x}" cy="${me.y}" r="${Math.max(me.r, 5*k).toFixed(1)}"/><text class="lbl" x="${right ? me.x - me.r - 6 : me.x + Math.max(me.r, 5*k) + 6}" y="${me.y + 5*k}" font-size="${14*k}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; })() : "";
   if (!$("mapDots")) $("map").innerHTML = `<svg viewBox="0 0 975 610" role="img" id="mapSvg"><path class="land" d="${USMAP.nation}"/><path class="bord" d="${USMAP.borders}"/><g id="mapDots"></g></svg><div class="tip" id="mapTip" hidden></div>`;
   $("mapDots").innerHTML = dots + lbl;
-  $("mapSvg").setAttribute("aria-label", `Map of 387 U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro.`);
+  $("mapSvg").setAttribute("aria-label", `Map of ${all.length} U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro.`);
   $("mapKey").innerHTML = `<span>People on the apps now</span><svg width="${kx}" height="${kh + 18}" aria-hidden="true">${keyDots}</svg>`;
   const best = MAPPTS[0];
-  $("mapT").textContent = !best.a.apps ? `No metro has ${who} who fit these filters` : `${best.a.m === m ? m.short : best.a.m.short} has the most ${who} on the apps right now`;
+  $("mapT").textContent = !best.a.apps ? `No metro has ${who} who fit these filters` : `${LAST.P.climate === "any" ? "" : `Among metros with ${CLIMATES[LAST.P.climate].toLowerCase()}, `}${best.a.m === m ? m.short : best.a.m.short} has the most ${who} on the apps right now`;
   $("mapNote").textContent = `Each circle is a metro, placed at its center. ${!best.a.apps ? "Every metro is at 0 with these filters." : best.a.m === m ? `${m.short} has the most ${who} on the apps.` : `${best.a.m.short} has the most ${who} on the apps, about ${fmt(best.a.apps)}, against ${fmt(me ? me.a.apps : 0)} in ${m.short}.`} Tap or click a circle to switch metros.`;
 }
 // Nearest circle to a pointer, within its radius plus a margin so small ones are easy to hit
@@ -138,7 +138,7 @@ function scatter(id, {nw, W, H, L, R, T, B, k}, m, pts, g, xT, yT, aria){
 function plot(m, s, P, all){
   const c = frame(), {W, H, L, R, T, B} = c;
   const raw = document.querySelector('input[name="yfit"]:checked').value === "n";
-  const fit = raw ? new Map(all.map(a => [a.m, a.vals])) : new Map(M.map(x => [x, blends(x, s, P).val]));
+  const fit = raw ? new Map(all.map(a => [a.m, a.vals])) : new Map(all.map(a => [a.m, blends(a.m, s, P).val]));
   const yMax = Math.max(70, Math.ceil(Math.max(...fit.values())/10)*10);
   const x0 = Math.log10(50000), x1 = Math.log10(25e6);
   // Counts span several orders of magnitude, so they get a log axis from the decade below the smallest
@@ -152,9 +152,9 @@ function plot(m, s, P, all){
   const vf = [...fit.values()], mine = fit.get(m);
   $("plotT").textContent = raw ? `${fmt(mine)} of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`
     : `${Math.round(mine)}% of them share your values in ${m.short}, ${vsMetros(vf, mine, "more", "fewer", "in ")}`;
-  PTS = scatter("plot", c, m, M.map(x => ({m: x, x: X(x.pop), y: Y(fit.get(x)), tip: `${raw ? fmt(fit.get(x)) + " share your values" : Math.round(fit.get(x)) + "%"}, ${fmt(x.pop)} people`})),
+  PTS = scatter("plot", c, m, [...fit.keys()].map(x => ({m: x, x: X(x.pop), y: Y(fit.get(x)), tip: `${raw ? fmt(fit.get(x)) + " share your values" : Math.round(fit.get(x)) + "%"}, ${fmt(x.pop)} people`})),
     g, "Metro population (log scale)", raw ? "Share your values (log scale)" : "Values fit",
-    `Scatter plot of 387 metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(mine)} who share your values` : `a values fit of ${Math.round(mine)}%`}.`);
+    `Scatter plot of ${fit.size} metros by population and values fit. ${m.short} has ${fmt(m.pop)} people and ${raw ? `${fmt(mine)} who share your values` : `a values fit of ${Math.round(mine)}%`}.`);
 }
 
 // Dumbbell lollipops: the 10th to 90th percentile of the result when only one input group varies

@@ -31,7 +31,7 @@ You pick a metro and say who you are and who you're looking for. The page then s
 - a ranked list you can sort by number of possibilities, competition, gender balance or rent
 - how many people are looking for the same partners as you, and what a 1-bedroom costs as a share of local pay
 
-You can filter by politics (one or more of progressive, liberal, moderate, conservative, very conservative and not political, or any), faith (one or more of non-religious, atheist, agnostic, nothing in particular, Christian, Catholic, Protestant, Latter-day Saint, other Christian, Jewish, Muslim, Hindu, Buddhist and Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive, liberal or moderate, non-religious) or the opposite one (moderate, conservative or very conservative, Christian).
+You can filter by politics (one or more of progressive, liberal, moderate, conservative, very conservative and not political, or any), faith (one or more of non-religious, atheist, agnostic, nothing in particular, Christian, Catholic, Protestant, Latter-day Saint, other Christian, Jewish, Muslim, Hindu, Buddhist and Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive, liberal or moderate, non-religious) or the opposite one (moderate, conservative or very conservative, Christian). A climate choice (warm winters, four seasons, or cold, snowy winters, from NOAA's 1991–2020 temperatures) narrows the map, the ranked list and the comparisons to metros with that climate, without changing the pool.
 
 ![The settings panel: who you are and who you're looking for, your age and their ages 25 to 35 as number fields with minus and plus buttons, politics and faith as pick-one-or-more buttons, and the attraction and app rates as percentages](docs/atlas-settings.png)
 
@@ -82,7 +82,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 
 </details>
 
-Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
+Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), climate from NOAA's county temperatures, as 1991–2020 January and July averages (`climate_to_json.py` → `CLIMATE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
 
 ### The math
 
@@ -155,8 +155,9 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `scripts/religion_to_json.py` | Embeds congregation membership and the unaffiliated share (`REL`), which feed the non-religious share. Writes `data/metro_religion.csv`. |
 | `scripts/faith_to_json.py` | Embeds PRRI's share for each faith group (`FAITH`), used by the faith filter. Writes `data/metro_faith.csv`. |
 | `scripts/housing_to_json.py` | Embeds rent and pay (`HOUSE`) from the Census summary files. Writes `data/metro_housing.csv`. |
+| `scripts/climate_to_json.py` | Embeds each metro's January and July average temperature (`CLIMATE`) from NOAA's county data, for the climate filter. Writes `data/metro_climate.csv`. |
 | `scripts/build_map.mjs` | Rebuilds the map's metro positions and state outlines (`MAPXY`, `USMAP`) from the 2023 Census Gazetteer and us-atlas. |
-| `scripts/check_page.mjs` | Not a data script: loads the page in headless Chromium and fails on a script error, a failed self-check or a missing result. The deploy workflow runs it before publishing. |
+| `scripts/check_page.mjs` | Not a data script: loads the page in headless Chromium and fails on a script error, a failed self-check, a missing result, a pinned number that moved, or a climate filter that lets other metros through. The deploy workflow runs it before publishing. |
 
 </details>
 
@@ -179,6 +180,7 @@ PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acs
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx
 python3 scripts/housing_to_json.py acsdt5y2023-b25031.dat acsdt5y2023-b25113.dat acsdt5y2023-b20004.dat
+PYTHONPATH=scripts python3 scripts/climate_to_json.py climdiv-tmpccy-v1.0.0-YYYYMMDD prri_county.csv list1_2023.xlsx
 npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs
 node scripts/check_page.mjs   # needs Playwright
 ```

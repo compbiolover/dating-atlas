@@ -1,0 +1,388 @@
+metro,jan_f,jul_f
+"New York–Newark–Jersey City, NY-NJ",32.1,76.1
+"Los Angeles–Long Beach–Anaheim, CA",52.4,75.2
+"Chicago–Naperville–Elgin, IL-IN",23.8,73.6
+"Dallas–Fort Worth–Arlington, TX",45.8,84.8
+"Houston–Pasadena–The Woodlands, TX",53.4,84.0
+"Atlanta–Sandy Springs–Roswell, GA",42.7,78.9
+"Washington–Arlington–Alexandria, DC-VA-MD-WV",34.4,77.2
+"Miami–Fort Lauderdale–West Palm Beach, FL",66.5,83.0
+"Philadelphia–Camden–Wilmington, PA-NJ-DE-MD",32.5,76.7
+"Phoenix–Mesa–Chandler, AZ",53.4,90.8
+"Boston–Cambridge–Newton, MA-NH",27.1,72.4
+"Riverside–San Bernardino–Ontario, CA",51.4,87.0
+"San Francisco–Oakland–Fremont, CA",49.1,67.7
+"Detroit–Warren–Dearborn, MI",24.4,72.4
+"Seattle–Tacoma–Bellevue, WA",36.3,61.6
+"Minneapolis–St. Paul–Bloomington, MN-WI",14.2,72.0
+"Tampa–St. Petersburg–Clearwater, FL",60.2,82.5
+"San Diego–Chula Vista–Carlsbad, CA",52.7,76.3
+"Denver–Aurora–Centennial, CO",30.4,71.7
+"Orlando–Kissimmee–Sanford, FL",60.2,82.7
+"Charlotte–Concord–Gastonia, NC-SC",41.2,79.1
+"Baltimore–Columbia–Towson, MD",33.7,77.4
+"St. Louis, MO-IL",31.2,78.2
+"San Antonio–New Braunfels, TX",52.1,84.3
+"Austin–Round Rock–San Marcos, TX",50.0,84.2
+"Portland–Vancouver–Hillsboro, OR-WA",39.4,65.7
+"Sacramento–Roseville–Folsom, CA",45.9,75.6
+"Pittsburgh, PA",28.7,72.3
+"Las Vegas–Henderson–North Las Vegas, NV",46.2,87.0
+"Cincinnati, OH-KY-IN",30.7,75.4
+"Kansas City, MO-KS",29.5,78.2
+"Columbus, OH",28.6,74.2
+"Indianapolis–Carmel–Greenwood, IN",27.4,74.2
+"Nashville-Davidson–Murfreesboro–Franklin, TN",38.1,78.5
+"Cleveland, OH",27.2,72.7
+"San Jose–Sunnyvale–Santa Clara, CA",48.1,70.8
+"Virginia Beach–Norfolk–Newport News, VA-NC",40.9,79.6
+"Jacksonville, FL",54.9,82.1
+"Providence–Warwick, RI-MA",29.0,72.6
+"Raleigh–Cary, NC",41.2,79.5
+"Milwaukee–Waukesha, WI",21.2,71.3
+"Oklahoma City, OK",38.8,82.5
+"Louisville/Jefferson County, KY-IN",33.3,76.9
+"Richmond, VA",38.1,78.7
+"Memphis, TN-MS-AR",40.7,81.2
+"Salt Lake City–Murray, UT",28.9,74.1
+"Fresno, CA",41.6,73.8
+"Birmingham, AL",43.6,80.2
+"Grand Rapids–Wyoming–Kentwood, MI",23.8,71.1
+"Hartford–West Hartford–East Hartford, CT",27.1,72.9
+"Buffalo–Cheektowaga, NY",24.6,70.3
+"Tucson, AZ",52.0,86.0
+"Tulsa, OK",37.4,81.8
+"Rochester, NY",24.8,71.0
+"Greenville–Anderson–Greer, SC",42.1,78.8
+"Omaha, NE-IA",23.2,75.8
+"Urban Honolulu, HI",69.9,76.3
+"Bridgeport–Stamford–Danbury, CT",28.7,73.7
+"New Orleans–Metairie, LA",53.3,82.8
+"Knoxville, TN",37.9,77.1
+"North Port–Bradenton–Sarasota, FL",61.8,82.6
+"Bakersfield–Delano, CA",46.7,80.9
+"Albuquerque, NM",34.0,74.3
+"McAllen–Edinburg–Mission, TX",60.1,86.6
+"Albany–Schenectady–Troy, NY",22.4,70.4
+"Charleston–North Charleston, SC",48.7,81.9
+"Baton Rouge, LA",51.4,82.2
+"Worcester, MA",24.7,70.9
+"Allentown–Bethlehem–Easton, PA-NJ",28.2,73.3
+"El Paso, TX",44.8,82.5
+"Columbia, SC",45.2,81.4
+"Cape Coral–Fort Myers, FL",64.1,83.1
+"Lakeland–Winter Haven, FL",60.9,82.6
+"Boise City, ID",31.5,75.2
+"Oxnard–Thousand Oaks–Ventura, CA",49.3,70.6
+"Dayton–Kettering–Beavercreek, OH",28.8,74.5
+"Stockton–Lodi, CA",47.8,76.7
+"Greensboro–High Point, NC",39.6,78.3
+"Colorado Springs, CO",29.9,69.7
+"Little Rock–North Little Rock–Conway, AR",41.0,81.5
+"Provo–Orem–Lehi, UT",26.7,71.1
+"Des Moines–West Des Moines, IA",21.2,74.6
+"Deltona–Daytona Beach–Ormond Beach, FL",58.8,82.4
+"Kiryas Joel–Poughkeepsie–Newburgh, NY",26.2,72.6
+"Winston-Salem, NC",39.0,77.6
+"Madison, WI",18.9,71.6
+"Akron, OH",27.0,72.6
+"Ogden, UT",27.4,72.4
+"Palm Bay–Melbourne–Titusville, FL",61.4,82.3
+"Wichita, KS",33.0,80.7
+"Syracuse, NY",22.4,69.8
+"Augusta-Richmond County, GA-SC",46.1,81.4
+"Durham–Chapel Hill, NC",39.9,78.7
+"Fayetteville–Springdale–Rogers, AR",36.5,78.4
+"Harrisburg–Carlisle, PA",29.3,74.4
+"Jackson, MS",46.8,81.3
+"Spokane–Spokane Valley, WA",29.2,68.0
+"Toledo, OH",26.4,74.0
+"Chattanooga, TN-GA",39.7,78.0
+"New Haven, CT",28.3,73.4
+"Reno, NV",32.6,71.8
+"Portland–South Portland, ME",21.3,69.4
+"Scranton–Wilkes-Barre, PA",24.5,70.0
+"Port St. Lucie, FL",63.5,82.2
+"Lancaster, PA",30.5,75.1
+"Modesto, CA",47.4,77.3
+"Huntsville, AL",40.5,79.0
+"Pensacola–Ferry Pass–Brent, FL",51.3,81.8
+"Lexington-Fayette, KY",33.1,75.7
+"Killeen–Temple, TX",48.3,84.2
+"Springfield, MO",33.2,77.4
+"Wilmington, NC",45.8,80.5
+"Santa Rosa–Petaluma, CA",48.4,66.7
+"Visalia, CA",40.5,73.0
+"Lansing–East Lansing, MI",23.3,71.1
+"York–Hanover, PA",30.3,74.9
+"Fort Wayne, IN",25.2,73.3
+"Springfield, MA",24.8,71.3
+"Waterbury–Shelton, CT",28.3,73.4
+"Vallejo, CA",47.9,73.8
+"Corpus Christi, TX",57.4,85.0
+"Salem, OR",39.1,65.3
+"Ocala, FL",57.1,82.0
+"Santa Maria–Santa Barbara, CA",51.0,69.0
+"Reading, PA",29.4,74.6
+"Savannah, GA",50.4,82.5
+"Brownsville–Harlingen, TX",61.0,85.3
+"Salinas, CA",49.6,70.2
+"Manchester–Nashua, NH",22.8,70.3
+"Gulfport–Biloxi, MS",50.7,81.4
+"Myrtle Beach–Conway–North Myrtle Beach, SC",46.3,80.8
+"Lafayette, LA",52.1,82.6
+"Youngstown–Warren, OH",26.6,71.5
+"Asheville, NC",36.1,72.0
+"Naples–Marco Island, FL",65.3,83.3
+"Mobile, AL",50.7,81.7
+"Spartanburg, SC",42.0,79.4
+"Anchorage, AK",15.1,51.9
+"Flint, MI",23.0,71.3
+"Canton–Massillon, OH",27.2,72.4
+"Beaumont–Port Arthur, TX",52.4,82.8
+"Trenton–Princeton, NJ",32.1,76.1
+"Tallahassee, FL",52.0,81.7
+"Fayetteville, NC",43.3,80.7
+"Montgomery, AL",46.6,81.3
+"Shreveport–Bossier City, LA",46.8,83.0
+"Eugene–Springfield, OR",39.5,64.7
+"Davenport–Moline–Rock Island, IA-IL",22.0,74.3
+"Greeley, CO",28.7,73.3
+"Fort Collins–Loveland, CO",25.7,64.3
+"Hickory–Lenoir–Morganton, NC",39.0,76.8
+"Atlantic City–Hammonton, NJ",34.2,76.2
+"Ann Arbor, MI",23.7,71.5
+"Lubbock, TX",41.1,80.3
+"Huntington–Ashland, WV-KY-OH",33.6,75.5
+"Peoria, IL",24.7,75.0
+"Gainesville, FL",55.4,81.9
+"Lincoln, NE",24.6,76.5
+"Clarksville, TN-KY",36.9,78.6
+"Rockford, IL",20.8,72.7
+"Green Bay, WI",17.9,69.2
+"Boulder, CO",28.1,66.3
+"Columbus, GA-AL",46.9,80.9
+"South Bend–Mishawaka, IN-MI",24.3,72.4
+"Kennewick–Richland, WA",33.5,73.8
+"Roanoke, VA",36.0,75.6
+"Hagerstown–Martinsburg, MD-WV",31.7,75.2
+"Crestview–Fort Walton Beach–Destin, FL",50.8,81.6
+"Kingsport–Bristol, TN-VA",36.2,74.5
+"Sioux Falls, SD-MN",16.4,72.6
+"Waco, TX",47.7,84.4
+"Olympia–Lacey–Tumwater, WA",40.0,64.7
+"Longview, TX",46.9,83.1
+"Merced, CA",47.7,78.6
+"College Station–Bryan, TX",50.1,84.1
+"Utica–Rome, NY",19.7,68.3
+"Norwich–New London–Willimantic, CT",29.0,72.6
+"Bremerton–Silverdale–Port Orchard, WA",40.8,64.8
+"San Luis Obispo–Paso Robles, CA",49.4,72.4
+"Tuscaloosa, AL",44.5,80.9
+"Laredo, TX",56.1,86.5
+"Duluth, MN-WI",8.0,66.1
+"Cedar Rapids, IA",19.2,73.0
+"Slidell–Mandeville–Covington, LA",51.3,82.0
+"Amarillo, TX",37.9,79.4
+"Evansville, IN",32.9,78.0
+"Fargo, ND-MN",8.7,70.3
+"Lynchburg, VA",36.2,75.9
+"Daphne–Fairhope–Foley, AL",51.2,81.8
+"Bend, OR",31.1,63.8
+"Erie, PA",25.0,69.9
+"Kalamazoo–Portage, MI",24.1,71.9
+"Yakima, WA",30.4,66.4
+"Santa Cruz–Watsonville, CA",50.1,65.1
+"Prescott Valley–Prescott, AZ",43.7,79.6
+"Tyler, TX",46.7,82.9
+"Appleton, WI",17.4,70.1
+"Lake Charles, LA",51.9,82.6
+"Binghamton, NY",23.2,69.4
+"Hilton Head Island–Bluffton–Port Royal, SC",49.9,82.2
+"Champaign–Urbana, IL",25.8,74.7
+"Macon-Bibb County, GA",46.1,80.9
+"Bellingham, WA",32.2,59.9
+"Fort Smith, AR-OK",39.5,80.9
+"Barnstable Town, MA",31.6,71.4
+"Topeka, KS",29.2,78.7
+"Rochester, MN",14.5,70.5
+"Panama City–Panama City Beach, FL",52.6,82.0
+"Las Cruces, NM",42.7,80.8
+"Charlottesville, VA",35.7,76.4
+"Lafayette–West Lafayette, IN",25.7,73.5
+"Lake Havasu City–Kingman, AZ",45.0,84.2
+"Burlington–South Burlington, VT",17.7,68.8
+"Gainesville, GA",41.8,77.8
+"Yuma, AZ",55.4,92.3
+"Athens-Clarke County, GA",43.3,79.5
+"Monroe, LA",46.2,82.3
+"Medford, OR",38.0,68.5
+"Columbia, MO",29.4,77.6
+"Punta Gorda, FL",62.9,82.8
+"Jacksonville, NC",44.8,79.9
+"Johnson City, TN",36.4,73.9
+"St. George, UT",37.9,78.6
+"Lexington Park, MD",36.2,78.2
+"Chico, CA",45.6,77.1
+"Joplin, MO-KS",34.7,79.3
+"Elkhart–Goshen, IN",24.3,72.5
+"Warner Robins, GA",47.2,81.3
+"Auburn–Opelika, AL",45.8,80.4
+"Springfield, IL",27.2,75.6
+"St. Cloud, MN",11.5,70.6
+"Florence, SC",45.5,81.4
+"Charleston, WV",34.0,74.8
+"Houma–Bayou Cane–Thibodaux, LA",54.6,82.9
+"Racine–Mount Pleasant, WI",21.8,71.8
+"Bowling Green, KY",36.3,78.2
+"Dover, DE",34.8,77.3
+"Billings, MT",24.9,70.8
+"Midland, TX",45.2,83.1
+"Coeur d'Alene, ID",29.7,66.2
+"Saginaw, MI",23.1,71.5
+"Yuba City, CA",47.1,78.6
+"Burlington, NC",40.0,78.5
+"Abilene, TX",44.9,83.0
+"Jackson, TN",38.7,79.6
+"Kingston, NY",24.2,70.4
+"Greenville, NC",42.8,79.9
+"Iowa City, IA",21.0,74.0
+"Redding, CA",40.9,74.4
+"Blacksburg–Christiansburg–Radford, VA",33.8,72.3
+"El Centro, CA",57.2,93.1
+"Muskegon–Norton Shores, MI",24.3,70.4
+"Eau Claire, WI",14.0,69.8
+"Oshkosh–Neenah, WI",17.7,70.7
+"Idaho Falls, ID",21.1,66.1
+"Odessa, TX",45.1,83.0
+"Sebastian–Vero Beach–West Vero Corridor, FL",61.9,81.8
+"Homosassa Springs, FL",57.4,82.0
+"Bloomington, IL",24.8,74.3
+"La Crosse–Onalaska, WI-MN",16.4,71.4
+"Pueblo, CO",32.9,75.3
+"Terre Haute, IN",28.7,75.6
+"Waterloo–Cedar Falls, IA",17.7,72.5
+"Kenosha, WI",22.2,72.1
+"Janesville–Beloit, WI",20.1,72.3
+"Bloomington, IN",28.9,74.5
+"Amherst Town–Northampton, MA",23.9,70.8
+"Grand Junction, CO",27.2,71.4
+"Logan, UT-ID",23.9,67.7
+"Kahului–Wailuku, HI",67.2,73.0
+"Chambersburg, PA",30.0,74.3
+"Decatur, AL",41.0,79.1
+"Jackson, MI",23.5,71.1
+"Hattiesburg, MS",49.1,81.1
+"Bangor, ME",16.0,67.5
+"Wildwood–The Villages, FL",58.3,81.9
+"State College, PA",25.9,70.6
+"Vineland, NJ",34.0,76.7
+"Traverse City, MI",21.1,68.3
+"Rapid City, SD",23.4,71.7
+"Santa Fe, NM",30.9,70.2
+"Florence–Muscle Shoals, AL",40.5,78.9
+"Dothan, AL",49.9,81.7
+"Monroe, MI",25.7,73.4
+"Hanford–Corcoran, CA",47.5,81.9
+"Sherman–Denison, TX",43.4,83.6
+"Valdosta, GA",51.1,81.1
+"Jefferson City, MO",30.9,77.9
+"Niles, MI",25.3,72.5
+"Winchester, VA-WV",32.0,74.2
+"Wichita Falls, TX",42.4,84.9
+"Rocky Mount, NC",41.0,79.2
+"Alexandria, LA",49.5,82.3
+"Dalton, GA",40.4,78.4
+"Texarkana, TX-AR",44.4,82.3
+"Lebanon, PA",29.0,74.1
+"Sioux City, IA-NE-SD",19.5,74.0
+"Albany, GA",49.3,81.6
+"Flagstaff, AZ",34.7,74.7
+"Morgantown, WV",29.5,71.6
+"Hammond, LA",50.6,81.9
+"Harrisonburg, VA",33.0,73.3
+"Bismarck, ND",11.7,69.7
+"Jonesboro, AR",38.3,80.8
+"Wausau, WI",13.8,68.4
+"Manhattan, KS",28.7,78.8
+"Springfield, OH",28.0,73.4
+"Wheeling, WV-OH",29.2,72.7
+"Cleveland, TN",39.7,78.0
+"Battle Creek, MI",23.6,71.4
+"Mount Vernon–Anacortes, WA",34.3,60.7
+"Napa, CA",47.4,72.8
+"Albany, OR",38.4,64.6
+"Salisbury, MD",36.9,78.4
+"Staunton–Stuarts Draft, VA",33.4,73.1
+"Johnstown, PA",25.3,69.2
+"Morristown, TN",37.8,77.0
+"Bozeman, MT",21.7,62.3
+"Missoula, MT",24.4,63.1
+"Elizabethtown, KY",33.9,76.4
+"Wenatchee–East Wenatchee, WA",26.9,65.8
+"Pittsfield, MA",22.1,68.4
+"Ames, IA",19.4,73.6
+"Lawton, OK",40.4,83.7
+"Sierra Vista–Douglas, AZ",45.4,78.9
+"Mansfield, OH",25.8,71.6
+"Glens Falls, NY",19.6,68.7
+"Twin Falls, ID",29.2,71.6
+"Goldsboro, NC",42.8,80.1
+"San Angelo, TX",46.1,83.2
+"Lawrence, KS",29.8,78.8
+"Farmington, NM",30.5,75.0
+"Altoona, PA",27.0,71.1
+"St. Joseph, MO-KS",27.3,77.3
+"Brunswick–St. Simons, GA",51.9,82.6
+"Sheboygan, WI",19.4,70.0
+"Lewiston–Auburn, ME",19.3,68.8
+"Anniston–Oxford, AL",43.1,79.4
+"Longview–Kelso, WA",39.0,63.8
+"Owensboro, KY",34.2,77.9
+"Muncie, IN",26.9,73.5
+"Sandusky, OH",26.9,73.8
+"Williamsport, PA",24.8,70.4
+"Weirton–Steubenville, WV-OH",28.7,72.5
+"Watertown–Fort Drum, NY",19.0,69.5
+"Michigan City–La Porte, IN",24.4,72.7
+"Sebring, FL",61.8,82.2
+"Pinehurst–Southern Pines, NC",42.1,79.7
+"Beckley, WV",31.8,71.1
+"Gettysburg, PA",30.0,74.7
+"Kankakee, IL",24.4,73.9
+"Sumter, SC",45.6,81.1
+"Grand Forks, ND-MN",6.6,69.1
+"Mankato, MN",14.6,72.1
+"Fond du Lac, WI",17.8,70.3
+"Ithaca, NY",22.9,69.4
+"Gadsden, AL",42.4,79.5
+"Cheyenne, WY",28.2,69.3
+"Paducah, KY-IL",35.3,79.0
+"Bay City, MI",22.8,71.0
+"Rome, GA",41.9,79.3
+"Lima, OH",26.3,73.6
+"Victoria, TX",54.8,84.3
+"Hot Springs, AR",41.0,80.6
+"Dubuque, IA",18.8,72.3
+"Decatur, IL",26.6,75.3
+"Cape Girardeau, MO-IL",33.8,78.5
+"Corvallis, OR",41.2,66.8
+"Helena, MT",24.1,63.1
+"Fairbanks–College, AK",-1.2,58.2
+"Hinesville, GA",50.9,82.7
+"Pocatello, ID",24.8,68.9
+"Grants Pass, OR",39.8,67.9
+"Parkersburg–Vienna, WV",31.8,74.4
+"Columbus, IN",30.0,75.0
+"Great Falls, MT",24.8,65.9
+"Kokomo, IN",25.8,73.1
+"Midland, MI",22.6,71.1
+"Casper, WY",23.5,69.3
+"Elmira, NY",23.5,69.3
+"Grand Island, NE",24.8,75.4
+"Minot, ND",10.3,68.3
+"Lewiston, ID-WA",32.2,69.4
+"Walla Walla, WA",34.9,73.7
+"Enid, OK",36.5,82.6
+"Eagle Pass, TX",53.4,86.3
+"Carson City, NV",34.0,70.6

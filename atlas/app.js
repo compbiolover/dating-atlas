@@ -26,7 +26,7 @@ function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
   const kids = document.querySelector('input[name="kids"]:checked').value;
-  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value};
+  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value, climate:$("climate").value};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -78,6 +78,7 @@ function applySettings(get){
   one("pol", v => pol(v).split(",").every(keys(POLS)), v => setChips("pol", pol(v)));
   one("faith", v => v.split(",").every(keys(FAITHS)), v => setChips("faith", v));
   one("diet", keys(DIETS), v => $("diet").value = v);
+  one("climate", keys(CLIMATES), v => $("climate").value = v);
 }
 const saved = (() => { try { return JSON.parse(store.get("atlas.profile") || "null"); } catch(e){ return null; } })();
 if (saved) applySettings(k => { const v = saved[k === "deg" ? "degOnly" : k];
@@ -131,7 +132,7 @@ let hashT = 0;
 function writeHash(s, P){
   clearTimeout(hashT);
   hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids,
-    openP:+P.openP, deg:+P.degOnly, pol:P.pol, faith:P.faith, diet:P.diet, ageMin:s.ageMin, ageMax:s.ageMax, his:s.his, her:s.her, apps:s.apps, y:document.querySelector('input[name="yfit"]:checked').value, ry:document.querySelector('input[name="ry"]:checked').value});
+    openP:+P.openP, deg:+P.degOnly, pol:P.pol, faith:P.faith, diet:P.diet, climate:P.climate, ageMin:s.ageMin, ageMax:s.ageMax, his:s.his, her:s.her, apps:s.apps, y:document.querySelector('input[name="yfit"]:checked').value, ry:document.querySelector('input[name="ry"]:checked').value});
     try { history.replaceState(null, "", "#" + q); } catch(e){} }, 250);
 }
 $("share").addEventListener("click", () => {
@@ -200,7 +201,7 @@ $("yAge").addEventListener("input", () => {
   $("ageMin").value = clamp($("ageMin"), a + rangeOff[0]); $("ageMax").value = clamp($("ageMax"), a + rangeOff[1]);
 });
 ["ageMin","ageMax"].forEach(k => $(k).addEventListener("input", () => rangeOff = null));
-["yAge","yHt","yEdu","yJob","openP","degOnly","diet"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
+["yAge","yHt","yEdu","yJob","openP","degOnly","diet","climate"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 ["yfit","ry"].forEach(n => document.querySelectorAll(`input[name="${n}"]`).forEach(el => el.addEventListener("change", () => { store.set("atlas." + n, el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); })));
 document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
@@ -219,7 +220,7 @@ function update(){
   Object.entries(PRESETS).forEach(([k, v]) => $("preset-" + k).checked = Object.entries(v).every(([f, x]) => P[f] === x));
   $("valuesL").textContent = valuesLabel(P) || "Any politics or faith";
   $("rbSum").textContent = `${cap(G[P.you].one)}, ${P.age} · ${cap(who)} ${s.ageMin} to ${s.ageMax} · ` +
-    `${valuesLabel(P) || "Any politics or faith"}${P.diet !== "any" ? " · " + DIETS[P.diet] : ""}${s.deg ? "" : " · Any education"}`;
+    `${valuesLabel(P) || "Any politics or faith"}${P.diet !== "any" ? " · " + DIETS[P.diet] : ""}${P.climate !== "any" ? " · " + CLIMATES[P.climate] : ""}${s.deg ? "" : " · Any education"}`;
   const vote = `the 2024 Harris share (${m.dem}%${m.demNote ? ", statewide" : ""}) with CES politics`, F = m.faith;
   const note = f => f === "secular" ? `${m.none}% with no religion and ${m.adh}% in a congregation`
     : SECULAR.includes(f) ? `${m.none}% with no religion here and CES's share of the non-religious who say ${FAITHS[f].toLowerCase()}`
@@ -239,7 +240,12 @@ function update(){
   const T = poolCtx(s, P, D);
   const f = pool(m, s, P, T);
   const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, apps:r.apps, vals:r.vals, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
-  const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
+  // Where to look: metros with your climate, and always the selected one. Ranks stay out of all 387.
+  const fits = x => x === m || P.climate === "any" || climateOf(x) === P.climate, cand = all.filter(a => fits(a.m));
+  const nClim = all.filter(a => climateOf(a.m) === P.climate).length;
+  $("climateHint").textContent = (m.clim ? `${m.short}: January averages ${Math.round(m.clim[0])}°F and July ${Math.round(m.clim[1])}°F, so it has ${CLIMATES[climateOf(m)].toLowerCase()}. ` : "") +
+    (P.climate === "any" ? "Pick one to show only metros with that climate." : `${nClim} of 387 metros have ${CLIMATES[P.climate].toLowerCase()}. The map, ranked list and comparisons show only those${climateOf(m) !== P.climate ? `, plus ${m.short}` : ""}.`);
+  const byPool = [...all].sort((a,b) => b.v - a.v), byCand = byPool.filter(a => fits(a.m)), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = 1 + all.filter(a => a.v > f.click).length, rRank = byRatio.findIndex(a => a.m === m) + 1;
   const iv = interval(m, s, P, f);
   // The funnel rerun for one year of age at a time, across the range the sliders allow
@@ -303,13 +309,13 @@ function update(){
   }).join("");
   drawFunnel();
 
-  const peer = byPool.find(a => a.m !== m && near(a.m, m));
+  const peer = byCand.find(a => a.m !== m && near(a.m, m)), withC = P.climate === "any" ? "" : " with " + CLIMATES[P.climate].toLowerCase();
   const edu = s.deg ? "single, looking, degree-holding" : "single, looking";
   // How many times your pool another metro's is. Every use checks f.click first: an empty pool has nothing to divide by.
   const times = v => fmtX(v/f.click);
   const many = (v, none, pre = "") => f.click ? `${pre}about <strong>${times(v)}×</strong> as many` : none;
   $("readout").innerHTML = `About <strong>${fmt(f.click)}</strong> ${who} in the ${m.name} metro fit what you're looking for, and about <strong>${fmt(f.apps)}</strong> of them are on the apps right now. ` +
-    (peer && peer.v > f.click ? `Among metros of similar size, ${peer.m.short} has ${many(peer.v, "more")}.` : byPool[0].m === m || !byPool[0].v ? "No metro has more." : `No metro of similar size has more. ${byPool[0].m.short} has the most${many(byPool[0].v, "", ", ")}.`);
+    (peer && peer.v > f.click ? `Among metros of similar size${withC}, ${peer.m.short} has ${many(peer.v, "more")}.` : byCand[0].m === m || !byCand[0].v ? `No metro${withC} has more.` : `No metro of similar size${withC} has more. ${byCand[0].m.short} has the most${many(byCand[0].v, "", ", ")}.`);
 
   const scope = $("scope").value, sort = $("sort").value;
   let set = scope === "near" ? new Set(M.filter(x => near(x, m))) : new Set(TOP.slice(0, +scope));
@@ -317,7 +323,7 @@ function update(){
   const key = sort === "pool" ? "v" : sort;
   const ordered = sort === "pool" ? byPool : sort === "ratio" ? byRatio : sort === "rent" ? [...byRent, ...all.filter(a => a.rent !== a.rent)] : [...all].sort((a,b) => b.sex - a.sex);
   ordered.forEach((a, i) => a.rk = i + 1);
-  const shown = ordered.filter(a => set.has(a.m));
+  const shown = ordered.filter(a => set.has(a.m) && fits(a.m));
   const maxK = Math.max(...shown.map(a => a[key] || 0));
   $("ranked").classList.toggle("byrent", sort === "rent");
   const rcol = sort === "sex" ? "sex" : "ratio";
@@ -333,10 +339,10 @@ function update(){
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
-  const cm = $("cmpSel").value !== "" ? M[+$("cmpSel").value] : (peer || byPool.find(a => a.m !== m)).m;
+  const cm = $("cmpSel").value !== "" ? M[+$("cmpSel").value] : (peer || byCand.find(a => a.m !== m) || byPool.find(a => a.m !== m)).m;
   const cf = cm === m ? f : pool(cm, s, P, T);
   const cmp = {cm, rows: rows.map(r => ({t: r.t, a: r.v, b: r.get(cm, cf)}))};
-  LAST = {m, all, who, s, P, iv, est: f.click, byAge, age: P.age, cmp};
+  LAST = {m, all: cand, who, s, P, iv, est: f.click, byAge, age: P.age, cmp};
   drawCharts();
   writeHash(s, P);
 }
@@ -393,7 +399,7 @@ const STEPS = [
   {t:"Start with you", help:"Who you are sets who's likely to be open to dating you, and how your age plays into it.", ids:["g-you","g-age"]},
   {t:"Who are you looking for?", help:"Pick the genders and ages you date, and the politics, faith and diet you want them to share. Quick picks fill in politics and faith.",
    ids:["g-seek","g-ages","g-preset","g-pol","g-faith","g-diet"]},
-  {t:"Where are you looking?", help:"Type one of 387 U.S. metros, tap a city, or use your location. You can switch metros anytime.", ids:["g-pick"]}];
+  {t:"Where are you looking?", help:"Type one of 387 U.S. metros, tap a city, or use your location. Pick a climate to see only metros that have it. You can switch either anytime.", ids:["g-pick","g-climate"]}];
 let stepI = -1;
 const homes = new Map();  // borrowed element -> placeholder marking where it lives on the page
 function borrow(ids){

@@ -59,7 +59,9 @@ const PINNED = [["m=New York–Newark–Jersey City, NY-NJ&seek=wmn&pol=prog,lib
   ["m=Memphis, TN-MS-AR&pol=prog", "77"],
   // Bad values in a link are ignored, and a number written another way still counts
   ['m=Memphis, TN-MS-AR&ry="&diet=constructor&pol=constructor&faith=__proto__&seek=women', "142"],
-  ["m=Memphis, TN-MS-AR&ht=180.0", "159"]];
+  ["m=Memphis, TN-MS-AR&ht=180.0", "159"],
+  // Climate picks which metros to show, never the pool
+  ["m=Memphis, TN-MS-AR&climate=warm", "142"]];
 if (!problems.length) await Promise.all(PINNED.map(async ([hash, want]) => {
   const q = await load(hash);
   if (!q) return;
@@ -68,6 +70,10 @@ if (!problems.length) await Promise.all(PINNED.map(async ([hash, want]) => {
   await openAll(q).catch(e => problems.push(`script error (#${hash}): ${e.message.split("\n")[0]}`));
   const bad = await q.evaluate(() => (document.querySelector(".wrap").innerText + document.querySelector(".wrap").innerHTML).match(/NaN|Infinity|undefined/));
   if (bad) problems.push(`#${hash} shows "${bad[0]}"`);
+  // Every metro in the list, on the map and in the scatters is the selected one or has the climate picked
+  const off = await q.evaluate(() => { const c = profile().climate; return c === "any" ? [] : [...document.querySelectorAll("#list .crow, #map circle[data-i], #plot circle[data-i], #rplot circle[data-i]")]
+    .map(el => M[+el.dataset.i]).filter(x => x !== cur && climateOf(x) !== c).map(x => x.short); });
+  if (off.length) problems.push(`#${hash} shows metros without that climate: ${[...new Set(off)].slice(0, 5).join(", ")}`);
 }));
 await browser.close(); server.close();
 
