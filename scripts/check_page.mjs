@@ -36,7 +36,22 @@ if (!problems.length){
   if (!await p.$eval("#ages", el => el.querySelector("rect"))) problems.push("the age chart didn't draw");
 }
 const pool = await p.textContent("#sPool");
-if (!/^(<1|[\d,]+)$/.test(pool)) problems.push(`the main number reads "${pool}"`);
+if (pool !== "142") problems.push(`the default search reads "${pool}", not 142`);
+// Pinned results, so a refactor that moves any number fails here. Update them only for an intended model change.
+const PINNED = [["m=New York–Newark–Jersey City, NY-NJ&seek=wmn&pol=prog,lib,mod,con&faith=atheist,agnostic,catholic,jewish", "7,796"],
+  ["m=Chicago–Naperville–Elgin, IL-IN&you=w&seek=m&age=44&ageMin=38&ageMax=52&kids=have&edu=no&job=less&diet=pesc", "26"],
+  ["m=Memphis, TN-MS-AR&pol=any&faith=muslim&diet=kosher", "0"],
+  // Bad values in a link are ignored, not fatal
+  ['m=Memphis, TN-MS-AR&ry="&diet=constructor&pol=constructor&faith=__proto__', "142"]];
+for (const [hash, want] of PINNED){
+  const q = await browser.newPage();
+  q.on("pageerror", e => problems.push(`script error (#${hash}): ${e.message}`));
+  await q.goto(`http://127.0.0.1:${server.address().port}/#${hash}`);
+  await q.waitForFunction(() => /^#\d+$/.test(document.getElementById("sRank")?.textContent), null, {timeout: 15000}).catch(() => {});
+  const got = await q.textContent("#sPool");
+  if (got !== want) problems.push(`#${hash} reads "${got}", not ${want}`);
+  await q.close();
+}
 await browser.close(); server.close();
 
 if (problems.length){ console.error([...new Set(problems)].join("\n")); process.exit(1); }
