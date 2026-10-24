@@ -11,9 +11,9 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// The baseline is the page before step 2 was applied, taken from git, so the analysis keeps measuring against it
-export const BEFORE = path.join(here, "out", "index.before.html");
-execSync(`git show 73d4238:atlas/index.html > "${BEFORE}"`, {cwd: here});
+// The baseline is the page before step 2 was applied (commit 73d4238), kept here as a file so the analysis keeps
+// measuring against it on any clone. It's self-contained: its data is inline.
+export const BEFORE = path.join(here, "baseline.html");
 const PAGE = "file://" + BEFORE;
 const { chromium } = await import(path.join(execSync("npm root -g").toString().trim(), "playwright/index.mjs"));
 

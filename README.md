@@ -40,7 +40,11 @@ On a first visit, a three-step setup asks who you are, who you're looking for an
 ## Repository layout
 
 ```
-atlas/index.html          the whole page: HTML, CSS and the funnel code
+atlas/index.html          the page's markup and the methods notes
+atlas/style.css           its styles
+atlas/model.js            the funnel model: constants, sources and math, no page code
+atlas/charts.js           the funnel shape, map and charts
+atlas/app.js              the form, saved settings and links, the text, and the first-visit setup
 atlas/data.js             every metro's data, as JS constants with one metro per line
 data/                     CSV extracts the data in atlas/data.js is built from
 docs/                     research notes and the screenshot above
@@ -50,13 +54,13 @@ scripts/structure/out/    their results, as JSON
 .github/workflows/        publishes atlas/ to GitHub Pages
 ```
 
-There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`, `REL`, ...) in `atlas/data.js`, which the page loads before its own script, and the page computes everything else in the browser. Per-metro data sits one metro per line, so a diff of a data update shows which metros changed.
+There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`, `REL`, ...) in `atlas/data.js`, which the page loads before its own scripts, and the page computes everything else in the browser. Per-metro data sits one metro per line, so a diff of a data update shows which metros changed.
 
 ## How the estimate works
 
 ### Where each funnel step's data comes from
 
-The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/index.html`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
+The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/model.js`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
 
 <details>
 <summary>Show the data source for each funnel step (12 steps)</summary>
@@ -130,7 +134,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `secular_level.py` | Checks the 40% secular-leaning base against CES and the GSS, and how it falls with age. |
 | `pums_degree.py` | Degree rates and cohabiting rates of singles against everyone, from 2023 PUMS with replicate-weight standard errors. |
 | `speed_dating.py` | Tests whether mutual attraction is the product of the two yes rates (lift ≈ 1.03). |
-| `harness.mjs` | Loads the page in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
+| `harness.mjs` | Loads the baseline page (`baseline.html`, the page at commit 73d4238, before step 2) in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
 | `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
 | `step2.mjs` | Built the earlier two-group politics-and-faith change, checks it against the harness, and writes `step2-values-joint.patch`. The six-group model has since replaced it. |
 

@@ -20,7 +20,19 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # Don't deploy a page that throws, fails a self-check or shows no result; uses the runner's Chrome
+      # Pages caches every file for 10 minutes, so stamp each file's link with its content hash: a reload right after a
+      # deploy then can't pair the new page with an old cached script
+      - name: Version the page's files
+        working-directory: atlas
+        run: |
+          for f in style.css data.js model.js charts.js app.js; do
+            grep -q "\"$f\"" index.html || { echo "index.html doesn't link $f"; exit 1; }
+            sed -i "s|\"$f\"|\"$f?v=$(sha1sum "$f" | cut -c1-8)\"|" index.html
+          done
+          # A new file linked from index.html but missing from the list above would go out unversioned
+          if grep -E '(src|href)="[a-z]+\.(js|css)"' index.html; then echo "add it to the list above"; exit 1; fi
+          grep -E '\?v=' index.html
+      # Don't deploy a page that throws, fails a self-check, shows no result or moves a pinned number; uses the runner's Chrome
       - name: Check the page
         run: |
           npm i --no-save playwright-core@1.63.0

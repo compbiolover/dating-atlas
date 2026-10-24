@@ -1,6 +1,6 @@
 # How the funnel is built: a structural check
 
-The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Step 2 is now applied to the page (`scripts/structure/step2-values-joint.patch`), and so are next steps 2 and 3 (the degree share by age band and cohabiting rates by age; see "Applied after step 2" below). Every "before" figure below is the page as it was before that change; the scripts read it from git (commit 73d4238), so the analysis reproduces.
+The range under the main number covers uncertainty in the inputs, not in how the funnel is built. This note measures the second kind. It checks each structural assumption against survey microdata (step 1), then replaces the biggest one with estimates from data (step 2). Step 2 is now applied to the page (`scripts/structure/step2-values-joint.patch`), and so are next steps 2 and 3 (the degree share by age band and cohabiting rates by age; see "Applied after step 2" below). Every "before" figure below is the page as it was before that change; the scripts read it from `scripts/structure/baseline.html` (the page at commit 73d4238), so the analysis reproduces.
 
 ## Summary
 
