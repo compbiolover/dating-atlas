@@ -76,13 +76,15 @@ function sexInRange(m, s, P){
   for (let x = s.ageMin; x <= s.ageMax; x++){ nb += yb[x - AGE0] || 0; no += yo[x - AGE0] || 0; }
   return no ? nb/no : null;
 }
+// The age with the most possibilities; when every age is 0, the first age would "win", so say so instead
+const peakText = peak => peak.v ? `The most possibilities are at age ${peak.a}` : "No one fits these filters at any age";
 function answers({m, all, s, P, iv, byAge, cmp}){
-  const me = all.find(a => a.m === m), last = cmp.rows.find(r => r.t === "Mutual attraction"), k = last && last.a ? last.b/last.a : 1;
+  const me = all.find(a => a.m === m), last = cmp.rows.find(r => r.t === "Mutual attraction"), k = !last ? 1 : last.a ? last.b/last.a : last.b ? Infinity : 1;
   const cheaper = me ? all.filter(a => a.v > me.v && a.rent <= BURDEN).length : 0;
-  $("qWhereA").textContent = (cmp.cm === m ? "" : k >= 1.05 ? `${cmp.cm.short} has about ${k.toFixed(1)}× as many possibilities. ` : k <= .95 ? `${cmp.cm.short} has fewer possibilities than ${m.short}. ` : `${cmp.cm.short} has about as many. `) +
+  $("qWhereA").textContent = (cmp.cm === m ? "" : k === Infinity ? `${cmp.cm.short} has more possibilities. ` : k >= 1.05 ? `${cmp.cm.short} has about ${k.toFixed(1)}× as many possibilities. ` : k <= .95 ? `${cmp.cm.short} has fewer possibilities than ${m.short}. ` : `${cmp.cm.short} has about as many. `) +
     (cheaper ? `${cheaper} metro${cheaper === 1 ? " has" : "s have"} more than ${m.short} with rent under ${BURDEN}% of pay.` : `No metro has more than ${m.short} with rent under ${BURDEN}% of pay.`);
   const peak = byAge.reduce((p, x) => x.v > p.v ? x : p), sr = sexInRange(m, s, P), sv = sexView(P);
-  $("qWhoA").textContent = `The most possibilities are at age ${peak.a}.` + (sr ? ` Counting all singles in your age range, there are about ${fmt2(sr)} ${sv.label}.` : "");
+  $("qWhoA").textContent = peakText(peak) + "." + (sr ? ` Counting all singles in your age range, there are about ${fmt2(sr)} ${sv.label}.` : "");
   $("qSureA").textContent = iv ? rangeText(iv) : "The pool is too small to put a range on.";
 }
 
@@ -106,8 +108,8 @@ function usMap(m, all, who){
   $("mapSvg").setAttribute("aria-label", `Map of 387 U.S. metros, with circles sized by how many of the ${who} you're looking for are on the apps right now. ${m.short} has about ${fmt(me ? me.a.apps : 0)}. The ranked list below has every metro.`);
   $("mapKey").innerHTML = `<span>People on the apps now</span><svg width="${kx}" height="${kh + 18}" aria-hidden="true">${keyDots}</svg>`;
   const best = MAPPTS[0];
-  $("mapT").textContent = `${best.a.m === m ? m.short : best.a.m.short} has the most ${who} on the apps right now`;
-  $("mapNote").textContent = `Each circle is a metro, placed at its center. ${best.a.m === m ? `${m.short} has the most ${who} on the apps.` : `${best.a.m.short} has the most ${who} on the apps, about ${fmt(best.a.apps)}, against ${fmt(me ? me.a.apps : 0)} in ${m.short}.`} Tap or click a circle to switch metros.`;
+  $("mapT").textContent = !best.a.apps ? `No metro has ${who} who fit these filters` : `${best.a.m === m ? m.short : best.a.m.short} has the most ${who} on the apps right now`;
+  $("mapNote").textContent = `Each circle is a metro, placed at its center. ${!best.a.apps ? "Every metro is at 0 with these filters." : best.a.m === m ? `${m.short} has the most ${who} on the apps.` : `${best.a.m.short} has the most ${who} on the apps, about ${fmt(best.a.apps)}, against ${fmt(me ? me.a.apps : 0)} in ${m.short}.`} Tap or click a circle to switch metros.`;
 }
 // Nearest circle to a pointer, within its radius plus a margin so small ones are easy to hit
 function mapHit(e){
@@ -208,9 +210,9 @@ function ages({byAge, s, m, age}){
   g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Their age</text>`;
   const sum = (a, b) => byAge.filter(x => x.a >= a && x.a <= b).reduce((t, x) => t + x.v, 0);
   const inside = sum(s.ageMin, s.ageMax), wider = sum(s.ageMin - 2, s.ageMax + 2), peak = byAge.reduce((p, x) => x.v > p.v ? x : p);
-  $("ageT").textContent = `The most possibilities are at age ${peak.a}`;
-  $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. The most are at age ${peak.a}, about ${fmt(peak.v)}.">${g}</svg>`;
-  $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. The most possibilities in ${m.short} are at age ${peak.a}. Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drops at 40 and 65 are real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women, and fewer still from 65. Each year is estimated on its own, so the bars only roughly add up to your total.`;
+  $("ageT").textContent = peakText(peak);
+  $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. ${peak.v ? `The most are at age ${peak.a}, about ${fmt(peak.v)}.` : "No age has any."}">${g}</svg>`;
+  $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. ${peak.v ? `The most possibilities in ${m.short} are at age ${peak.a}. ` : ""}Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drops at 40 and 65 are real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women, and fewer still from 65. Each year is estimated on its own, so the bars only roughly add up to your total.`;
 }
 
 // Dumbbells per funnel step: your metro in orange, the comparison in blue, on one log axis
@@ -231,7 +233,7 @@ function compare({m, cmp}){
   });
   $("cmpChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Funnel steps in ${m.short} and ${cm.short}. ${rows.map(r => `${r.t}: ${fmt(r.a)} versus ${fmt(r.b)}`).join(". ")}.">${g}</svg>`;
   // Where the gap opens or closes: each step's keep rate in one metro against the other
-  const steps = rows.slice(1).map((r, i) => ({t: r.t, ka: rows[i].a ? r.a/rows[i].a : 0, kb: rows[i].b ? r.b/rows[i].b : 0})).filter(x => x.ka && x.kb).map(x => ({...x, d: x.kb/x.ka}));
+  const steps = rows.slice(1).map((r, i) => ({t: r.t, ka: rows[i].a ? r.a/rows[i].a : 0, kb: rows[i].b ? r.b/rows[i].b : 0})).filter(x => x.ka || x.kb).map(x => ({...x, d: x.ka ? x.kb/x.ka : Infinity}));
   const best = steps.reduce((p, x) => x.d > p.d ? x : p, steps[0]), worst = steps.reduce((p, x) => x.d < p.d ? x : p, steps[0]), last = rows[rows.length - 2];
   const kp = v => pct(v*100);
   $("cmpT").textContent = cm === m ? `${m.short}, step by step` : best.d > 1.05 ? `${cm.short} pulls ahead at “${best.t}”` + (worst.d < .95 ? `, ${m.short} at “${worst.t}”` : "")
@@ -300,5 +302,5 @@ function rentPlot(m, P, all){
   const better = me ? pts.filter(a => a.v > me.v && (C.low ? C.get(a) <= C.ref : C.get(a) > C.get(me))).length : 0, what = C.low ? `rent under ${BURDEN}%` : mode === "ratio" ? "better odds" : `more ${sv.label.split(" ")[0]} per ${sv.label.split(" ").pop()}`;
   $("rentNote").textContent = (C.low ? `The best spots sit low and to the right: more possibilities, rent under ${BURDEN}% of ${P.edu === "ba" ? "a grad's" : "typical"} pay. `
       : `The best spots sit high and to the right: more possibilities and ${mode === "ratio" ? "more of them for each person competing for them" : `more ${sv.label} among singles looking to date`}. `) +
-    (!me ? `There's no data for ${m.short} on this measure.` : better ? `${better} metro${better === 1 ? " has" : "s have"} more possibilities than ${m.short} and ${what}.` : `No metro has more possibilities than ${m.short} and ${what}.`) + " Blue dots are the 25 largest metros.";
+    (!me ? (C.ok(C.get(all.find(a => a.m === m))) ? `${m.short} has no possibilities with these filters, so it's off this log-scale chart.` : `There's no data for ${m.short} on this measure.`) : better ? `${better} metro${better === 1 ? " has" : "s have"} more possibilities than ${m.short} and ${what}.` : `No metro has more possibilities than ${m.short} and ${what}.`) + " Blue dots are the 25 largest metros.";
 }

@@ -283,7 +283,9 @@ function interval(m, s, P, f){
   // shortcut: Pagan picked with other faiths uses theirs, since the Pagan share is tiny; split it if that matters
   const pr = faithList(P).filter(f => f !== "any" && !SECULAR.includes(f));
   const fs = m.faith ? pr.reduce((t, f) => t + (f === "pagan" ? 0 : faithPct(m.faith, f)/100), 0) : .5;
-  const frSD = !pr.length ? 0 : pr.every(f => f === "pagan") ? UNC.pagan : Math.max(.08, Math.sqrt((1 - fs)/(fs*400)));
+  // Faiths with no local PRRI share add nothing to vary, so only a Pagan pick keeps its own spread
+  const frSD = !pr.length ? 0 : pr.every(f => f === "pagan") ? UNC.pagan : !fs ? (pr.includes("pagan") ? UNC.pagan : 0)
+    : Math.max(.08, Math.sqrt((1 - fs)/(fs*400)));
   const g0 = parts.map(({t, v}) => ({t, v0: v, rs: singlesRelSE(m, t, s),
     ds: s.deg ? degParts(m, t, s).rel : 0,
     os: Math.hypot(Math.sqrt((1 - OPEN[t][P.you])/(OPEN[t][P.you]*1000)), UNC.openAdapt)}));
@@ -317,7 +319,7 @@ const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const SINGLE = 50; // modeled share single for women, used only for a metro without ACS counts
 // Heights 4'10" to 6'8" for the height menu, stored as whole cm
 const HEIGHTS = Array.from({length: 23}, (_, i) => Math.round((58 + i)*2.54));
-const heightFor = you => { const mu = you === "n" ? (HT.w[0] + HT.m[0])/2 : HT[you][0];
+const heightFor = you => { const mu = byGender({w: HT.w[0], m: HT.m[0]}, you);
   return HEIGHTS.reduce((b, c) => Math.abs(c - mu) < Math.abs(b - mu) ? c : b); };
 // Single-year counts from ACS bands: a monotone cubic (Fritsch–Carlson PCHIP) through the cumulative count at
 // each band edge, differenced by year. Every band keeps its exact total, counts never go negative, and years

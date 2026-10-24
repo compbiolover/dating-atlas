@@ -34,7 +34,7 @@ function nounFor(seek){
   return n.length === 1 ? n[0] : n.join(" and ");
 }
 // The height menu: 4'10" to 6'8"
-HEIGHTS.forEach((cm, j) => { const i = 58 + j;
+HEIGHTS.forEach(cm => { const i = Math.round(cm/2.54);
   $("yHt").insertAdjacentHTML("beforeend", `<option value="${cm}">${Math.floor(i/12)}′${i%12}″ (${cm} cm)</option>`); });
 let htSet = false; // until you pick a height, it follows the average for your gender
 const defaultHt = () => heightFor(document.querySelector('input[name="you"]:checked').value);
@@ -58,25 +58,26 @@ const syncFaith = () => { syncChips("pol"); syncChips("faith"); };
   syncChips(n); saveProfile(); schedule();
 })));
 syncFaith();  // the default (Any non-religious) shows its parts as included from the start
-// Links and saved profiles from before the six politics groups open the matching quick pick
-const OLD_POL = {prog: PRESETS.mine.pol, cons: PRESETS.opp.pol};
+// Links and saved profiles from before the six politics groups say "cons" for the opposite quick pick. (Their "prog"
+// can't be mapped the same way: it's also today's Progressive group.)
+const OLD_POL = {cons: PRESETS.opp.pol};
 // One loader for every setting, from the saved profile or a shared link. get(key) returns a string or null.
 function applySettings(get){
   const one = (k, ok, set) => { const v = get(k); if (v != null && ok(v)) set(v); };
   const inList = list => v => list.includes(v), num = (lo, hi) => v => v !== "" && +v >= lo && +v <= hi, bool = inList(["0","1"]);
   one("you", inList(GK), v => $("you-" + v).checked = true);
-  one("seek", v => GK.some(t => v.includes(t)), v => GK.forEach(t => $("seek-" + t).checked = v.includes(t)));
-  one("age", num(21, 85), v => $("yAge").value = v);
-  one("ht", v => HEIGHTS.includes(+v), v => { $("yHt").value = v; htSet = true; });
+  one("seek", v => /^[wmn]+$/.test(v), v => GK.forEach(t => $("seek-" + t).checked = v.includes(t)));
+  one("age", num(21, 85), v => $("yAge").value = +v);
+  one("ht", v => HEIGHTS.includes(+v), v => { $("yHt").value = +v; htSet = true; });
   one("edu", inList(["ba","no"]), v => $("yEdu").value = v);
   one("job", inList(["job","less","none"]), v => $("yJob").value = v);
   one("kids", inList(["any","want","dont","have"]), v => $("kids-" + v).checked = true);
   one("openP", bool, v => $("openP").checked = v === "1");
   one("deg", bool, v => $("degOnly").checked = v === "1");
-  const pol = v => Object.hasOwn(OLD_POL, v) ? OLD_POL[v] : v;
-  one("pol", v => pol(v).split(",").every(k => Object.hasOwn(POLS, k)), v => setChips("pol", pol(v)));
-  one("faith", v => v.split(",").every(f => Object.hasOwn(FAITHS, f)), v => setChips("faith", v));
-  one("diet", v => Object.hasOwn(DIETS, v), v => $("diet").value = v);
+  const pol = v => v === "cons" ? OLD_POL.cons : v, keys = o => inList(Object.keys(o));
+  one("pol", v => pol(v).split(",").every(keys(POLS)), v => setChips("pol", pol(v)));
+  one("faith", v => v.split(",").every(keys(FAITHS)), v => setChips("faith", v));
+  one("diet", keys(DIETS), v => $("diet").value = v);
 }
 const saved = (() => { try { return JSON.parse(store.get("atlas.profile") || "null"); } catch(e){ return null; } })();
 if (saved) applySettings(k => { const v = saved[k === "deg" ? "degOnly" : k];
@@ -85,8 +86,7 @@ if (saved) applySettings(k => { const v = saved[k === "deg" ? "degOnly" : k];
 const HQ = (() => { try { return new URLSearchParams(location.hash.slice(1)); } catch(e){ return new URLSearchParams(); } })();
 const hNum = (k, lo, hi) => { const v = +HQ.get(k); return HQ.has(k) && v >= lo && v <= hi ? v : null; };
 applySettings(k => HQ.get(k));
-if ((HQ.get("y") || store.get("atlas.yfit")) === "n") document.querySelector('input[name="yfit"][value="n"]').checked = true;
-{ const ry = HQ.get("ry") || store.get("atlas.ry"), el = box("ry", ry); if (el) el.checked = true; }
+[["yfit", "y"], ["ry", "ry"]].forEach(([n, k]) => { const el = box(n, HQ.get(k) || store.get("atlas." + n)); if (el) el.checked = true; });
 if (!htSet) $("yHt").value = defaultHt();
 
 $("metroList").innerHTML = M.map(m => `<option value="${m.name}">`).join("");
@@ -283,7 +283,7 @@ function update(){
     ["Mutual attraction", (x, r) => r.click, 3, true],
     ["On the apps now", (x, r) => r.apps, 3, true]]
     .map(([t, get, ph, show, note]) => ({t, get, ph, show, v: get(m, f), note}));
-  allSteps.forEach((r, i) => r.note ??= pc(r.v, allSteps[i - 1].v));
+  allSteps.forEach((r, i) => { if (r.note == null) r.note = pc(r.v, allSteps[i - 1].v); });
   const rows = allSteps.filter(r => r.show);
   // Each funnel step: [label, count, cut note, phase]
   const steps = rows.map(r => [r.t, r.v, r.note, r.ph]);
@@ -304,9 +304,9 @@ function update(){
 
   const peer = byPool.find(a => a.m !== m && near(a.m, m));
   const edu = s.deg ? "single, looking, degree-holding" : "single, looking";
-  // "about 2.3× as many", or the fallback when your pool is empty and there's nothing to divide by
-  const many = (v, none, pre = "") => f.click ? `${pre}about <strong>${fmtX(v/f.click)}×</strong> as many` : none;
-  const times = v => f.click ? fmtX(v/f.click) + "×" : "–";
+  // How many times your pool another metro's is. Every use checks f.click first: an empty pool has nothing to divide by.
+  const times = v => fmtX(v/f.click);
+  const many = (v, none, pre = "") => f.click ? `${pre}about <strong>${times(v)}×</strong> as many` : none;
   $("readout").innerHTML = `About <strong>${fmt(f.click)}</strong> ${who} in the ${m.name} metro fit what you're looking for, and about <strong>${fmt(f.apps)}</strong> of them are on the apps right now. ` +
     (peer && peer.v > f.click ? `Among metros of similar size, ${peer.m.short} has ${many(peer.v, "more")}.` : byPool[0].m === m || !byPool[0].v ? "No metro has more." : `No metro of similar size has more. ${byPool[0].m.short} has the most${many(byPool[0].v, "", ", ")}.`);
 
@@ -328,7 +328,7 @@ function update(){
     : sort === "rent"
     ? `Ranked by housing cost, cheapest first: a recent mover's 1-bedroom rent as a share of the typical ${pay} in that metro. Above 30% is cost-burdened by HUD's standard. Tap or click a row to switch.`
     : `Ranked by gender balance: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
-  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : f.click ? `, ${fmtX(a.v/f.click)} times yours` : ""}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, a[key]/maxK*100)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : times(a.v)}</span></button>`).join("");
+  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : f.click ? `, ${times(a.v)} times yours` : ""}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, maxK ? a[key]/maxK*100 : 0)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : f.click ? times(a.v) + "×" : "–"}</span></button>`).join("");
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
