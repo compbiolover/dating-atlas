@@ -12,7 +12,7 @@ const { chromium } = await import("playwright-core")
   .catch(() => import(path.join(execSync("npm root -g").toString().trim(), "playwright/index.mjs")));
 // Serve atlas/ over HTTP as Pages does, so root paths like /favicon.svg resolve
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "atlas");
-const TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon"};
+const TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon"};
 const server = http.createServer((q, r) => {
   const f = path.join(root, new URL(q.url, "http://x").pathname.replace(/\/$/, "/index.html"));
   fs.readFile(f, (e, d) => { r.writeHead(e ? 404 : 200, {"Content-Type": TYPES[path.extname(f)] || "application/octet-stream"}); r.end(d); });

@@ -40,7 +40,11 @@ On a first visit, a three-step setup asks who you are, who you're looking for an
 ## Repository layout
 
 ```
-atlas/index.html          the whole page: HTML, CSS and the funnel code
+atlas/index.html          the page's markup and the methods notes
+atlas/style.css           its styles
+atlas/model.js            the funnel model: constants, sources and math, no page code
+atlas/charts.js           the funnel shape, map and charts
+atlas/app.js              the form, saved settings and links, the text, and the first-visit setup
 atlas/data.js             every metro's data, as JS constants with one metro per line
 data/                     CSV extracts the data in atlas/data.js is built from
 docs/                     research notes and the screenshot above
@@ -50,13 +54,13 @@ scripts/structure/out/    their results, as JSON
 .github/workflows/        publishes atlas/ to GitHub Pages
 ```
 
-There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`, `REL`, ...) in `atlas/data.js`, which the page loads before its own script, and the page computes everything else in the browser. Per-metro data sits one metro per line, so a diff of a data update shows which metros changed.
+There is no build step. Each data script rewrites one JS constant (`ACS`, `PUMS`, `REL`, ...) in `atlas/data.js`, which the page loads before its own scripts, and the page computes everything else in the browser. Per-metro data sits one metro per line, so a diff of a data update shows which metros changed.
 
 ## How the estimate works
 
 ### Where each funnel step's data comes from
 
-The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/index.html`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
+The funnel runs once for each gender you're looking for and adds them up (`pool()` in `atlas/model.js`). Each step multiplies the count before it by a share. Steps marked *local* differ by metro; the rest use national rates.
 
 <details>
 <summary>Show the data source for each funnel step (12 steps)</summary>
