@@ -18,6 +18,7 @@ Live page: https://datingatlas.dev/
   - [Data scripts](#data-scripts)
 - [Rebuilding the data](#rebuilding-the-data)
 - [Limitations](#limitations)
+- [License](#license)
 - [Trademark](#trademark)
 
 ## What it does
@@ -188,6 +189,12 @@ Each script's header says where to download its inputs. The national summary fil
 - The funnel treats its steps as independent, apart from a boost for matching politics and faith.
 - Small metros have wide ACS margins of error, and their ranges are wider to match.
 - Ages go up to 85 for you and 90 for partners, but older ages rest on thinner evidence. How people's age limits change with age comes from a study of 18-to-50-year-olds, extended past 50. The looking rate steps down at 40 and 65, because Pew only reports age groups, and app use is taken as the same at every age. That last assumption is supported by Pew: 26% of single-and-looking adults 50 and older used an app in the past year.
+
+## License
+
+The code is licensed under the [Apache License 2.0](LICENSE). The license does not grant use of the Dating Atlas name (see below).
+
+The data in `data/` and `atlas/data.js` is derived from the sources listed above and stays under their terms, not this license. Census Bureau data (ACS, PUMS, population estimates, Gazetteer) is in the public domain. The PRRI county religion estimates, the 2020 U.S. Religion Census, the CES, and tonmcg's county election results belong to their publishers, so check their terms before reusing those numbers.
 
 ## Trademark
 
