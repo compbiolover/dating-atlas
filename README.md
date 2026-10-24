@@ -134,7 +134,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `secular_level.py` | Checks the 40% secular-leaning base against CES and the GSS, and how it falls with age. |
 | `pums_degree.py` | Degree rates and cohabiting rates of singles against everyone, from 2023 PUMS with replicate-weight standard errors. |
 | `speed_dating.py` | Tests whether mutual attraction is the product of the two yes rates (lift ≈ 1.03). |
-| `harness.mjs` | Loads the page in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
+| `harness.mjs` | Loads the baseline page (`baseline.html`, the page at commit 73d4238, before step 2) in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
 | `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
 | `step2.mjs` | Built the earlier two-group politics-and-faith change, checks it against the harness, and writes `step2-values-joint.patch`. The six-group model has since replaced it. |
 

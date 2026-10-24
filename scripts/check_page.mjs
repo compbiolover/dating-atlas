@@ -32,7 +32,7 @@ async function load(hash){
   failed.catch(() => {});
   await p.goto(`http://127.0.0.1:${server.address().port}/${hash ? "#" + hash : ""}`);
   // The first visit shows the setup, but the result behind it is computed on load
-  const ok = await Promise.race([p.waitForFunction(() => /^#\d+$/.test(document.getElementById("sRank")?.textContent), null, {timeout: 15000}), failed])
+  const ok = await Promise.race([p.waitForFunction(() => /^(#\d+|–)$/.test(document.getElementById("sRank")?.textContent), null, {timeout: 15000}), failed])
     .then(() => true, () => false);
   if (!ok && !problems.some(x => x.includes(at || "script error:"))) problems.push(`the result never rendered${at} (#sRank is still empty)`);
   return ok && p;

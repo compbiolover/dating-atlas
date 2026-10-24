@@ -240,7 +240,7 @@ function update(){
   const f = pool(m, s, P, T);
   const all = M.map(x => { const r = x === m ? f : pool(x, s, P, T); return {m:x, v:r.click, apps:r.apps, vals:r.vals, ratio:r.ratio, sex: sv.inv ? 1/r.sexWM : r.sexWM, rent: rentShare(x, P)}; });
   const byPool = [...all].sort((a,b) => b.v - a.v), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
-  const rank = byPool.findIndex(a => a.m === m) + 1, rRank = byRatio.findIndex(a => a.m === m) + 1;
+  const rank = 1 + all.filter(a => a.v > f.click).length, rRank = byRatio.findIndex(a => a.m === m) + 1;
   const iv = interval(m, s, P, f);
   // The funnel rerun for one year of age at a time, across the range the sliders allow
   const byAge = [];
@@ -248,7 +248,8 @@ function update(){
     const sa = {...s, ageMin:a, ageMax:a};
     byAge.push({a, v: pool(m, sa, P, poolCtx(sa, P, D)).click});
   }
-  $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = "#" + rank;
+  $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = f.click ? "#" + rank : "–";
+  $("sRankL").textContent = f.click ? "of 387 metros by number of possibilities" : "no rank: no one here fits these filters";
   $("sPoolL").textContent = `real possibilities in ${m.short}`;
   $("sRange").textContent = iv ? rangeText(iv) : "";
   $("sRatio").textContent = fmt1(f.ratio);

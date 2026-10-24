@@ -414,7 +414,8 @@ function poolCtx(s, P, D){
 // The full funnel for one metro
 function pool(m, s, P, T){
   const r = {total:0, age:0, single:0, look:0, deg:0, open:0, vals:0, diet:0, kids:0, click:0, apps:0, parts:[]}, dg = {}, D = T.D;
-  const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0};
+  // Trait effects averaged over the people they apply to; with no one left after the kids step, over everyone open to you
+  const fx = {age:0, ht:0, edu:0, job:0, kids:0, all:0}, fo = {...fx};
   GK.forEach(g => { const b = base(m, g, s), lk = b.single*T.look[g], d = degFor(m, g, s); dg[g] = {b, lk, d, n: lk*(s.deg ? d/100 : 1)}; });
   // Competitors: everyone open to at least one of the genders you're looking for, counted once.
   // OPEN only gives rates per gender, so openness to each is treated as independent.
@@ -428,10 +429,10 @@ function pool(m, s, P, T){
     const rel = f.age*f.ht*f.edu*f.job*f.kids, her = Math.min(.95, s.her*ATTRACT[t]/D.her/100*rel), ck = kf*(s.his/100)*her;
     r.parts.push({t, ck, v});
     r.vals += v; r.diet += dt; r.kids += kf; r.click += ck; r.apps += ck*Math.min(.9, s.apps*appsRate(t, P)/D.apps/100);
-    Object.keys(f).forEach(k => fx[k] += kf*f[k]); fx.all += kf*rel;
+    Object.keys(f).forEach(k => { fx[k] += kf*f[k]; fo[k] += o*f[k]; }); fx.all += kf*rel; fo.all += o*rel;
     N += n;
   });
-  r.fx = Object.fromEntries(Object.entries(fx).map(([k, x]) => [k, r.kids ? x/r.kids : 1]));
+  r.fx = Object.fromEntries(Object.keys(fx).map(k => [k, r.kids ? fx[k]/r.kids : r.open ? fo[k]/r.open : 1]));
   r.ratio = C ? N/C : 0;
   r.sexWM = dg.w.n/dg.m.n;
   return r;
