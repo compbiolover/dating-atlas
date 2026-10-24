@@ -4,7 +4,7 @@ Dating Atlas estimates how many people in a U.S. metro could realistically be yo
 
 Live page: https://datingatlas.dev/
 
-![Dating Atlas showing 140 possibilities in Memphis, with the funnel from 1.3 million people down to 32 on the apps and a map of every metro](docs/atlas-screenshot.png)
+![Dating Atlas showing 142 possibilities in Memphis, with the funnel from 1.3 million people down to 33 on the apps and a map of every metro](docs/atlas-screenshot.png)
 
 ## Contents
 
@@ -33,7 +33,7 @@ You pick a metro and say who you are and who you're looking for. The page then s
 
 You can filter by politics (one or more of progressive, liberal, moderate, conservative, very conservative and not political, or any), faith (one or more of non-religious, atheist, agnostic, nothing in particular, Christian, Catholic, Protestant, Latter-day Saint, other Christian, Jewish, Muslim, Hindu, Buddhist and Pagan or Wiccan, or any) and diet (vegetarian, vegan, pescatarian, kosher, halal or any). Your age, height, education, work and kids plans change how interested people are likely to be. Two quick picks set the default profile (progressive, liberal or moderate, non-religious) or the opposite one (moderate, conservative or very conservative, Christian).
 
-![The settings panel: who you are and who you're looking for, your age and their ages 25 to 35 as number fields with minus and plus buttons, and the attraction and app rates as percentages](docs/atlas-settings.png)
+![The settings panel: who you are and who you're looking for, your age and their ages 25 to 35 as number fields with minus and plus buttons, politics and faith as pick-one-or-more buttons, and the attraction and app rates as percentages](docs/atlas-settings.png)
 
 On a first visit, a three-step setup asks who you are, who you're looking for and where, then shows the result. The result shows the funnel, the map, the scatter plot and the key numbers in a 2×2 grid, with your search summarized in a bar you can open to edit. The ranked list and the methods open when you ask for them. The page saves your settings in your browser and in its address, so a copied link reopens the same result and skips the setup.
 
