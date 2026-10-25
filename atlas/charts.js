@@ -224,9 +224,11 @@ function compare({m, cmp}){
   for (let e = Math.ceil(Math.log10(lo)); e <= Math.floor(Math.log10(hi)); e++) g += `<line class="tick" x1="${X(10**e)}" x2="${X(10**e)}" y1="${T - 8}" y2="${H - 4}"/><text x="${X(10**e)}" y="${T - 14}" text-anchor="middle">${fmtAx(10**e)}</text>`;
   g += `<circle class="key you" cx="${L + 6}" cy="14" r="5"/><text class="nm" x="${L + 16}" y="18">${m.short}</text>`;
   g += `<circle class="key them" cx="${L + 26 + m.short.length*7.5}" cy="14" r="5"/><text class="nm" x="${L + 36 + m.short.length*7.5}" y="18">${cm.short}</text>`;
+  // SVG text never wraps, so long step names (many faiths picked) get cut to fit at ~6.5px a character
+  const fit = Math.floor((nw ? W - L - 4 : L - 16)/6.5), cut = t => t.length > fit ? t.slice(0, fit - 1).trimEnd() + "…" : t;
   rows.forEach((r, i) => {
     const y = T + i*RH + (nw ? 28 : RH/2), xa = X(r.a), xb = X(r.b), k = r.a ? r.b/r.a : 0;
-    g += `<text class="nm" x="${nw ? L : L - 12}" y="${nw ? y - 11 : y + 4}" text-anchor="${nw ? "start" : "end"}">${r.t}</text>` +
+    g += `<text class="nm" x="${nw ? L : L - 12}" y="${nw ? y - 11 : y + 4}" text-anchor="${nw ? "start" : "end"}">${cut(r.t)}<title>${r.t}</title></text>` +
       `<line class="stem" x1="${Math.min(xa, xb)}" x2="${Math.max(xa, xb)}" y1="${y}" y2="${y}"/>` +
       `<g class="them"><circle cx="${xb}" cy="${y}" r="5"><title>${cm.short}: ${fmt(r.b)}</title></circle></g><g class="you"><circle cx="${xa}" cy="${y}" r="5"><title>${m.short}: ${fmt(r.a)}</title></circle></g>` +
       `<text class="v" x="${W - 4}" y="${y + 4}" text-anchor="end">${k ? "×" + (k >= 10 ? Math.round(k) : k.toFixed(1)) : ""}</text>`;
