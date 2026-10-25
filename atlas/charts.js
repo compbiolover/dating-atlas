@@ -217,7 +217,7 @@ function ages({byAge, s, m, age}){
 
 // Dumbbells per funnel step: your metro in orange, the comparison in blue, on one log axis
 function compare({m, cmp}){
-  const {cm, rows} = cmp, W = $("cmpChart").clientWidth || 520, nw = W < 440, L = nw ? 12 : 215, R = 52, T = 44, RH = nw ? 44 : 30, LH = 15;
+  const {cm, rows} = cmp, W = $("cmpChart").clientWidth || 520, nw = W < 440, L = nw ? 12 : 215, R = 52, T = 58, RH = nw ? 44 : 30, LH = 15;
   // SVG text never wraps, so long step names (many faiths picked) break into up to 3 lines at ~6.5px a character,
   // and are cut only past that; the full name is in the tooltip and the aria label
   const fit = Math.floor((nw ? W - L - 4 : L - 16)/6.5), cut = t => t.length > fit ? t.slice(0, fit - 1).trimEnd() + "…" : t;
@@ -228,8 +228,8 @@ function compare({m, cmp}){
   const X = v => L + (Math.log(Math.max(v, lo)) - Math.log(lo))/(Math.log(hi) - Math.log(lo))*(W - L - R);
   let g = `<line class="top" x1="0" x2="${W}" y1="1" y2="1"/>`;
   for (let e = Math.ceil(Math.log10(lo)); e <= Math.floor(Math.log10(hi)); e++) g += `<line class="tick" x1="${X(10**e)}" x2="${X(10**e)}" y1="${T - 8}" y2="${H - 4}"/><text x="${X(10**e)}" y="${T - 14}" text-anchor="middle">${fmtAx(10**e)}</text>`;
-  g += `<circle class="key you" cx="${L + 6}" cy="14" r="5"/><text class="nm" x="${L + 16}" y="18">${m.short}</text>`;
-  g += `<circle class="key them" cx="${L + 26 + m.short.length*7.5}" cy="14" r="5"/><text class="nm" x="${L + 36 + m.short.length*7.5}" y="18">${cm.short}</text>`;
+  g += `<circle class="key you" cx="${L + 6}" cy="16" r="5"/><text class="nm" x="${L + 16}" y="20">${m.short}</text>`;
+  g += `<circle class="key them" cx="${L + 40 + m.short.length*7.5}" cy="16" r="5"/><text class="nm" x="${L + 50 + m.short.length*7.5}" y="20">${cm.short}</text>`;
   rows.forEach((r, i) => {
     const n = lines[i].length - 1, y = tops[i] + (nw ? 28 + n*LH : RH/2 + n*LH/2), xa = X(r.a), xb = X(r.b), k = r.a ? r.b/r.a : 0, ly = nw ? y - 11 - n*LH : y + 4 - n*LH/2;
     g += `<text class="nm" text-anchor="${nw ? "start" : "end"}">${lines[i].map((t, j) => `<tspan x="${nw ? L : L - 12}" y="${ly + j*LH}">${t}</tspan>`).join("")}<title>${r.full}</title></text>` +
