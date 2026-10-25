@@ -49,6 +49,8 @@ p{margin:0}
 .qsec .qx{color:var(--accent);font-size:14px;font-weight:600;text-decoration:underline}
 .qsec .qx::after{content:"Show the charts"}
 .qsec[open] .qx::after{content:"Hide the charts"}
+#qRank .qx::after{content:"Show the list"}
+#qRank[open] .qx::after{content:"Hide the list"}
 .qsec .qbody{margin-top:20px}
 #cmpSel option{color:var(--ink)}
 .refinebox{padding:0;display:block}
@@ -174,8 +176,6 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .map text.lbl{fill:var(--ink);font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;line-height:1.35;box-shadow:0 2px 10px rgb(0 0 0 / .12);white-space:nowrap;transform:translate(-50%,calc(-100% - 10px))}
 .tip b{font-weight:600}
-.ranked > summary{cursor:pointer;color:var(--accent);font-size:15px;font-weight:600}
-.ranked[open] > summary{margin-bottom:4px}
 .ranked .body{display:grid;gap:12px}
 .plot{overflow-x:auto}
 #plotCard .seg,#rentCard .seg{margin-bottom:8px}

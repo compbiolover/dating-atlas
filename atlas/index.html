@@ -203,9 +203,10 @@
       </div>
     </details>
 
-    <section class="more" id="more">
-        <details class="card ranked" id="ranked">
-          <summary>See every metro as a ranked list</summary>
+    <details class="qsec" id="qRank">
+      <summary><span class="qq">How do all the metros stack up?</span><span class="qa" id="qRankA"></span><span class="qx" aria-hidden="true"></span></summary>
+      <div class="qbody">
+        <div class="card ranked" id="ranked">
           <div class="body">
             <div class="tools">
               <label for="scope">Show</label>
@@ -217,7 +218,11 @@
             <div class="lhead" aria-hidden="true"><span>#</span><span>Metro</span><span class="cbh"></span><span>Pool</span><span id="ratioH" class="rh">Odds</span><span class="hh">Rent</span><span class="xh">vs you</span></div>
             <div class="list" id="list"></div>
           </div>
-        </details>
+        </div>
+      </div>
+    </details>
+
+    <section class="more" id="more">
     <details class="card notes" id="notes">
       <summary><h2>How the estimates work</h2></summary>
       <p>Population comes from the Census Bureau's 2025 estimates for all 387 metropolitan statistical areas (2023 definitions), taken from <a href="https://en.wikipedia.org/wiki/Metropolitan_statistical_area">Wikipedia's metro list</a>. Counties are mapped to metros with the 2017 delineations (<a href="https://github.com/cbgoodman/msacrosswalk">msacrosswalk</a>), and a few metros created since then were mapped by hand.</p>

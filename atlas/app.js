@@ -328,14 +328,18 @@ function update(){
   $("ranked").classList.toggle("byrent", sort === "rent");
   const rcol = sort === "sex" ? "sex" : "ratio";
   $("ratioH").textContent = sort === "sex" ? (sv.inv ? "M per W" : "W per M") : "Odds";
+  const rk = byPool.findIndex(a => a.m === m) + 1;
+  $("qRankA").textContent = rk === 1 ? `${m.short} has the most possibilities of all ${all.length} metros.`
+    : `${m.short} ranks #${rk} of ${all.length} metros for possibilities. ${byPool[0].m.short} has the most.`;
   $("listNote").textContent = sort === "pool"
-    ? `Ranked by estimated possibilities, using your settings for age and chemistry. Each metro uses its own population, degree share and values estimate. Odds is how many ${who} there are for every person looking for them, and the last column shows how many times bigger each pool is than yours. Tap or click a row to switch to that metro.`
+    ? `Ranked by possibilities with your settings. Odds is how many ${who} there are for each person looking for them; the last column is each pool against yours.`
     : sort === "ratio"
-    ? `Ranked by least competition: how many ${edu} ${who} in your age range there are for every ${edu} person of any gender open to dating them. Higher is better for you. Tap or click a row to switch.`
+    ? `Ranked by least competition: how many ${edu} ${who} in your age range there are for every ${edu} person of any gender open to dating them. Higher is better for you.`
     : sort === "rent"
-    ? `Ranked by housing cost, cheapest first: a recent mover's 1-bedroom rent as a share of the typical ${pay} in that metro. Above 30% is cost-burdened by HUD's standard. Tap or click a row to switch.`
-    : `Ranked by gender balance: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."} Tap or click a row to switch.`;
-  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : f.click ? `, ${times(a.v)} times yours` : ""}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.name}</span><span class="cb"><i style="width:${Math.max(.5, maxK ? a[key]/maxK*100 : 0)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : f.click ? times(a.v) + "×" : "–"}</span></button>`).join("");
+    ? `Ranked by housing cost, cheapest first: a recent mover's 1-bedroom rent as a share of the typical ${pay} in that metro. Above 30% is cost-burdened by HUD's standard.`
+    : `Ranked by gender balance: ${edu} ${sv.label} in your age range. ${nACS ? "" : "Without ACS data this only varies with the local degree gap, so treat it as a placeholder."}`;
+  $("listNote").textContent += " Tap a row to switch to that metro.";
+  $("list").innerHTML = shown.map(a => `<button type="button" class="crow${a.m === m ? " on" : ""}" data-i="${a.m.i}" aria-label="#${a.rk} ${a.m.name}: pool ${fmt(a.v)}, ${rcol === "sex" ? sv.label : `${who} per person looking for them`} ${fmt2(a[rcol])}${a.rent === a.rent ? `, rent ${a.rent}% of pay` : ""}${a.m === m ? ", selected" : f.click ? `, ${times(a.v)} times yours` : ""}"><span class="rk">${a.rk}</span><span class="nm" title="${a.m.name}">${a.m.short}, ${a.m.name.slice(a.m.name.lastIndexOf(", ") + 2, a.m.name.lastIndexOf(", ") + 4)}</span><span class="cb"><i style="width:${Math.max(.5, maxK ? a[key]/maxK*100 : 0)}%"></i></span><span class="v">${fmt(a.v)}</span><span class="r">${fmt2(a[rcol])}</span><span class="h${a.rent > BURDEN ? " hi" : ""}">${a.rent === a.rent ? a.rent + "%" : "–"}</span><span class="x">${a.m === m ? "you" : f.click ? times(a.v) + "×" : "–"}</span></button>`).join("");
   const onRow = $("list").querySelector(".crow.on"), lst = $("list");
   if (onRow && shownCur !== m){ lst.scrollTop = Math.max(0, onRow.offsetTop - lst.offsetTop - lst.clientHeight/2); shownCur = m; }
 
@@ -350,6 +354,7 @@ function update(){
 new ResizeObserver(() => drawFunnel()).observe($("funnel"));
 // A closed section draws nothing; opening it draws its charts at their real width
 document.querySelectorAll(".qsec").forEach(d => d.addEventListener("toggle", drawCharts));
+$("qRank").addEventListener("toggle", () => { shownCur = null; update(); });  // the list can only scroll to your metro once it's open
 new ResizeObserver(() => { const k = `${mapNarrow()}${plotNarrow()}`; if (k !== sizeKey){ sizeKey = k; drawCharts(); } }).observe($("viz"));
 $("map").addEventListener("pointermove", e => {
   const h = mapHit(e), tip = $("mapTip"); if (!tip) return;
