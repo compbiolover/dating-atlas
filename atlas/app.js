@@ -96,7 +96,7 @@ $("status").classList.toggle("live", !!nACS);
 // Quick picks: the selected metro, then the closest metros to it by map position, rebuilt when the metro changes
 let quickFor = null;
 // Chip names: the short name, with its state when another metro shares it (Jackson, MS and Jackson, TN)
-const SHORTN = new Map(M.map(x => { const n = x.short.replace("-Davidson", ""), dup = M.some(y => y !== x && y.short === x.short);
+const SHORTN = new Map(M.map(x => { const n = x.short, dup = M.some(y => y !== x && y.short === x.short);
   return [x, dup ? `${n}, ${x.name.slice(x.name.lastIndexOf(", ") + 2).split("-")[0]}` : n]; }));
 function quickPicks(m){
   if (quickFor === m) return; quickFor = m;
