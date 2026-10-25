@@ -44,6 +44,11 @@ const SECULAR = ["secular","atheist","agnostic","nothing"];  // Any non-religiou
 // A faith's PRRI share in %. Other Christian (Orthodox, Jehovah's Witness and others) is what Christian leaves after the named groups.
 const faithPct = (F, f) => f === "otherchr" ? Math.max(0, F[0] - F[1] - F[2] - F[3]) : F[FAITH_COL[f]];
 const PAGAN = .003, OTHER_AVG = 1.44;  // Pew 2014: 0.3% Pagan or Wiccan, scaled by the metro's PRRI "other religion" share over the atlas average
+// Climate describes where you'd live, not who's there, so it picks which metros to show, not the pool. A metro's
+// [January, July] average °F (CLIMATE) is NOAA's 1991-2020 county normals, weighted by population.
+const CLIMATES = {any:"Any climate", warm:"Warm winters", mild:"Four seasons", cold:"Cold, snowy winters"};
+const WARM_JAN = 50, COLD_JAN = 30;
+const climateOf = m => !m.clim ? null : m.clim[0] >= WARM_JAN ? "warm" : m.clim[0] <= COLD_JAN ? "cold" : "mild";
 const DIETS = {any:"Any diet", veg:"Vegetarian", vegan:"Vegan", pesc:"Pescatarian", kosher:"Keeps kosher", halal:"Eats halal"};
 // Gallup 2023: 4% vegetarian (6% of women, 2% of men) and 1% vegan; NHANES 2023 analysis: 4.7% pescatarian, 59.5% of them women.
 // The pescatarian option also counts vegetarians, since they don't eat meat either; only the vegetarian part shifts with politics.
@@ -163,7 +168,7 @@ const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
     deg[g] = Math.min(85, acs ? (g === "n" ? (acs.dw[1] + acs.dm[1])/2*DEG_MULT.n*2/(DEG_MULT.w + DEG_MULT.m) : acs["d"+g][1]) : bach*DEG_MULT[g]);
   });
   const house = HOUSE[name] || null;
-  return {i, name, short:name.split(",")[0].split("–")[0], pop, bach, dem, demNote, adh, none, acs, deg, house, faith:FAITH[name] || null};
+  return {i, name, short:name.split(",")[0].split("–")[0], pop, bach, dem, demNote, adh, none, acs, deg, house, faith:FAITH[name] || null, clim:CLIMATE[name] || null};
 });
 // The modeled constants of the values step at their best guesses; the uncertainty simulation passes draws instead
 const VQ = {pol:1, sec:.40, fr:1, psi:1, ds:1};
