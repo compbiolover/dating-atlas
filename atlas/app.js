@@ -284,16 +284,16 @@ function update(){
     ["Unattached and looking to date", (x, r) => r.look, 1, true],
     ["Bachelor's or higher", (x, r) => r.deg, 1, s.deg],
     [openTo, (x, r) => r.open, 2, true],
-    [valuesLabel(P, 2), (x, r) => r.vals, 2, !!valuesLabel(P)],
+    [valuesStep(P), (x, r) => r.vals, 2, !!valuesLabel(P)],
     [DIETS[P.diet], (x, r) => r.diet, 2, P.diet !== "any"],
     ["Compatible on kids", (x, r) => r.kids, 2, Math.abs(f.kids - f.diet) > .5],
     ["Mutual attraction", (x, r) => r.click, 3, true],
     ["On the apps now", (x, r) => r.apps, 3, true]]
-    .map(([t, get, ph, show, note]) => ({t, full: t === valuesLabel(P, 2) ? valuesLabel(P) : t, get, ph, show, v: get(m, f), note}));
+    .map(([t, get, ph, show, note]) => ({t, full: t === valuesStep(P) ? `${t}: ${valuesLabel(P)}` : t, get, ph, show, v: get(m, f), note}));
   allSteps.forEach((r, i) => { if (r.note == null) r.note = pc(r.v, allSteps[i - 1].v); });
   const rows = allSteps.filter(r => r.show);
   // Each funnel step: [label, count, cut note, phase]
-  const steps = rows.map(r => [r.t, r.v, r.note, r.ph]);
+  const steps = rows.map(r => [r.t, r.v, r.note, r.ph, r.full]);
   $("funnelTitle").textContent = `The funnel in ${m.short}`;
   $("funnelSub").textContent = `How ${fmt(m.pop)} people narrow to ${fmt(f.click)} possibilities.`;
   // Widths on a log scale from 1 person to the whole metro, so every stage stays visible
@@ -304,7 +304,7 @@ function update(){
   $("funnel").innerHTML = steps.map((st, i) => {
     const last = i === steps.length - 1 ? " last" : "";
     const tag = i === 0 || st[3] !== steps[i-1][3] ? `<div class="ptag">${PHASES[st[3]].name}</div>` : "";
-    return `${tag}<div class="lab${last}"><span>${st[0]}</span><span class="cut">${st[2] && st[2][0] === "×" ? "keeps " + st[2].slice(1) : st[2]}</span></div>` +
+    return `${tag}<div class="lab${last}"><span${st[4] !== st[0] ? ` title="${st[4]}"` : ""}>${st[0]}</span><span class="cut">${st[2] && st[2][0] === "×" ? "keeps " + st[2].slice(1) : st[2]}</span></div>` +
       `<div class="fseg" aria-hidden="true"></div><div class="c${last}">${fmt(st[1])}</div>`;
   }).join("");
   drawFunnel();
