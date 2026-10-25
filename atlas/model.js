@@ -245,11 +245,13 @@ function dietFit(m, g, P){
 // "Progressive or liberal and Jewish or non-religious": politics and non-religious words are lower-cased after the
 // first word; faith names (Christian, Jewish) keep their capitals
 const lowerIf = (t, low) => low ? t.toLowerCase() : t;
-const orList = a => a.length < 3 ? a.join(" or ") : a.slice(0, -1).join(", ") + " or " + a[a.length - 1];  // "a, b or c"
-const polLabel = P => orList(polList(P).map((k, i) => lowerIf(POLS[k], i > 0)));
-const faithLabel = (P, lower) => orList(faithList(P).map((f, i) => lowerIf(FAITHS[f], (lower || i > 0) && SECULAR.includes(f))));
-const valuesLabel = P => P.pol === "any" && P.faith === "any" ? "" : P.pol === "any" ? faithLabel(P) : P.faith === "any" ? polLabel(P)
-  : `${polLabel(P)} and ${faithLabel(P, true)}`;
+// "a, b or c"; past max items, "a, b or 2 more" so chart labels stay short
+const orList = (a, max = Infinity) => (a = a.length > max + 1 ? [...a.slice(0, max), `${a.length - max} more`] : a,
+  a.length < 3 ? a.join(" or ") : a.slice(0, -1).join(", ") + " or " + a[a.length - 1]);
+const polLabel = (P, max) => orList(polList(P).map((k, i) => lowerIf(POLS[k], i > 0)), max);
+const faithLabel = (P, lower, max) => orList(faithList(P).map((f, i) => lowerIf(FAITHS[f], (lower || i > 0) && SECULAR.includes(f))), max);
+const valuesLabel = (P, max) => P.pol === "any" && P.faith === "any" ? "" : P.pol === "any" ? faithLabel(P, false, max) : P.faith === "any" ? polLabel(P, max)
+  : `${polLabel(P, max)} and ${faithLabel(P, true, max)}`;
 // A recent mover's 1-bedroom rent as a share of median pay for your education level, in percent
 const rentShare = (m, P) => m.house ? Math.round(m.house[0]*12/m.house[P.edu === "ba" ? 1 : 2]*100) : NaN;
 const BURDEN = 30; // HUD counts renters paying more than 30% of income as cost-burdened

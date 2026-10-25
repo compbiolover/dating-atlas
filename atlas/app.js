@@ -284,12 +284,12 @@ function update(){
     ["Unattached and looking to date", (x, r) => r.look, 1, true],
     ["Bachelor's or higher", (x, r) => r.deg, 1, s.deg],
     [openTo, (x, r) => r.open, 2, true],
-    [valuesLabel(P), (x, r) => r.vals, 2, !!valuesLabel(P)],
+    [valuesLabel(P, 2), (x, r) => r.vals, 2, !!valuesLabel(P)],
     [DIETS[P.diet], (x, r) => r.diet, 2, P.diet !== "any"],
     ["Compatible on kids", (x, r) => r.kids, 2, Math.abs(f.kids - f.diet) > .5],
     ["Mutual attraction", (x, r) => r.click, 3, true],
     ["On the apps now", (x, r) => r.apps, 3, true]]
-    .map(([t, get, ph, show, note]) => ({t, get, ph, show, v: get(m, f), note}));
+    .map(([t, get, ph, show, note]) => ({t, full: t === valuesLabel(P, 2) ? valuesLabel(P) : t, get, ph, show, v: get(m, f), note}));
   allSteps.forEach((r, i) => { if (r.note == null) r.note = pc(r.v, allSteps[i - 1].v); });
   const rows = allSteps.filter(r => r.show);
   // Each funnel step: [label, count, cut note, phase]
@@ -341,7 +341,7 @@ function update(){
 
   const cm = $("cmpSel").value !== "" ? M[+$("cmpSel").value] : (peer || byCand.find(a => a.m !== m) || byPool.find(a => a.m !== m)).m;
   const cf = cm === m ? f : pool(cm, s, P, T);
-  const cmp = {cm, rows: rows.map(r => ({t: r.t, a: r.v, b: r.get(cm, cf)}))};
+  const cmp = {cm, rows: rows.map(r => ({t: r.t, full: r.full, a: r.v, b: r.get(cm, cf)}))};
   LAST = {m, all: cand, who, s, P, iv, est: f.click, byAge, age: P.age, cmp};
   drawCharts();
   writeHash(s, P);
