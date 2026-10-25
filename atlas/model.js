@@ -168,7 +168,8 @@ const M = RAW.map(([name,pop,bach,black,dem,demNote],i) => {
     deg[g] = Math.min(85, acs ? (g === "n" ? (acs.dw[1] + acs.dm[1])/2*DEG_MULT.n*2/(DEG_MULT.w + DEG_MULT.m) : acs["d"+g][1]) : bach*DEG_MULT[g]);
   });
   const house = HOUSE[name] || null;
-  return {i, name, short:name.split(",")[0].split("–")[0], pop, bach, dem, demNote, adh, none, acs, deg, house, faith:FAITH[name] || null, clim:CLIMATE[name] || null};
+  // Consolidated city-counties drop the county: "Nashville-Davidson" → Nashville, "Louisville/Jefferson County" → Louisville
+  return {i, name, short:name.split(",")[0].split("–")[0].replace(/[-\/](\w+ )?(County|Fayette|Davidson)$/, ""), pop, bach, dem, demNote, adh, none, acs, deg, house, faith:FAITH[name] || null, clim:CLIMATE[name] || null};
 });
 // The modeled constants of the values step at their best guesses; the uncertainty simulation passes draws instead
 const VQ = {pol:1, sec:.40, fr:1, psi:1, ds:1};

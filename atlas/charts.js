@@ -129,8 +129,13 @@ function scatter(id, {nw, W, H, L, R, T, B, k}, m, pts, g, xT, yT, aria){
   if (!nw) g += `<text transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${yT}</text>`;
   const others = pts.filter(p => p.m !== m), me = pts.find(p => p.m === m);
   g += others.map(p => `<circle class="${BIG.has(p.m) ? "big" : ""}" data-i="${p.m.i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${(BIG.has(p.m) ? 4.5 : 3)*k}"><title>${p.m.name}: ${p.tip}</title></circle>`).join("");
-  if (me){ const right = me.x > W - (nw ? 90 : 140);
-    g += `<circle class="on" cx="${me.x}" cy="${me.y}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${right ? me.x-11 : me.x+11}" y="${me.y+4}" text-anchor="${right ? "end" : "start"}">${m.short}</text>`; }
+  if (me){
+    // Label on the side (right, left, above, below) that stays in the frame and covers the fewest dots, ~6.5 units a letter
+    const w = m.short.length*6.5, sides = [[me.x + 11, me.y - 8, "start"], [me.x - 11 - w, me.y - 8, "end"], [me.x - w/2, me.y - 26, "middle"], [me.x - w/2, me.y + 10, "middle"]]
+      .filter(([x, y]) => x >= L && x + w <= W - R && y >= T && y + 16 <= H - B)
+      .map(([x, y, a]) => [others.filter(p => p.x > x - 5 && p.x < x + w + 5 && p.y > y - 5 && p.y < y + 21).length, x, y, a]);
+    const [, x, y, a] = sides.reduce((b, c) => c[0] < b[0] ? c : b, sides[0] || [0, me.x + 11, me.y - 8, "start"]);
+    g += `<circle class="on" cx="${me.x}" cy="${me.y}" r="7"><title>${m.name}</title></circle><text class="lbl" x="${a === "start" ? x : a === "end" ? x + w : x + w/2}" y="${y + 12}" text-anchor="${a}">${m.short}</text>`; }
   $(id).innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}">${g}</svg>`;
   return others.map(p => [p.m, p.x, p.y]);
 }
