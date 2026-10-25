@@ -185,7 +185,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .plot circle{fill:var(--dot);fill-opacity:.55;cursor:pointer}
 .plot circle.big{fill:var(--accent);fill-opacity:.8}
 .plot circle.on{fill:var(--hot);fill-opacity:1;stroke:var(--surface);stroke-width:2}
-.plot text.lbl{fill:var(--ink);font-weight:600;font-size:12px}
+.plot text.lbl{fill:var(--ink);font-weight:600;font-size:12px;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 .drv svg{display:block;width:100%;height:auto}
 .drv text{fill:var(--muted);font-family:var(--body);font-size:12px}
 .drv text.nm{fill:var(--ink);font-size:13px}
