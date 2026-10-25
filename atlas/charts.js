@@ -217,23 +217,27 @@ function ages({byAge, s, m, age}){
 
 // Dumbbells per funnel step: your metro in orange, the comparison in blue, on one log axis
 function compare({m, cmp}){
-  const {cm, rows} = cmp, W = $("cmpChart").clientWidth || 520, nw = W < 440, L = nw ? 12 : 215, R = 52, T = 44, RH = nw ? 44 : 30, H = T + rows.length*RH + 6;
+  const {cm, rows} = cmp, W = $("cmpChart").clientWidth || 520, nw = W < 440, L = nw ? 12 : 215, R = 52, T = 44, RH = nw ? 44 : 30, LH = 15;
+  // SVG text never wraps, so long step names (many faiths picked) break into up to 3 lines at ~6.5px a character,
+  // and are cut only past that; the full name is in the tooltip and the aria label
+  const fit = Math.floor((nw ? W - L - 4 : L - 16)/6.5), cut = t => t.length > fit ? t.slice(0, fit - 1).trimEnd() + "…" : t;
+  const wrap = (t, n = 3) => { if (t.length <= fit || n === 1) return [cut(t)]; const b = t.lastIndexOf(" ", fit); return b > 0 ? [t.slice(0, b), ...wrap(t.slice(b + 1), n - 1)] : [cut(t)]; };
+  const lines = rows.map(r => wrap(r.t)), tops = lines.map((l, i) => T + lines.slice(0, i).reduce((a, x) => a + RH + (x.length - 1)*LH, 0));
+  const H = T + lines.reduce((a, x) => a + RH + (x.length - 1)*LH, 0) + 6;
   const vals = rows.flatMap(r => [r.a, r.b]).filter(v => v > 0), lo = Math.min(...vals)/1.5, hi = Math.max(...vals)*1.3;
   const X = v => L + (Math.log(Math.max(v, lo)) - Math.log(lo))/(Math.log(hi) - Math.log(lo))*(W - L - R);
   let g = `<line class="top" x1="0" x2="${W}" y1="1" y2="1"/>`;
   for (let e = Math.ceil(Math.log10(lo)); e <= Math.floor(Math.log10(hi)); e++) g += `<line class="tick" x1="${X(10**e)}" x2="${X(10**e)}" y1="${T - 8}" y2="${H - 4}"/><text x="${X(10**e)}" y="${T - 14}" text-anchor="middle">${fmtAx(10**e)}</text>`;
   g += `<circle class="key you" cx="${L + 6}" cy="14" r="5"/><text class="nm" x="${L + 16}" y="18">${m.short}</text>`;
   g += `<circle class="key them" cx="${L + 26 + m.short.length*7.5}" cy="14" r="5"/><text class="nm" x="${L + 36 + m.short.length*7.5}" y="18">${cm.short}</text>`;
-  // SVG text never wraps, so long step names (many faiths picked) get cut to fit at ~6.5px a character
-  const fit = Math.floor((nw ? W - L - 4 : L - 16)/6.5), cut = t => t.length > fit ? t.slice(0, fit - 1).trimEnd() + "…" : t;
   rows.forEach((r, i) => {
-    const y = T + i*RH + (nw ? 28 : RH/2), xa = X(r.a), xb = X(r.b), k = r.a ? r.b/r.a : 0;
-    g += `<text class="nm" x="${nw ? L : L - 12}" y="${nw ? y - 11 : y + 4}" text-anchor="${nw ? "start" : "end"}">${cut(r.t)}<title>${r.t}</title></text>` +
+    const n = lines[i].length - 1, y = tops[i] + (nw ? 28 + n*LH : RH/2 + n*LH/2), xa = X(r.a), xb = X(r.b), k = r.a ? r.b/r.a : 0, ly = nw ? y - 11 - n*LH : y + 4 - n*LH/2;
+    g += `<text class="nm" text-anchor="${nw ? "start" : "end"}">${lines[i].map((t, j) => `<tspan x="${nw ? L : L - 12}" y="${ly + j*LH}">${t}</tspan>`).join("")}<title>${r.full}</title></text>` +
       `<line class="stem" x1="${Math.min(xa, xb)}" x2="${Math.max(xa, xb)}" y1="${y}" y2="${y}"/>` +
       `<g class="them"><circle cx="${xb}" cy="${y}" r="5"><title>${cm.short}: ${fmt(r.b)}</title></circle></g><g class="you"><circle cx="${xa}" cy="${y}" r="5"><title>${m.short}: ${fmt(r.a)}</title></circle></g>` +
       `<text class="v" x="${W - 4}" y="${y + 4}" text-anchor="end">${k ? "×" + (k >= 10 ? Math.round(k) : k.toFixed(1)) : ""}</text>`;
   });
-  $("cmpChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Funnel steps in ${m.short} and ${cm.short}. ${rows.map(r => `${r.t}: ${fmt(r.a)} versus ${fmt(r.b)}`).join(". ")}.">${g}</svg>`;
+  $("cmpChart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Funnel steps in ${m.short} and ${cm.short}. ${rows.map(r => `${r.full}: ${fmt(r.a)} versus ${fmt(r.b)}`).join(". ")}.">${g}</svg>`;
   // Where the gap opens or closes: each step's keep rate in one metro against the other
   const steps = rows.slice(1).map((r, i) => ({t: r.t, ka: rows[i].a ? r.a/rows[i].a : 0, kb: rows[i].b ? r.b/rows[i].b : 0})).filter(x => x.ka || x.kb).map(x => ({...x, d: x.ka ? x.kb/x.ka : Infinity}));
   const best = steps.reduce((p, x) => x.d > p.d ? x : p, steps[0]), worst = steps.reduce((p, x) => x.d < p.d ? x : p, steps[0]), last = rows[rows.length - 2];
