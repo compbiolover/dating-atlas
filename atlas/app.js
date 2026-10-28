@@ -26,7 +26,7 @@ function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
   const kids = document.querySelector('input[name="kids"]:checked').value, goal = document.querySelector('input[name="goal"]:checked').value;
-  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, goal, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value, climate:$("climate").value};
+  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, when:kids === "want" ? $("yWhen").value : "any", goal, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value, climate:$("climate").value};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -72,6 +72,7 @@ function applySettings(get){
   one("edu", inList(["ba","no"]), v => $("yEdu").value = v);
   one("job", inList(["job","less","none"]), v => $("yJob").value = v);
   one("kids", inList(["any","want","dont","have"]), v => $("kids-" + v).checked = true);
+  one("when", inList(WHENS), v => $("yWhen").value = v);
   one("goal", inList(Object.keys(GOALS)), v => $("goal-" + v).checked = true);
   one("openP", bool, v => $("openP").checked = v === "1");
   one("deg", bool, v => $("degOnly").checked = v === "1");
@@ -132,7 +133,7 @@ $("metro").addEventListener("change", e => { const q = e.target.value.trim().toL
 let hashT = 0;
 function writeHash(s, P){
   clearTimeout(hashT);
-  hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids, goal:P.goal,
+  hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids, when:P.when, goal:P.goal,
     openP:+P.openP, deg:+P.degOnly, pol:P.pol, faith:P.faith, diet:P.diet, climate:P.climate, ageMin:s.ageMin, ageMax:s.ageMax, his:s.his, her:s.her, apps:s.apps, y:document.querySelector('input[name="yfit"]:checked').value, ry:document.querySelector('input[name="ry"]:checked').value});
     try { history.replaceState(null, "", "#" + q); } catch(e){} }, 250);
 }
@@ -202,7 +203,7 @@ $("yAge").addEventListener("input", () => {
   $("ageMin").value = clamp($("ageMin"), a + rangeOff[0]); $("ageMax").value = clamp($("ageMax"), a + rangeOff[1]);
 });
 ["ageMin","ageMax"].forEach(k => $(k).addEventListener("input", () => rangeOff = null));
-["yAge","yHt","yEdu","yJob","openP","degOnly","diet","climate"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
+["yAge","yHt","yEdu","yJob","yWhen","openP","degOnly","diet","climate"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 ["yfit","ry"].forEach(n => document.querySelectorAll(`input[name="${n}"]`).forEach(el => el.addEventListener("change", () => { store.set("atlas." + n, el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); })));
 document.querySelectorAll('input[name="kids"], input[name="goal"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
@@ -211,6 +212,8 @@ document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListe
 function update(){
   const s = S(), m = cur, P = profile(), who = nounFor(P.seek), sv = sexView(P);
   quickPicks(m);
+  // A timeline only applies when you want kids; clear it otherwise so it isn't saved or turned back on later
+  $("yWhen").disabled = P.kids !== "want"; if (P.kids !== "want") $("yWhen").value = "any";
 
   const b = blends(m, s, P);
   const sg = P.seek.reduce((t, g) => { const x = base(m, g, s); return [t[0] + x.single, t[1] + x.age]; }, [0, 0]);

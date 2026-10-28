@@ -60,6 +60,10 @@ const PINNED = [["m=New York–Newark–Jersey City, NY-NJ&seek=wmn&pol=prog,lib
   // A relationship goal narrows the looking step: serious drops casual-only daters, casual drops committed-only
   ["m=Memphis, TN-MS-AR&goal=serious", "125"],
   ["m=Memphis, TN-MS-AR&goal=casual", "93"],
+  // A kids timeline narrows the kids step only when you want kids: the last two must read the same
+  ["m=Memphis, TN-MS-AR&kids=want&when=soon", "103"],
+  ["m=Memphis, TN-MS-AR&kids=dont", "95"],
+  ["m=Memphis, TN-MS-AR&kids=dont&when=soon", "95"],
   // Across 40 and 65, each year of the goal share counts by how many are looking at that age
   ["m=Memphis, TN-MS-AR&you=w&seek=m&age=60&ageMin=35&ageMax=80&goal=casual", "61"],
   // Bad values in a link are ignored, and a number written another way still counts

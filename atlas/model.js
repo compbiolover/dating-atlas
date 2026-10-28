@@ -157,11 +157,21 @@ function wantSplit(g, age){
   const r = (1 - UNLIKELY_U50)/(w[0] + w[1]);
   return [w[0]*r, w[1]*r, UNLIKELY_U50];
 }
+// When childless singles who intend kids expect their first: [within 2 years, 2-5, more than 5], ages 18-24, 25-29,
+// 30-34 and 35-49 (NSFG 2022-23, structure/nsfg_timing.py); 50 and up use 35-49. Wanting them soon drops the 5+ group,
+// wanting them later drops the within-2 group, and 2-5 years fits either.
+const KID_WHEN = {w:[[.026,.258,.716],[.177,.521,.302],[.154,.687,.159],[.352,.548,.100]], m:[[.006,.210,.784],[.041,.599,.360],[.126,.596,.278],[.186,.662,.152]]};
+const WHENS = ["any", "soon", "later"];  // the menu's labels are in index.html
+function whenFit(t, y, P){
+  if (P.kids !== "want" || P.when === "any") return 1;
+  const band = y < 25 ? 0 : y < 30 ? 1 : y < 35 ? 2 : 3, k = P.when === "soon" ? 2 : 0;
+  return 1 - (t === "n" ? (KID_WHEN.w[band][k] + KID_WHEN.m[band][k])/2 : KID_WHEN[t][band][k]);
+}
 // Share of childless singles of gender t in your age range whose plans fit yours
 function kidsWant(t, P, s){
   let fit = 0;
   for (let y = s.ageMin; y <= s.ageMax; y++){ const [yes, u, no] = wantSplit(t, y);
-    fit += P.kids === "want" ? yes + u : P.kids === "dont" ? no + u : 1; }
+    fit += P.kids === "want" ? yes*whenFit(t, y, P) + u : P.kids === "dont" ? no + u : 1; }
   return fit/(s.ageMax - s.ageMin + 1);
 }
 // Share of single people of gender t in metro m whose kids situation fits yours
@@ -283,7 +293,7 @@ const ZS = (() => { let a = 20251002; const rnd = () => { a |= 0; a = a + 0x6D2B
   return z; })();
 const LN = (sd, z) => Math.exp(sd*z - sd*sd/2);       // mean-one lognormal scale
 const NR = (sd, z) => Math.max(.05, 1 + sd*z);        // mean-one normal scale, kept positive
-const UNC = {goal:.15, cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
+const UNC = {goal:.15, when:.25, cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
   diet:{veg:.15, vegan:.3, pesc:.08, kosher:.05, halal:.05}};
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
@@ -315,6 +325,10 @@ function interval(m, s, P, f){
   // The relationship goal removes a share r of daters; a draw scales r, not what's kept
   const cut = (r, sd, zz) => r > 0 ? Math.max(0, 1 - r*LN(sd, zz))/(1 - r) : 1;
   const gr = parts.map(({t}) => 1 - goalFit(t, P, s));
+  // Likewise the share of the kids step your timeline removes, against the same search with no timeline
+  const anyWhen = {...P, when:"any"};
+  const wr = parts.map(({t}) => P.kids !== "want" || P.when === "any" ? 0
+    : 1 - kidsFit(m, t, P, kidsWant(t, P, s), s)/kidsFit(m, t, anyWhen, kidsWant(t, anyWhen, s), s));
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
   // One pass computes the total for every draw with all groups varying, and with each group varying alone.
   // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
@@ -328,7 +342,7 @@ function interval(m, s, P, f){
     let all = 0; one.fill(0);
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
       fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2))*cut(gr[j], UNC.goal, z(b+5)); fac[2] = NR(g.os, z(b+3));
-      fac[3] = vf[j] ? valRaw(m, p.t, P, Q)/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4)); fac[6] = click;
+      fac[3] = vf[j] ? valRaw(m, p.t, P, Q)/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4))*cut(wr[j], UNC.when, z(b+6)); fac[6] = click;
       let prod = 1; for (let k = 0; k < K; k++){ prod *= fac[k]; one[k] += p.ck*fac[k]; }
       all += p.ck*prod; });
     tot[d] = all; for (let k = 0; k < K; k++) solo[k][d] = one[k];

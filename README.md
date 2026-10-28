@@ -76,7 +76,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 | 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
 | 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; politics groups, their degree shifts and their odds ratios with faith from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/ces_politics.py` for the `POL_*` constants and `NONE_SPLIT` | `RAW` (dem), `REL`, `FAITH`, `POL_FIT`, `POL_OR`, `NONE_SPLIT`, `polShares()`, `valRaw()` |
 | 9 | Shares your diet | Gallup 2023, NHANES, Pew 2020 (kosher), ISPU 2022 (halal); kosher and halal scale by the local Jewish or Muslim share | none | `DIET_RATE`, `DIET_POL`, `KOSHER`, `HALAL`, `dietFit()` |
-| 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents | `acs_to_json.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `kidsFit()` |
+| 10 | Compatible on kids | ACS B11012 single parents (*local*); Pew 2019, 2023 and 2024 on wanting kids and dating parents; optionally, NSFG 2022–23 on when singles who want kids expect their first | `acs_to_json.py`; `structure/nsfg_timing.py` | `ACS.metros[...].kw/km`, `WANT`, `PARENT_NO`, `KID_WHEN`, `whenFit()`, `kidsFit()` |
 | 11 | Mutual attraction | Speed-dating yes rates (Fisman et al. 2006), adjusted for your age, height, degree, job and kids (Antfolk 2017, Stulp 2013, NHANES, SCAL 2022, Pew 2019) | none; checked by `structure/speed_dating.py` | `ATTRACT`, `AGE_GAP`, `HT`, `EDU_PEN`, `JOB_PEN`, `traitRel()` |
 | 12 | On the apps now | Pew 2022 (28% of singles looking), LGB singles ×1.5 (Pew 2019) | none | `APPS`, `LGB_APPS` |
 
@@ -133,6 +133,7 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `ces_metro_form.py` | Checks the shape of the progressive and secular formulas against CES respondents placed in their metros. |
 | `secular_level.py` | Checks the 40% secular-leaning base against CES and the GSS, and how it falls with age. |
 | `pums_degree.py` | Degree rates and cohabiting rates of singles against everyone, from 2023 PUMS with replicate-weight standard errors. |
+| `nsfg_timing.py` | From the 2022–23 NSFG, when childless singles who intend to have kids expect their first (within 2 years, 2 to 5, more than 5), by sex and age band, with effective sample sizes. Source of `KID_WHEN`. |
 | `speed_dating.py` | Tests whether mutual attraction is the product of the two yes rates (lift ≈ 1.03). |
 | `harness.mjs` | Loads the baseline page (`baseline.html`, the page at commit 73d4238, before step 2) in headless Chromium and runs its own `pool()` for every metro, with structural assumptions switched by a scenario object. |
 | `sensitivity.mjs` | Swaps each assumption for its data-based alternative across six searches and all metros. Writes `sensitivity.json`. |
