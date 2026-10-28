@@ -52,6 +52,8 @@ def main():
         sys.exit("A top-50 metro has no mobility row; fix the name match")
     # Spot checks: college towns and the Sun Belt draw far more newcomers than old industrial metros
     t = {r["metro"].split(",")[0].split("–")[0]: r["moved_in_pct"] for r in rows}
+    gone = [k for k in ("Austin", "Pittsburgh", "Ithaca") if k not in t]
+    assert not gone, f"spot-check metros not matched, fix the name match: {gone}"
     assert t["Austin"] > t["Pittsburgh"] and t["Ithaca"] > 10 and 1 < t["Pittsburgh"] < 6, (t["Austin"], t["Pittsburgh"], t["Ithaca"])
 
     rows.sort(key=lambda r: atlas.index(r["metro"]))

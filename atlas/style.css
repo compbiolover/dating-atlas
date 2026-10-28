@@ -39,7 +39,7 @@ p{margin:0}
 @media (max-width:900px){.viz{grid-template-columns:minmax(0,1fr)}}
 .metrics{grid-template-rows:auto 1fr;grid-column:1/-1}
 @media (min-width:901px){.metrics .stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
-#ageCard,#sexCard,#cmpCard,#drvCard{grid-column:1/-1}
+#ageCard,#laterCard,#sexCard,#cmpCard,#drvCard{grid-column:1/-1}
 /* Question sections: closed, each shows its one-line answer; open, its charts */
 .qsec > summary{display:grid;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 20px;cursor:pointer;list-style:none}
 .qsec > summary::-webkit-details-marker{display:none}

@@ -251,25 +251,18 @@ function update(){
     (P.climate === "any" ? "Pick one to show only metros with that climate." : `${nClim} of 387 metros have ${CLIMATES[P.climate].toLowerCase()}. The map, ranked list and comparisons show only those${climateOf(m) !== P.climate ? `, plus ${m.short}` : ""}.`);
   const byPool = [...all].sort((a,b) => b.v - a.v), byCand = byPool.filter(a => fits(a.m)), byRatio = [...all].sort((a,b) => b.ratio - a.ratio);
   const rank = 1 + all.filter(a => a.v > f.click).length, rRank = byRatio.findIndex(a => a.m === m) + 1;
-  const iv = interval(m, s, P, f);
-  // The funnel rerun for one year of age at a time, across the range the sliders allow
+  // The funnel rerun for one year of age at a time, across the range the sliders allow; ck is each gender's part
   const byAge = [];
   for (let a = +$("ageMin").min; a <= +$("ageMax").max; a++){
-    const sa = {...s, ageMin:a, ageMax:a};
-    byAge.push({a, v: pool(m, sa, P, poolCtx(sa, P, D)).click});
+    const sa = {...s, ageMin:a, ageMax:a}, r = pool(m, sa, P, poolCtx(sa, P, D));
+    byAge.push({a, v: r.click, ck: Object.fromEntries(r.parts.map(p => [p.t, p.ck]))});
   }
-  // You in each of the next 10 years, as long as your age and the range stay inside the fields' limits
-  const later = [];
-  for (let k = 0; k <= 10 && P.age + k <= +$("yAge").max && s.ageMax + k <= +$("ageMax").max; k++){
-    const sk = {...s, ageMin: s.ageMin + k, ageMax: s.ageMax + k}, Pk = {...P, age: P.age + k};
-    later.push({k, age: Pk.age, s: sk, v: pool(m, sk, Pk, poolCtx(sk, Pk, D)).click});
-  }
+  const iv = interval(m, s, P, f, byAge);
   $("sPool").textContent = fmt(f.click); $("sApps").textContent = fmt(f.apps); $("sRank").textContent = f.click ? "#" + rank : "–";
   $("sRankL").textContent = f.click ? "of 387 metros by number of possibilities" : "no rank: no one here fits these filters";
   $("sPoolL").textContent = `real possibilities in ${m.short}`;
   $("sRange").textContent = iv ? rangeText(iv) : "";
-  const yr = yearPool(m, s, f);
-  $("sYear").textContent = f.click ? `Over a year, about ${fmt(yr)}${iv ? ` (likely ${fmt(nice(iv.ylo))} to ${fmt(nice(iv.yhi))})` : ""}, as people break up, divorce and move here.` : "";
+  $("sYear").textContent = !iv ? "" : `Over a year, ${iv.yhi < 10 ? "likely fewer than 10" : `about ${fmt(iv.year)} (likely ${fmt(nice(iv.ylo))} to ${fmt(nice(iv.yhi))})`}, as people break up, divorce and move here.`;
   $("sRatio").textContent = fmt1(f.ratio);
   const rs = rentShare(m, P), pay = P.edu === "ba" ? "pay for someone with a bachelor's" : "pay for someone with some college";
   const byRent = all.filter(a => a.rent === a.rent).sort((a,b) => a.rent - b.rent), hRank = byRent.findIndex(a => a.m === m) + 1;
@@ -358,7 +351,7 @@ function update(){
   const cm = $("cmpSel").value !== "" ? M[+$("cmpSel").value] : (peer || byCand.find(a => a.m !== m) || byPool.find(a => a.m !== m)).m;
   const cf = cm === m ? f : pool(cm, s, P, T);
   const cmp = {cm, rows: rows.map(r => ({t: r.t, full: r.full, a: r.v, b: r.get(cm, cf)}))};
-  LAST = {m, all: cand, who, s, P, iv, est: f.click, byAge, later, age: P.age, cmp};
+  LAST = {m, all: cand, who, s, P, iv, est: f.click, byAge, age: P.age, cmp};
   drawCharts();
   writeHash(s, P);
 }

@@ -200,20 +200,25 @@ function drivers({iv, est, m}){
   $("drvNote").textContent = `The curve at the top smooths all ${n.toLocaleString("en-US")} simulated results, with the shaded middle 80% matching the range under the main number. Each line below spans the middle 80% of results when only that input varies and everything else stays at its best guess; the dashed line is your estimate. Biggest source of uncertainty: ${DRV[rows[0].k].toLowerCase()}. Log scale.`;
 }
 
-// Columns per year of the people's age: inside your range in blue, your own age in orange
-function ages({byAge, s, m, age}){
-  const W = $("ages").clientWidth || 900, nw = W < 560, L = nw ? 36 : 48, R = 8, T = 10, B = 34, H = nw ? 200 : 240;
-  const vmax = Math.max(...byAge.map(b => b.v)) || 1, step = Math.pow(10, Math.floor(Math.log10(vmax))), top = Math.ceil(vmax/step)*step;
-  const n = byAge.length, bw = (W - L - R)/n, X = i => L + i*bw, Y = v => T + (1 - v/top)*(H - T - B);
+// One bar per item on a round-number axis, for the age charts: items are {v, cls, title, label}, label null for none
+function barsSvg(W, H, items, xlab){
+  const L = W < 560 ? 36 : 48, R = 8, T = 10, B = 34;
+  const vmax = Math.max(...items.map(b => b.v)) || 1, step = Math.pow(10, Math.floor(Math.log10(vmax))), top = Math.ceil(vmax/step)*step;
+  const bw = (W - L - R)/items.length, X = i => L + i*bw, Y = v => T + (1 - v/top)*(H - T - B);
   let g = "";
   for (let k = 0; k <= top/step; k++){ const v = k*step; if (top/step > 6 && k % 2) continue;
     g += `<line class="tick" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fmtAx(v)}</text>`; }
-  byAge.forEach((b, i) => {
-    const inR = b.a >= s.ageMin && b.a <= s.ageMax, cls = b.a === age ? "bar you" : inR ? "bar in" : "bar";
-    g += `<rect class="${cls}" x="${(X(i) + 1).toFixed(1)}" y="${Y(b.v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(Y(0) - Y(b.v)).toFixed(1)}"><title>Age ${b.a}: about ${fmt(b.v)}</title></rect>`;
-    if (b.a % 5 === 0) g += `<text x="${X(i) + bw/2}" y="${H - B + 16}" text-anchor="middle">${b.a}</text>`;
+  items.forEach((b, i) => {
+    g += `<rect class="${b.cls}" x="${(X(i) + 1).toFixed(1)}" y="${Y(b.v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(Y(0) - Y(b.v)).toFixed(1)}"><title>${b.title}</title></rect>`;
+    if (b.label != null) g += `<text x="${X(i) + bw/2}" y="${H - B + 16}" text-anchor="middle">${b.label}</text>`;
   });
-  g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Their age</text>`;
+  return g + `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">${xlab}</text>`;
+}
+// Columns per year of the people's age: inside your range in blue, your own age in orange
+function ages({byAge, s, m, age}){
+  const W = $("ages").clientWidth || 900, H = W < 560 ? 200 : 240, n = byAge.length;
+  const g = barsSvg(W, H, byAge.map(b => ({v: b.v, cls: b.a === age ? "bar you" : b.a >= s.ageMin && b.a <= s.ageMax ? "bar in" : "bar",
+    title: `Age ${b.a}: about ${fmt(b.v)}`, label: b.a % 5 === 0 ? b.a : null})), "Their age");
   const sum = (a, b) => byAge.filter(x => x.a >= a && x.a <= b).reduce((t, x) => t + x.v, 0);
   const inside = sum(s.ageMin, s.ageMax), wider = sum(s.ageMin - 2, s.ageMax + 2), peak = byAge.reduce((p, x) => x.v > p.v ? x : p);
   $("ageT").textContent = peakText(peak);
@@ -221,19 +226,18 @@ function ages({byAge, s, m, age}){
   $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. ${peak.v ? `The most possibilities in ${m.short} are at age ${peak.a}. ` : ""}Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drops at 40 and 65 are real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women, and fewer still from 65. Each year is estimated on its own, so the bars only roughly add up to your total.`;
 }
 
-// Columns per year from now, your age and range moved up together: today in orange, later years in blue
-function laterChart({later, m}){
-  const W = $("later").clientWidth || 900, nw = W < 560, L = nw ? 36 : 48, R = 8, T = 10, B = 34, H = nw ? 180 : 200;
-  const vmax = Math.max(...later.map(b => b.v)) || 1, step = Math.pow(10, Math.floor(Math.log10(vmax))), top = Math.ceil(vmax/step)*step;
-  const n = later.length, bw = (W - L - R)/n, X = i => L + i*bw, Y = v => T + (1 - v/top)*(H - T - B);
-  let g = "";
-  for (let k = 0; k <= top/step; k++){ const v = k*step; if (top/step > 6 && k % 2) continue;
-    g += `<line class="tick" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fmtAx(v)}</text>`; }
-  later.forEach((b, i) => {
-    g += `<rect class="bar ${b.k ? "in" : "you"}" x="${(X(i) + 1).toFixed(1)}" y="${Y(b.v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(Y(0) - Y(b.v)).toFixed(1)}"><title>At ${b.age}, looking for ${b.s.ageMin} to ${b.s.ageMax}: about ${fmt(b.v)}</title></rect>`;
-    if (!nw || i % 2 === 0) g += `<text x="${X(i) + bw/2}" y="${H - B + 16}" text-anchor="middle">${b.age}</text>`;
-  });
-  g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Your age</text>`;
+// Columns per year from now, your age and range moved up together: today in orange, later years in blue.
+// Built here, not in update(), so the 11 extra funnels only run while the chart is on screen.
+function laterChart({m, s, P}){
+  const later = [], D = clickDefaults(P);
+  // Each of the next 10 years, as long as your age and the range stay inside the fields' limits
+  for (let k = 0; k <= 10 && P.age + k <= +$("yAge").max && s.ageMin + k <= +$("ageMin").max && s.ageMax + k <= +$("ageMax").max; k++){
+    const sk = {...s, ageMin: s.ageMin + k, ageMax: s.ageMax + k}, Pk = {...P, age: P.age + k};
+    later.push({k, age: Pk.age, s: sk, v: pool(m, sk, Pk, poolCtx(sk, Pk, D)).click});
+  }
+  const W = $("later").clientWidth || 900, nw = W < 560, H = nw ? 180 : 200, n = later.length;
+  const g = barsSvg(W, H, later.map((b, i) => ({v: b.v, cls: `bar ${b.k ? "in" : "you"}`,
+    title: `At ${b.age}, looking for ${b.s.ageMin} to ${b.s.ageMax}: about ${fmt(b.v)}`, label: !nw || i % 2 === 0 ? b.age : null})), "Your age");
   const now = later[0], at = k => later.find(b => b.k === k), five = at(5), ten = at(10);
   const vs = b => !now.v ? `about ${fmt(b.v)}` : `about ${fmt(b.v)}, ${b.v >= now.v*1.05 ? `${fmtX(b.v/now.v)}× as many` : b.v <= now.v*.95 ? `${Math.round((1 - b.v/now.v)*100)}% fewer` : "about the same"}`;
   const last = five || later[n - 1];

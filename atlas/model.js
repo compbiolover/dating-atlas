@@ -308,7 +308,7 @@ function singlesRelSE(m, g, s){
   bandWeights(a[g], s).forEach((w, i) => { v += (w*e[g][i])**2; n += w*a[g][i]; });
   return n ? Math.sqrt(v)/n : .1;
 }
-function interval(m, s, P, f){
+function interval(m, s, P, f, byAge){
   const parts = f.parts;
   if (!parts.length || !f.click) return null;
   // PRRI faith shares vary by their sampling error, from the combined share of the PRRI faiths you picked.
@@ -330,7 +330,8 @@ function interval(m, s, P, f){
   const wr = parts.map(({t}) => P.kids !== "want" || P.when === "any" ? 0
     : 1 - kidsFit(m, t, P, kidsWant(t, P, s), s)/kidsFit(m, t, anyWhen, kidsWant(t, anyWhen, s), s));
   // Newcomers over a year; the breakup rates (brk) are the uncertain part, varied on the one spare dimension, 30
-  const tf = parts.map(({t}) => turnFit(m, t, s));
+  // Callers without byAge (scripts/structure/harness.mjs) get no newcomers
+  const tf = parts.map(({t}) => byAge ? turnFit(m, t, s, byAge) : {acs: 0, brk: 0});
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
   // One pass computes the total for every draw with all groups varying, and with each group varying alone.
   // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
@@ -354,7 +355,7 @@ function interval(m, s, P, f){
   const lv = arr => { let s1 = 0, s2 = 0; arr.forEach(x => { const l = Math.log(Math.max(1e-9, x)); s1 += l; s2 += l*l; }); const n = arr.length; return Math.max(0, s2/n - (s1/n)**2); };
   const vars = solo.map(lv), vt = vars.reduce((a, v) => a + v, 0), ti = vars.indexOf(Math.max(...vars));
   const ranges = keys.map((k, i) => { const a = solo[i].sort(); return {k, lo: a[Math.floor(.1*(NSIM - 1))], hi: a[Math.floor(.9*(NSIM - 1))]}; });
-  return {lo: q(.1), hi: q(.9), ylo: yr[Math.floor(.1*(NSIM - 1))], yhi: yr[Math.floor(.9*(NSIM - 1))], top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
+  return {lo: q(.1), hi: q(.9), year: parts.reduce((t, p, j) => t + p.ck*(1 + tf[j].acs + tf[j].brk), 0), ylo: yr[Math.floor(.1*(NSIM - 1))], yhi: yr[Math.floor(.9*(NSIM - 1))], top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
 }
 const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const SINGLE = 50; // modeled share single for women, used only for a metro without ACS counts
@@ -446,21 +447,27 @@ function base(m, g, s){
 // Newcomers look and fit at the usual rates. Not counted: singles who start looking, people aging into your range
 // (it moves with you), and anyone who joins and leaves again within the year, so it's a floor.
 const B_DATE = .30, B_COHAB = .15, MOVE_US = 4.6;  // MOVE_US: B07201, all metro residents, for a metro without a row
-function turnFit(m, g, s){
-  if (g === "n"){ const w = turnFit(m, "w", s), x = turnFit(m, "m", s); return {acs: (w.acs + x.acs)/2, brk: (w.brk + x.brk)/2}; }
-  const yr = m.acs ? singleYears(m.acs[g]) : null, mv = (MOVE[m.name] ?? MOVE_US)/100;
+// Newcomers per single not living with a partner, at age a. Nonbinary people get women's and men's rates weighted by
+// how many single people of each sex there are at that age, as base() counts them.
+function turnAt(m, g, a){
+  const b = ACS.bands.findIndex(([lo, hi]) => a >= lo && a <= hi);
+  if (g === "n"){ const w = turnAt(m, "w", a), x = turnAt(m, "m", a);
+    const sw = m.acs ? (singleYears(m.acs.w)[a - AGE0] || 0)*PUMS.free.w[b] : 1, sm = m.acs ? (singleYears(m.acs.m)[a - AGE0] || 0)*PUMS.free.m[b] : 1;
+    const k = sw + sm ? sw/(sw + sm) : .5;
+    return {acs: k*w.acs + (1 - k)*x.acs, brk: k*w.brk + (1 - k)*x.brk}; }
+  const f = PUMS.free[g][b], mv = (MOVE[m.name] ?? MOVE_US)/100;
+  return {acs: PUMS.div[g][b] + mv*PUMS.mig[g][b], brk: COMMITTED/(1 - COMMITTED)*B_DATE + (1 - f)/(f*(1 - COMMITTED))*B_COHAB};
+}
+// Over the range, each age weighted by its own possibilities of gender g (byAge: the funnel run for one year of age
+// at a time, as the page does for the age chart), so ages count as they do in the pool, age gaps and all
+function turnFit(m, g, s, byAge){
   let acs = 0, brk = 0, n = 0;
-  for (let a = s.ageMin; a <= s.ageMax; a++){
-    const b = ACS.bands.findIndex(([lo, hi]) => a >= lo && a <= hi), f = PUMS.free[g][b];
-    // Weighted by single people looking at that age; without ACS counts, every year counts the same
-    const w = (yr ? yr[a - AGE0] || 0 : 1)*f*lookRate(g, a);
-    acs += w*(PUMS.div[g][b] + mv*PUMS.mig[g][b]);
-    brk += w*(COMMITTED/(1 - COMMITTED)*B_DATE + (1 - f)/(f*(1 - COMMITTED))*B_COHAB); n += w;
-  }
+  for (let a = s.ageMin; a <= s.ageMax; a++){ const w = byAge[a - byAge[0].a]?.ck[g] || 0, r = turnAt(m, g, a); acs += w*r.acs; brk += w*r.brk; n += w; }
   return n ? {acs: acs/n, brk: brk/n} : {acs: 0, brk: 0};
 }
-// Possibilities over a year: today's, plus the newcomers in each gender's part of the pool
-const yearPool = (m, s, f) => f.parts.reduce((t, p) => { const x = turnFit(m, p.t, s); return t + p.ck*(1 + x.acs + x.brk); }, 0);
+// Self-check: the nonbinary rate sits between women's and men's
+{ const m = M.find(x => x.acs), [w, x, nb] = ["w", "m", "n"].map(g => turnAt(m, g, 30));
+  console.assert(nb.acs >= Math.min(w.acs, x.acs) - 1e-12 && nb.acs <= Math.max(w.acs, x.acs) + 1e-12, "turnAt nonbinary", w, x, nb); }
 
 // Degree and values shares for a metro, blended across the genders you're looking for
 function blends(m, s, P){

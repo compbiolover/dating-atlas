@@ -8,7 +8,9 @@ by sex:
   deg    degree share of those singles over B15001's degree share for everyone in the same B15001 age band
          (18-24, 25-34, 35-44, 45-64, 65+); for 18-24, singles 21-24 over everyone 18-24, since the page starts at 21
 and, for the yearly count, by B12002 age band among singles not living with a partner:
-  div    share divorced or widowed in the past 12 months (MARHD, MARHW) who didn't also move from another state
+  div    share divorced or widowed in the past 12 months (MARHD, MARHW) who didn't also move here from outside the
+         metro, which the page's move term already counts: movers from another state or abroad are left out, and
+         movers within the state count at 1 - CROSS, the national share of in-state moves that cross a metro line
   mig    share who lived in another state or abroad a year ago, over that share for everyone aged 1 and up; the
          page multiplies it by each metro's share of people who moved in from outside the metro (B07201)
 
@@ -26,6 +28,10 @@ import json
 import zipfile
 
 import pandas as pd
+
+# ACS 2019-23 B07201, national row: everyone 1 and up living in a metro (E001), who lived in a different U.S. house a
+# year ago (E003), and of them, in a different metro, a micro area or outside both (E007 + E010 + E013)
+B07201_US = {"all": 283479621, "moved": 34698864, "from_outside": 9669879 + 986264 + 559611}
 
 from acs_to_json import DATA, embed, read_const
 
@@ -52,8 +58,15 @@ def main():
     # Another state or abroad a year ago: MIG 2 is abroad, and MIGSP 1-56 a U.S. state (72 is Puerto Rico, above that abroad)
     p["mover"] = p.MIG.eq(2) | (p.MIG.eq(3) & p.MIGSP.ne(p.STATE))
     all_mover = (p.mover*p.PWGTP).sum()/p.PWGTP.sum()
+    # Share of in-state moves that cross a metro line: B07201's moves from outside the metro, less moves from another
+    # state, over all in-state moves. shortcut: PUMS's interstate rate covers everyone, not just metro residents as
+    # B07201 does; fine while the two differ by a fraction of a point
+    inter = ((p.MIG.eq(3) & p.MIGSP.ne(p.STATE))*p.PWGTP).sum()/p.PWGTP.sum()
+    cross = (B07201_US["from_outside"]/B07201_US["all"] - inter)/(B07201_US["moved"]/B07201_US["all"] - inter)
+    assert 0 < cross < 1, cross
+    print(f"In-state moves crossing a metro line: {cross:.3f}")
     p = p[p.AGEP >= 15]
-    p["split"] = (p.MARHD.eq(1) | p.MARHW.eq(1)) & ~p.mover
+    p["split"] = (p.MARHD.eq(1) | p.MARHW.eq(1))*(p.MIG.eq(1) + (p.MIG.eq(3) & ~p.mover)*(1 - cross))
     p["single"] = p.MAR.isin([2, 3, 5])
     p["cohab"] = p.RELSHIPP.isin([22, 24]) | ((p.RELSHIPP == 20) & p.SERIALNO.isin(partner_hh))
     p["ba"] = p.SCHL >= 21
