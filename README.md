@@ -86,18 +86,30 @@ Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housi
 
 ### The math
 
-For each gender *t* you're looking for, in metro *m*, with age range *a*:
+The funnel is a chain of multiplications: start with a head count, then keep only the share that passes each step. It runs once for each gender *t* you're looking for, in your metro, for your partner age range *a*, and the results are added up at the end.
 
+```math
+\begin{aligned}
+\text{Singles}_t &= 0.985 \times \sum_{\text{age} \in a} \text{unmarried}_t(\text{age}) \times \text{not cohabiting}_t(\text{age}) \\
+\text{Looking}_t &= \text{Singles}_t \times 0.80 \times \text{looking rate}_t \times \text{goal}_t \\
+\text{Degree}_t &= \text{Looking}_t \times \text{degree share}_t \\
+\text{Open}_t &= \text{Degree}_t \times \text{open to you}_t \\
+\text{Fit}_t &= \text{Open}_t \times \text{values}_t \times \text{diet}_t \times \text{kids}_t \\
+\text{Clicks}_t &= \text{Fit}_t \times \text{you say yes} \times \min\left(\text{they say yes} \times \text{your traits},\ 0.95\right) \\
+\text{On apps}_t &= \text{Clicks}_t \times \text{app share}_t \\[4pt]
+\text{Total} &= \sum_t \text{Clicks}_t
+\end{aligned}
 ```
-singles_t   = Σ_age  ACS singles_t(age) × PUMS.free_t(band)       × 0.985 (nonbinary carved out)
-looking_t   = singles_t × (1 − 0.20) × LOOKING_t(under/over 40) × goal_t   (goal_t = 1 unless you pick serious or casual)
-degree_t    = looking_t × degree share_t(a)                          (only if the degree filter is on)
-open_t      = degree_t  × OPEN[t][you]
-fit_t       = open_t × values_t × diet_t × kids_t
-clicks_t    = fit_t × (your yes rate) × (their yes rate × your trait adjustments, capped at 95%)
-apps_t      = clicks_t × app share_t
-total       = Σ_t clicks_t
-```
+
+| Step | In plain English | Code |
+|---|---|---|
+| Singles | Never-married, divorced and widowed people at each age in your range, minus those living with a partner. 1.5% are set aside as nonbinary. | `ACS`, `PUMS.free` |
+| Looking | Drop the 20% of singles already in a relationship, then keep those looking to date (lower from 40, lower again from 65). If you pick "serious" or "casual", also drop people who only want the other kind; "either" drops no one. | `COMMITTED`, `LOOKING`, `goalFit()` |
+| Degree | Keep only degree holders. Skipped if the degree filter is off. | `degParts()` |
+| Open | Keep those whose orientation includes your gender. | `OPEN` |
+| Fit | Keep those who share your politics and faith, your diet, and are compatible on kids. | `valRaw()`, `dietFit()`, `kidsFit()` |
+| Clicks | Keep the matches where you'd both say yes. Their yes is adjusted for your age, height, degree, job and kids, and capped at 95%. | `ATTRACT`, `traitRel()` |
+| On apps | Of those, the share you could find on a dating app right now. Shown alongside, not added to the total. | `APPS` |
 
 The parts that aren't plain multiplication:
 
