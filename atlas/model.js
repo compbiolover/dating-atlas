@@ -87,6 +87,18 @@ function lookFit(g, s){
   for (let a = s.ageMin; a <= s.ageMax; a++) t += g === "n" ? (lookRate("w", a) + lookRate("m", a))/2 : lookRate(g, a);
   return (1 - COMMITTED)*t/(s.ageMax - s.ageMin + 1);
 }
+// What daters want, [committed only, casual only], by sex and by age (under 40 / 40 and up) among singles looking (Pew 2019).
+// Pew gives no sex-by-age split, so the age shift multiplies the sex share by that age group's share over all daters'.
+const GOAL_ONLY = {w:[.36,.16], m:[.22,.22], age:[[.27,.15],[.29,.24]], all:[.28,.20]};
+const GOALS = {any:"Unattached and looking to date", serious:"Looking for something serious", casual:"Looking for something casual"};
+// Share of daters of gender t in the age range open to what you want: serious drops casual-only, casual drops committed-only
+function goalFit(t, P, s){
+  if (P.goal === "any") return 1;
+  const i = P.goal === "serious" ? 1 : 0, sx = byGender({w:GOAL_ONLY.w[i], m:GOAL_ONLY.m[i]}, t);
+  let fit = 0;
+  for (let a = s.ageMin; a <= s.ageMax; a++) fit += 1 - sx*GOAL_ONLY.age[a < 40 ? 0 : 1][i]/GOAL_ONLY.all[i];
+  return fit/(s.ageMax - s.ageMin + 1);
+}
 // Whether it clicks, by the gender of whoever is judging. Sources are in the notes.
 const ATTRACT = {w:25, m:35, n:30}; // % of eligible partners a rater would want to date (speed-dating yes rates, discounted)
 const APPS = {w:23, m:31, n:27};    // % of singles looking to date who are on a dating app now (Pew 2022: 28% overall)
@@ -415,8 +427,8 @@ function blends(m, s, P){
 // Everything pool() needs that doesn't depend on the metro: trait effects by gender, the click defaults D, and the
 // looking and kids-plan rates
 function poolCtx(s, P, D){
-  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
-  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); });
+  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {}; T.goal = {};
+  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); T.goal[g] = goalFit(g, P, s); });
   return T;
 }
 // The full funnel for one metro
@@ -430,7 +442,8 @@ function pool(m, s, P, T){
   let N = 0, C = 0;
   GK.forEach(g => C += dg[g].n*(1 - P.seek.reduce((q, t) => q*(1 - OPEN[g][t]), 1)));
   P.seek.forEach(t => {
-    const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
+    // Your relationship goal narrows your pool only: competitors are counted whatever they want
+    const {b} = dg[t], lk = dg[t].lk*T.goal[t], n = dg[t].n*T.goal[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
     const v = o*valRaw(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, T.want[t], s);
     const tr = T[t], ba = s.deg ? 1 : dg[t].d/100, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
@@ -438,7 +451,7 @@ function pool(m, s, P, T){
     r.parts.push({t, ck, v});
     r.vals += v; r.diet += dt; r.kids += kf; r.click += ck; r.apps += ck*Math.min(.9, s.apps*appsRate(t, P)/D.apps/100);
     Object.keys(f).forEach(k => { fx[k] += kf*f[k]; fo[k] += o*f[k]; }); fx.all += kf*rel; fo.all += o*rel;
-    N += n;
+    N += dg[t].n;
   });
   r.fx = Object.fromEntries(Object.keys(fx).map(k => [k, r.kids ? fx[k]/r.kids : r.open ? fo[k]/r.open : 1]));
   r.ratio = C ? N/C : 0;

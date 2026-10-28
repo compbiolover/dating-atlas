@@ -25,8 +25,8 @@ let cur = M.find(m => m.short === "Memphis"), shownCur = null;
 function profile(){
   const you = document.querySelector('input[name="you"]:checked').value;
   const seek = [...document.querySelectorAll('input[name="seek"]:checked')].map(x => x.value);
-  const kids = document.querySelector('input[name="kids"]:checked').value;
-  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value, climate:$("climate").value};
+  const kids = document.querySelector('input[name="kids"]:checked').value, goal = document.querySelector('input[name="goal"]:checked').value;
+  return {you, seek, age:numVal($("yAge")), ht:+$("yHt").value, edu:$("yEdu").value, job:$("yJob").value, kids, goal, openP:$("openP").checked, degOnly:$("degOnly").checked, pol:picked("pol"), faith:picked("faith"), diet:$("diet").value, climate:$("climate").value};
 }
 function nounFor(seek){
   if (seek.length === 3) return "people";
@@ -72,6 +72,7 @@ function applySettings(get){
   one("edu", inList(["ba","no"]), v => $("yEdu").value = v);
   one("job", inList(["job","less","none"]), v => $("yJob").value = v);
   one("kids", inList(["any","want","dont","have"]), v => $("kids-" + v).checked = true);
+  one("goal", inList(Object.keys(GOALS)), v => $("goal-" + v).checked = true);
   one("openP", bool, v => $("openP").checked = v === "1");
   one("deg", bool, v => $("degOnly").checked = v === "1");
   const pol = v => v === "cons" ? OLD_POL.cons : v, keys = o => inList(Object.keys(o));
@@ -131,7 +132,7 @@ $("metro").addEventListener("change", e => { const q = e.target.value.trim().toL
 let hashT = 0;
 function writeHash(s, P){
   clearTimeout(hashT);
-  hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids,
+  hashT = setTimeout(() => { const q = new URLSearchParams({m:cur.name, you:P.you, seek:P.seek.join(""), age:P.age, ht:P.ht, edu:P.edu, job:P.job, kids:P.kids, goal:P.goal,
     openP:+P.openP, deg:+P.degOnly, pol:P.pol, faith:P.faith, diet:P.diet, climate:P.climate, ageMin:s.ageMin, ageMax:s.ageMax, his:s.his, her:s.her, apps:s.apps, y:document.querySelector('input[name="yfit"]:checked').value, ry:document.querySelector('input[name="ry"]:checked').value});
     try { history.replaceState(null, "", "#" + q); } catch(e){} }, 250);
 }
@@ -203,7 +204,7 @@ $("yAge").addEventListener("input", () => {
 ["ageMin","ageMax"].forEach(k => $(k).addEventListener("input", () => rangeOff = null));
 ["yAge","yHt","yEdu","yJob","openP","degOnly","diet","climate"].forEach(id => $(id).addEventListener(id === "yAge" ? "input" : "change", () => { saveProfile(); schedule(); }));
 ["yfit","ry"].forEach(n => document.querySelectorAll(`input[name="${n}"]`).forEach(el => el.addEventListener("change", () => { store.set("atlas." + n, el.value); drawCharts(); if (LAST) writeHash(LAST.s, LAST.P); })));
-document.querySelectorAll('input[name="kids"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
+document.querySelectorAll('input[name="kids"], input[name="goal"]').forEach(el => el.addEventListener("change", () => { saveProfile(); update(); }));
 document.querySelectorAll('input[name="preset"]').forEach(el => el.addEventListener("change", () => {
   Object.entries(PRESETS[el.value]).forEach(([k, v]) => setChips(k, v)); saveProfile(); update(); }));
 
@@ -281,7 +282,7 @@ function update(){
     [cap(who), (x, r) => r.total, 0, P.seek.length < 3],
     [`Ages ${s.ageMin} to ${s.ageMax}`, (x, r) => r.age, 0, true, m.acs ? "ACS" : `${s.ageMax - s.ageMin + 1} yrs`],
     ["Single", (x, r) => r.single, 1, true],
-    ["Unattached and looking to date", (x, r) => r.look, 1, true],
+    [GOALS[P.goal], (x, r) => r.look, 1, true],
     ["Bachelor's or higher", (x, r) => r.deg, 1, s.deg],
     [openTo, (x, r) => r.open, 2, true],
     [valuesStep(P), (x, r) => r.vals, 2, !!valuesLabel(P)],
