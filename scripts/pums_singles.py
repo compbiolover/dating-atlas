@@ -10,7 +10,8 @@ by sex:
 and, for the yearly count, by B12002 age band among singles not living with a partner:
   div    share divorced or widowed in the past 12 months (MARHD, MARHW) who didn't also move here from outside the
          metro, which the page's move term already counts: movers from another state or abroad are left out, and
-         movers within the state count at 1 - CROSS, the national share of in-state moves that cross a metro line
+         movers within the state count at 1 - cross, the national share of in-state moves that cross a metro line,
+         from B07201's national row in the same summary file mobility_to_json.py reads
   mig    share who lived in another state or abroad a year ago, over that share for everyone aged 1 and up; the
          page multiplies it by each metro's share of people who moved in from outside the metro (B07201)
 
@@ -18,10 +19,11 @@ A single person lives with a partner if they are the householder's unmarried par
 householder of a home that has one. Couples where neither partner is the householder are missed, so the
 cohabiting shares are a floor.
 
-Input: csv_pus.zip from https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/
+Inputs: csv_pus.zip from https://www2.census.gov/programs-surveys/acs/data/pums/2023/1-Year/ and
+acsdt5y2023-b07201.dat from https://www2.census.gov/programs-surveys/acs/summary_file/2023/table-based-SF/data/5YRData/
 
 Usage:
-  python3 scripts/pums_singles.py csv_pus.zip
+  python3 scripts/pums_singles.py csv_pus.zip acsdt5y2023-b07201.dat
 """
 import argparse
 import json
@@ -29,11 +31,7 @@ import zipfile
 
 import pandas as pd
 
-# ACS 2019-23 B07201, national row: everyone 1 and up living in a metro (E001), who lived in a different U.S. house a
-# year ago (E003), and of them, in a different metro, a micro area or outside both (E007 + E010 + E013)
-B07201_US = {"all": 283479621, "moved": 34698864, "from_outside": 9669879 + 986264 + 559611}
-
-from acs_to_json import DATA, embed, read_const
+from acs_to_json import DATA, embed, read_const, read_sf
 
 DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64), (65, 100)]
 
@@ -41,6 +39,7 @@ DEG_BANDS = [(18, 24), (25, 34), (35, 44), (45, 64), (65, 100)]
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("pums_zip")
+    ap.add_argument("mobility")
     ap.add_argument("--page", default=DATA)
     a = ap.parse_args()
 
@@ -56,13 +55,17 @@ def main():
             parts.append(ch[ch.AGEP >= 1])
     p = pd.concat(parts)
     # Another state or abroad a year ago: MIG 2 is abroad, and MIGSP 1-56 a U.S. state (72 is Puerto Rico, above that abroad)
-    p["mover"] = p.MIG.eq(2) | (p.MIG.eq(3) & p.MIGSP.ne(p.STATE))
+    p["interstate"] = p.MIG.eq(3) & p.MIGSP.ne(p.STATE)
+    p["mover"] = p.MIG.eq(2) | p.interstate
     all_mover = (p.mover*p.PWGTP).sum()/p.PWGTP.sum()
-    # Share of in-state moves that cross a metro line: B07201's moves from outside the metro, less moves from another
-    # state, over all in-state moves. shortcut: PUMS's interstate rate covers everyone, not just metro residents as
-    # B07201 does; fine while the two differ by a fraction of a point
-    inter = ((p.MIG.eq(3) & p.MIGSP.ne(p.STATE))*p.PWGTP).sum()/p.PWGTP.sum()
-    cross = (B07201_US["from_outside"]/B07201_US["all"] - inter)/(B07201_US["moved"]/B07201_US["all"] - inter)
+    # Share of in-state moves that cross a metro line: B07201's national moves from a different metro, a micro area or
+    # outside both (E007 + E010 + E013), less moves from another state, over all moves within the U.S. (E003) less
+    # those, everything as a share of people 1 and up living in a metro (E001). shortcut: PUMS's interstate rate
+    # covers everyone, not just metro residents as B07201 does; fine while the two differ by a fraction of a point
+    us = read_sf(a.mobility)["0100000US"]
+    inter = (p.interstate*p.PWGTP).sum()/p.PWGTP.sum()
+    rate = lambda *cols: sum(us[f"B07201_E{c}"] for c in cols)/us["B07201_E001"]
+    cross = (rate("007", "010", "013") - inter)/(rate("003") - inter)
     assert 0 < cross < 1, cross
     print(f"In-state moves crossing a metro line: {cross:.3f}")
     p = p[p.AGEP >= 15]

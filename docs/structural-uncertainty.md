@@ -194,7 +194,7 @@ python3 scripts/structure/pums_degree.py DATA_DIR       # out/pums_degree.json (
 python3 scripts/structure/secular_level.py DATA_DIR     # out/secular_level.json (needs the GSS 2022 and 2024 Stata files)
 node scripts/structure/sensitivity.mjs                  # step 1, out/sensitivity.json
 node scripts/structure/step2.mjs                        # step 2, out/step2.json and step2-values-joint.patch
-python3 scripts/pums_singles.py csv_pus.zip   # the PUMS object in atlas/data.js
+python3 scripts/pums_singles.py csv_pus.zip acsdt5y2023-b07201.dat   # the PUMS object in atlas/data.js
 ```
 
 The Node scripts need Playwright with Chromium. The Python scripts need pandas, numpy, statsmodels and openpyxl.

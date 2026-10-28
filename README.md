@@ -234,7 +234,7 @@ Then:
 Rscript scripts/pull_acs.R    # needs a Census API key
 python3 scripts/raw_to_json.py   # after editing data/metro_raw.csv
 python3 scripts/acs_to_json.py data/metro_acs_2023.csv data/acs_variables_2023.csv
-python3 scripts/pums_singles.py csv_pus.zip
+python3 scripts/pums_singles.py csv_pus.zip acsdt5y2023-b07201.dat
 PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acsdt5y2023-b15001.dat
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx
