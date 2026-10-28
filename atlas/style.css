@@ -232,20 +232,25 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .sec > summary::after{content:"+";font-size:18px;letter-spacing:0;color:var(--accent)}
 .sec[open] > summary::after{content:"−"}
 .sec .body{display:grid;gap:16px;padding-top:14px}
-.notes{color:var(--muted);font-size:13.5px;display:block}
-.notes h2{color:var(--ink);font-size:19px}
-.notes summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
-.notes summary::-webkit-details-marker{display:none}
-.notes summary::after{content:"Show";font-size:13px;color:var(--accent);text-decoration:underline}
-.notes[open] summary::after{content:"Hide"}
-.notes[open] summary{margin-bottom:12px}
+.notes{color:var(--ink);font-size:16px;display:block}
+.notes h2{font-size:21px}
+.notes > summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
+.notes > summary::-webkit-details-marker{display:none}
+.notes > summary::after{content:"Show";font-size:15px;color:var(--accent);text-decoration:underline}
+.notes[open] > summary::after{content:"Hide"}
+.notes[open] > summary{margin-bottom:12px}
 @media (max-width:560px){
   .list{max-height:none;overflow:visible;padding-right:0}
   .plot svg{min-width:0}
 }
-.notes p{margin:0;max-width:78ch;line-height:1.55}
+.notes p{margin:0;max-width:70ch;line-height:1.6}
 .notes p + p{margin-top:12px}
 .notes a,footer a{color:var(--accent)}
+.notes .steps{margin:10px 0 12px;padding-left:24px;max-width:70ch;line-height:1.6}
+.notes .sec{margin-top:12px}
+.notes .sec > summary{font-size:16px;letter-spacing:0;text-transform:none;color:var(--ink)}
+.notes .nb{padding-top:10px}
+.notes .sec + p{margin-top:16px}
 code{font-family:var(--mono);font-size:12.5px}
 @media (prefers-reduced-motion:reduce){.fshape path,.dots i{transition:none}}
 .crow,.lhead{grid-template-columns:28px minmax(0,180px) minmax(0,1fr) 58px 52px 44px 52px}

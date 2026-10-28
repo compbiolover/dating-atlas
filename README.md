@@ -82,7 +82,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 
 </details>
 
-Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), climate from NOAA's county temperatures, as 1991–2020 January and July averages (`climate_to_json.py` → `CLIMATE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and the page's "How the estimates work" section lists every source with links.
+Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housing_to_json.py` → `HOUSE`), climate from NOAA's county temperatures, as 1991–2020 January and July averages (`climate_to_json.py` → `CLIMATE`), and the map from the 2023 Census Gazetteer and us-atlas (`build_map.mjs` → `MAPXY`, `USMAP`). `docs/clicks-research.md` covers the evidence behind the attraction and app defaults, and `docs/methods.md` lists every source with links (the page's "How the estimates work" section is the short version).
 
 ### The math
 
