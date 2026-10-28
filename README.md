@@ -71,7 +71,7 @@ The funnel runs once for each gender you're looking for and adds them up (`pool(
 | 2 | Your genders | Fixed shares: women 50%, men 48.5%, nonbinary 1.5% | none | `G` |
 | 3 | In your age range | ACS 2019–2023 B12002 totals by sex and age band. *Local* | `pull_acs.R` → `acs_to_json.py` | `ACS.metros[...].wt/mt` |
 | 4 | Single, not living with a partner | ACS B12002 never married, divorced or widowed (*local*), times the share of singles not cohabiting by sex and age band from 2023 PUMS (national) | `pull_acs.R` → `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].w/m`, `PUMS.free` |
-| 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022; from 65, times 16/36 (Pew 2022: 16% of unpartnered adults 65+ looking against 36% at 50 to 64) | none (constants) | `COMMITTED`, `LOOKING`, `LOOK_65`, `lookRate()`, `lookFit()` |
+| 5 | Looking to date | Pew 2022: 20% of singles are in a committed relationship; Pew 2019 share looking, by sex and under/over 40, scaled to 2022; from 65, times 16/36 (Pew 2022: 16% of unpartnered adults 65+ looking against 36% at 50 to 64); optionally, only those open to the relationship you want (Pew 2019: committed only, casual only or either, by sex and under/over 40) | none (constants) | `COMMITTED`, `LOOKING`, `LOOK_65`, `lookRate()`, `lookFit()`, `GOAL_ONLY`, `goalFit()` |
 | 6 | Has a degree (optional) | ACS B15001 degree share by sex and age band (*local*), times how often singles hold degrees against everyone (PUMS, national) | `acs_to_json.py`; `pums_singles.py` | `ACS.metros[...].dw/dm`, `PUMS.deg`, `degParts()` |
 | 7 | Open to dating your gender | Gallup orientation rates | none | `OPEN` |
 | 8 | Shares your politics and faith | 2024 Harris share by county summed to metros (tonmcg); PRRI county religion estimates and the 2020 U.S. Religion Census; politics groups, their degree shifts and their odds ratios with faith from the 2024 CES. *Local* | `raw_to_json.py`, `religion_to_json.py`, `faith_to_json.py`; `structure/ces_politics.py` for the `POL_*` constants and `NONE_SPLIT` | `RAW` (dem), `REL`, `FAITH`, `POL_FIT`, `POL_OR`, `NONE_SPLIT`, `polShares()`, `valRaw()` |
@@ -90,7 +90,7 @@ For each gender *t* you're looking for, in metro *m*, with age range *a*:
 
 ```
 singles_t   = Σ_age  ACS singles_t(age) × PUMS.free_t(band)       × 0.985 (nonbinary carved out)
-looking_t   = singles_t × (1 − 0.20) × LOOKING_t(under/over 40)
+looking_t   = singles_t × (1 − 0.20) × LOOKING_t(under/over 40) × goal_t   (goal_t = 1 unless you pick serious or casual)
 degree_t    = looking_t × degree share_t(a)                          (only if the degree filter is on)
 open_t      = degree_t  × OPEN[t][you]
 fit_t       = open_t × values_t × diet_t × kids_t

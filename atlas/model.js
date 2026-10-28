@@ -87,6 +87,20 @@ function lookFit(g, s){
   for (let a = s.ageMin; a <= s.ageMax; a++) t += g === "n" ? (lookRate("w", a) + lookRate("m", a))/2 : lookRate(g, a);
   return (1 - COMMITTED)*t/(s.ageMax - s.ageMin + 1);
 }
+// What daters want, [committed only, casual only], by sex and by age (under 40 / 40 and up) among singles looking (Pew 2019).
+// Pew gives no sex-by-age split, so the age shift multiplies the sex share by that age group's share over all daters'.
+const GOAL_ONLY = {w:[.36,.16], m:[.22,.22], age:[[.27,.15],[.29,.24]], all:[.28,.20]};
+const GOALS = {any:"Unattached and looking to date", serious:"Looking for something serious", casual:"Looking for something casual"};
+// Share of daters of gender t in the age range open to what you want: serious drops casual-only, casual drops committed-only.
+// Each year counts by how many are looking at that age, as in lookFit.
+function goalFit(t, P, s){
+  if (P.goal === "any") return 1;
+  const i = P.goal === "serious" ? 1 : 0, sx = byGender({w:GOAL_ONLY.w[i], m:GOAL_ONLY.m[i]}, t);
+  const look = a => t === "n" ? (lookRate("w", a) + lookRate("m", a))/2 : lookRate(t, a);
+  let fit = 0, n = 0;
+  for (let a = s.ageMin; a <= s.ageMax; a++){ const l = look(a); fit += l*(1 - sx*GOAL_ONLY.age[a < 40 ? 0 : 1][i]/GOAL_ONLY.all[i]); n += l; }
+  return n ? fit/n : 1;
+}
 // Whether it clicks, by the gender of whoever is judging. Sources are in the notes.
 const ATTRACT = {w:25, m:35, n:30}; // % of eligible partners a rater would want to date (speed-dating yes rates, discounted)
 const APPS = {w:23, m:31, n:27};    // % of singles looking to date who are on a dating app now (Pew 2022: 28% overall)
@@ -269,7 +283,7 @@ const ZS = (() => { let a = 20251002; const rnd = () => { a |= 0; a = a + 0x6D2B
   return z; })();
 const LN = (sd, z) => Math.exp(sd*z - sd*sd/2);       // mean-one lognormal scale
 const NR = (sd, z) => Math.max(.05, 1 + sd*z);        // mean-one normal scale, kept positive
-const UNC = {cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
+const UNC = {goal:.15, cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
   diet:{veg:.15, vegan:.3, pesc:.08, kosher:.05, halal:.05}};
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
@@ -298,6 +312,9 @@ function interval(m, s, P, f){
     ds: s.deg ? degParts(m, t, s).rel : 0,
     os: Math.hypot(Math.sqrt((1 - OPEN[t][P.you])/(OPEN[t][P.you]*1000)), UNC.openAdapt)}));
   const vf = parts.map(({t}) => valRaw(m, t, P));
+  // The relationship goal removes a share r of daters; a draw scales r, not what's kept
+  const cut = (r, sd, zz) => r > 0 ? Math.max(0, 1 - r*LN(sd, zz))/(1 - r) : 1;
+  const gr = parts.map(({t}) => 1 - goalFit(t, P, s));
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
   // One pass computes the total for every draw with all groups varying, and with each group varying alone.
   // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
@@ -310,7 +327,7 @@ function interval(m, s, P, f){
     const cohab = NR(UNC.cohab, z(4)), click = LN(UNC.his, z(5))*LN(UNC.her, z(6)), diet = (dietSD ? LN(dietSD, z(7)) : 1)*(dietPolSD ? LN(dietPolSD, z(8)) : 1);
     let all = 0; one.fill(0);
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
-      fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2)); fac[2] = NR(g.os, z(b+3));
+      fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2))*cut(gr[j], UNC.goal, z(b+5)); fac[2] = NR(g.os, z(b+3));
       fac[3] = vf[j] ? valRaw(m, p.t, P, Q)/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4)); fac[6] = click;
       let prod = 1; for (let k = 0; k < K; k++){ prod *= fac[k]; one[k] += p.ck*fac[k]; }
       all += p.ck*prod; });
@@ -415,8 +432,8 @@ function blends(m, s, P){
 // Everything pool() needs that doesn't depend on the metro: trait effects by gender, the click defaults D, and the
 // looking and kids-plan rates
 function poolCtx(s, P, D){
-  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {};
-  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); });
+  const T = traitRel(s, P); T.D = D; T.look = {}; T.want = {}; T.goal = {};
+  GK.forEach(g => { T.look[g] = lookFit(g, s); T.want[g] = kidsWant(g, P, s); T.goal[g] = goalFit(g, P, s); });
   return T;
 }
 // The full funnel for one metro
@@ -430,7 +447,8 @@ function pool(m, s, P, T){
   let N = 0, C = 0;
   GK.forEach(g => C += dg[g].n*(1 - P.seek.reduce((q, t) => q*(1 - OPEN[g][t]), 1)));
   P.seek.forEach(t => {
-    const {b, lk, n} = dg[t], o = n*OPEN[t][P.you];
+    // Your relationship goal narrows your pool and the people the competition ratio counts for you, not the competitors
+    const {b} = dg[t], lk = dg[t].lk*T.goal[t], n = dg[t].n*T.goal[t], o = n*OPEN[t][P.you];
     r.total += m.pop*G[t].share; r.age += b.age; r.single += b.single; r.look += lk; r.deg += n; r.open += o;
     const v = o*valRaw(m, t, P), dt = v*dietFit(m, t, P), kf = dt*kidsFit(m, t, P, T.want[t], s);
     const tr = T[t], ba = s.deg ? 1 : dg[t].d/100, f = {age:tr.age, ht:tr.ht, edu:tr.edu(ba), job:tr.job(ba), kids:tr.kids};
