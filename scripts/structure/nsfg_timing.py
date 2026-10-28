@@ -28,6 +28,7 @@ for g, s in [("w", "Fem"), ("m", "Male")]:
         sh = [float(np.average(b.INTNEXT.eq(k), weights=w)) for k in (1, 2, 3)]
         out[g][lab] = {"n": int(len(b)), "neff": round(float(neff), 1), "share": [round(v, 3) for v in sh],
                        "se": [round(float(np.sqrt(v*(1 - v)/neff)), 3) for v in sh]}
-json.dump(out, open(os.path.join(os.path.dirname(__file__), "out", "nsfg_timing.json"), "w"), indent=1)
+with open(os.path.join(os.path.dirname(__file__), "out", "nsfg_timing.json"), "w") as f:
+    json.dump(out, f, indent=1)
 print("const KID_WHEN = {" + ", ".join(f"{g}:[" + ",".join("[" + ",".join(f"{v:.3f}".lstrip("0") for v in out[g][b]["share"]) + "]"
       for b in BANDS) + "]" for g in out) + "};")
