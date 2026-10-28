@@ -52,6 +52,7 @@
       <div class="hero">
         <div class="top"><span class="big" id="sPool">…</span><span class="what" id="sPoolL">real possibilities</span></div>
         <span class="rng" id="sRange"></span>
+        <span class="rng" id="sYear"></span>
         <p id="readout" aria-live="polite"></p>
         <div class="acts"><button type="button" class="btn" id="share">Copy link to this result</button></div>
       </div>
@@ -193,6 +194,11 @@
         <div class="drv" id="ages"></div>
         <p class="note" id="ageNote"></p>
       </div>
+        <div class="card" id="laterCard">
+        <div class="head"><h2 id="laterT">If you're still looking later</h2><small>Your age and the ages you're looking for move up together, with everything else as you set it</small></div>
+        <div class="drv" id="later"></div>
+        <p class="note" id="laterNote"></p>
+      </div>
         <div class="card" id="sexCard">
         <div class="head"><h2 id="sexT">Gender balance by age</h2><small>Single people in the metro, one point per year of age</small></div>
         <div class="drv" id="sexChart"></div>
@@ -279,6 +285,13 @@
       </div></details>
       <details class="sec"><summary>Competition</summary><div class="nb">
       <p>Competition compares the people you're looking for with everyone else who's looking for them. Below 1 means there are more people looking than people to find. Gender balance is simpler: single, looking women per single, looking man.</p>
+      </div></details>
+      <details class="sec"><summary>Over a year</summary><div class="nb">
+      <p>The main number is one moment. Over a year, new people join: some break up, some divorce or are widowed, and some move to the metro. The Census Bureau's survey tells us how many single people divorced or were widowed in the past year, and how many moved in from another place (each metro's own share, adjusted for how often singles your age move). For breakups we use about 30% a year for couples dating seriously, from a <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3115386/">study of unmarried 18-to-35-year-olds</a>, and 15% for couples living together, from the <a href="https://www.cdc.gov/nchs/data/nhsr/nhsr064.pdf">National Survey of Family Growth</a>.</p>
+      <p>It's a floor: it leaves out singles who start looking and anyone who joins and leaves again within the year. Breakup rates for people over 35 are a guess carried over from younger ones.</p>
+      </div></details>
+      <details class="sec"><summary>Later on</summary><div class="nb">
+      <p>"If you're still looking later" reruns the whole estimate with you and the ages you're looking for a year older each time. It compares today's older and younger people, so it's a rough guide to what changes with age, not a forecast of your metro.</p>
       </div></details>
       <details class="sec"><summary>How sure is the number</summary><div class="nb">
       <p>No input is exact. We rerun the estimate 2,000 times, nudging every input by how uncertain it is, and show the middle 80% of the results. The page also names the input that matters most. The range doesn't cover mistakes in how the steps fit together.</p>
