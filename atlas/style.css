@@ -249,6 +249,7 @@ body.onboarding .grid,body.onboarding .mini,body.onboarding .wrap > .pick{displa
 .notes .steps{margin:10px 0 12px;padding-left:22px;max-width:78ch;line-height:1.55}
 .notes .sec{margin-top:12px}
 .notes .nb{padding-top:10px}
+.notes .sec + p{margin-top:16px}
 code{font-family:var(--mono);font-size:12.5px}
 @media (prefers-reduced-motion:reduce){.fshape path,.dots i{transition:none}}
 .crow,.lhead{grid-template-columns:28px minmax(0,180px) minmax(0,1fr) 58px 52px 44px 52px}
