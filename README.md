@@ -90,9 +90,15 @@ The funnel is a chain of multiplications: start with a head count, then keep onl
 
 All in one line:
 
+![The whole funnel in one equation](docs/math-1.svg)
+
+<details><summary>LaTeX</summary>
+
 ```math
 \text{Total} = \sum_t \Big[\, 0.985 \sum_{\text{age} \in a} U_t(\text{age})\, C_t(\text{age}) \Big] \times 0.80 \times L_t \times G_t \times D_t \times O_t \times V_t \times F_t \times K_t \times y_{\text{you}} \times \min\!\big(y_t\, T_t,\ 0.95\big)
 ```
+
+</details>
 
 where
 
@@ -116,6 +122,10 @@ where
 
 Step by step:
 
+![The funnel step by step](docs/math-2.svg)
+
+<details><summary>LaTeX</summary>
+
 ```math
 \begin{aligned}
 \text{Singles}_t &= 0.985 \times \sum_{\text{age} \in a} \text{unmarried}_t(\text{age}) \times \text{not cohabiting}_t(\text{age}) \\
@@ -128,6 +138,8 @@ Step by step:
 \text{Total} &= \sum_t \text{Clicks}_t
 \end{aligned}
 ```
+
+</details>
 
 | Step | In plain English | Code |
 |---|---|---|
