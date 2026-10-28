@@ -60,6 +60,9 @@ const PINNED = [["m=New York–Newark–Jersey City, NY-NJ&seek=wmn&pol=prog,lib
   // A relationship goal narrows the looking step: serious drops casual-only daters, casual drops committed-only
   ["m=Memphis, TN-MS-AR&goal=serious", "125"],
   ["m=Memphis, TN-MS-AR&goal=casual", "93"],
+  // A kids timeline narrows the kids step only when you want kids
+  ["m=Memphis, TN-MS-AR&kids=want&when=soon", "103"],
+  ["m=Memphis, TN-MS-AR&kids=dont&when=soon&ageMin=25", "95"],
   // Bad values in a link are ignored, and a number written another way still counts
   ['m=Memphis, TN-MS-AR&ry="&diet=constructor&pol=constructor&faith=__proto__&seek=women', "142"],
   ["m=Memphis, TN-MS-AR&ht=180.0", "159"],

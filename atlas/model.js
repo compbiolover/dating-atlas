@@ -155,11 +155,21 @@ function wantSplit(g, age){
   const r = (1 - UNLIKELY_U50)/(w[0] + w[1]);
   return [w[0]*r, w[1]*r, UNLIKELY_U50];
 }
+// When childless singles who intend kids expect their first: [within 2 years, 2-5, more than 5], ages 18-24, 25-29,
+// 30-34 and 35-49 (NSFG 2022-23, structure/nsfg_timing.py); 50 and up use 35-49. Wanting them soon drops the 5+ group,
+// wanting them later drops the within-2 group, and 2-5 years fits either.
+const KID_WHEN = {w:[[.026,.258,.716],[.177,.521,.302],[.154,.687,.159],[.352,.548,.100]], m:[[.006,.210,.784],[.041,.599,.360],[.126,.596,.278],[.186,.662,.152]]};
+const WHENS = {any:"Whenever", soon:"Within 2 years", later:"More than 5 years from now"};
+function whenFit(t, y, P){
+  if (P.kids !== "want" || P.when === "any") return 1;
+  const band = y < 25 ? 0 : y < 30 ? 1 : y < 35 ? 2 : 3, sh = byGender({w:KID_WHEN.w[band][P.when === "soon" ? 2 : 0], m:KID_WHEN.m[band][P.when === "soon" ? 2 : 0]}, t);
+  return 1 - sh;
+}
 // Share of childless singles of gender t in your age range whose plans fit yours
 function kidsWant(t, P, s){
   let fit = 0;
   for (let y = s.ageMin; y <= s.ageMax; y++){ const [yes, u, no] = wantSplit(t, y);
-    fit += P.kids === "want" ? yes + u : P.kids === "dont" ? no + u : 1; }
+    fit += P.kids === "want" ? yes*whenFit(t, y, P) + u : P.kids === "dont" ? no + u : 1; }
   return fit/(s.ageMax - s.ageMin + 1);
 }
 // Share of single people of gender t in metro m whose kids situation fits yours
