@@ -88,6 +88,34 @@ Outside the funnel: rent and pay come from ACS B25031, B25113 and B20004 (`housi
 
 The funnel is a chain of multiplications: start with a head count, then keep only the share that passes each step. It runs once for each gender *t* you're looking for, in your metro, for your partner age range *a*, and the results are added up at the end.
 
+All in one line:
+
+```math
+\text{Total} = \sum_t \Big[\, 0.985 \sum_{\text{age} \in a} U_t(\text{age})\, C_t(\text{age}) \Big] \times 0.80 \times L_t \times G_t \times D_t \times O_t \times V_t \times F_t \times K_t \times y_{\text{you}} \times \min\!\big(y_t\, T_t,\ 0.95\big)
+```
+
+where
+
+- *t*: each gender you're looking for (the outer sum adds them up)
+- *a*: the partner age range you picked; the inner sum runs over each single year of age in it
+- *U*<sub>t</sub>(age): never-married, divorced and widowed people of gender *t* at that age in your metro (ACS)
+- *C*<sub>t</sub>(age): the share of them not living with a partner (PUMS)
+- 0.985: sets aside the 1.5% who are nonbinary
+- 0.80: drops the 20% of singles already in a committed relationship
+- *L*<sub>t</sub>: the share looking to date (lower from 40, lower again from 65)
+- *G*<sub>t</sub>: the share who want the kind of relationship you picked (1 if you pick "either")
+- *D*<sub>t</sub>: the share with a degree (1 if the degree filter is off)
+- *O*<sub>t</sub>: the share whose orientation includes your gender
+- *V*<sub>t</sub>: the share who share your politics and faith
+- *F*<sub>t</sub>: the share who share your diet
+- *K*<sub>t</sub>: the share compatible with you on kids
+- *y*<sub>you</sub>: how often you say yes to someone
+- *y*<sub>t</sub>: how often they say yes to someone
+- *T*<sub>t</sub>: how your age, height, degree, job and kids change their yes, relative to an average person your age
+- min(…, 0.95): their yes is capped at 95%
+
+Step by step:
+
 ```math
 \begin{aligned}
 \text{Singles}_t &= 0.985 \times \sum_{\text{age} \in a} \text{unmarried}_t(\text{age}) \times \text{not cohabiting}_t(\text{age}) \\
