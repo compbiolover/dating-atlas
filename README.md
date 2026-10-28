@@ -14,6 +14,7 @@ Live page: https://datingatlas.dev/
   - [Where each funnel step's data comes from](#where-each-funnel-steps-data-comes-from)
   - [The math](#the-math)
   - [The uncertainty range](#the-uncertainty-range)
+  - [Over a year, and later on](#over-a-year-and-later-on)
   - [Structural checks](#structural-checks)
   - [Data scripts](#data-scripts)
 - [Rebuilding the data](#rebuilding-the-data)
@@ -171,6 +172,10 @@ The parts that aren't plain multiplication:
 
 The page shows the 10th and 90th percentiles. It also reruns each group of inputs alone and names the group with the largest log-variance as what the number "mostly depends on". The range covers the inputs, not how the funnel is built.
 
+### Over a year, and later on
+
+The main number is one moment. `turnFit()` estimates who joins the pool over a year, per single person not living with a partner: people who divorced or were widowed in the past 12 months (`PUMS.div`), people who moved in from outside the metro (the metro's B07201 share `MOVE`, scaled by age and sex with `PUMS.mig`), and people whose relationship ends (committed singles at 30% a year from Rhoades et al. 2011, cohabiting couples at 15% from the 2006 to 2010 NSFG). `yearPool()` adds them to today's count, and `interval()` gives it a range with the breakup rates varied by ±35%. It leaves out people who start looking, so it's a floor. The "If you're still looking later" chart reruns the funnel with your age and range moved up a year at a time, a cross-section rather than a forecast. Details are in [docs/methods.md](docs/methods.md#over-a-year).
+
 ### Structural checks
 
 `scripts/structure/` tests how the funnel is built, as opposed to its inputs. Results are in `scripts/structure/out/` and written up in `docs/structural-uncertainty.md`. They use the same `requirements.txt`.
@@ -203,7 +208,8 @@ The page shows the 10th and 90th percentiles. It also reruns each group of input
 | `scripts/raw_to_json.py` | Embeds the metro list (`RAW`: name, population, degree share, Harris share) from `data/metro_raw.csv`, the one source for which metros exist and their order. Edit the CSV, then run it. |
 | `scripts/pull_acs.R` | Pulls ACS tables B12002, B15001 and B11012 for every metro with tidycensus, into `data/metro_acs_2023.csv` and `data/acs_variables_2023.csv`. Needs a Census API key. |
 | `scripts/acs_to_json.py` | Turns that ACS extract into the page's `ACS` object: single people by age band, degree shares by age band and single parents. |
-| `scripts/pums_singles.py` | Embeds `PUMS` from the 2023 ACS 1-year microdata: the share of singles not living with a partner, by sex and age band, and how often singles hold degrees against everyone in each age band. |
+| `scripts/pums_singles.py` | Embeds `PUMS` from the 2023 ACS 1-year microdata: the share of singles not living with a partner, by sex and age band, how often singles hold degrees against everyone in each age band, and, for the yearly count, the share divorced or widowed in the past year and how often singles move from another state against everyone. |
+| `scripts/mobility_to_json.py` | Embeds each metro's share of residents who moved in from outside it in the past year (`MOVE`) from Table B07201 in the Census summary files, for the yearly count. Writes `data/metro_mobility.csv`. |
 | `scripts/acs_moe_to_json.py` | Embeds ACS standard errors (`ACSE`) for the uncertainty range, from the Census table-based summary files. No API key needed. |
 | `scripts/religion_to_json.py` | Embeds congregation membership and the unaffiliated share (`REL`), which feed the non-religious share. Writes `data/metro_religion.csv`. |
 | `scripts/faith_to_json.py` | Embeds PRRI's share for each faith group (`FAITH`), used by the faith filter. Writes `data/metro_faith.csv`. |
@@ -233,6 +239,7 @@ PYTHONPATH=scripts python3 scripts/acs_moe_to_json.py acsdt5y2023-b12002.dat acs
 python3 scripts/religion_to_json.py 2020_USRC_Summaries.xlsx prri_county.csv list1_2023.xlsx
 PYTHONPATH=scripts python3 scripts/faith_to_json.py prri_county.csv list1_2023.xlsx
 python3 scripts/housing_to_json.py acsdt5y2023-b25031.dat acsdt5y2023-b25113.dat acsdt5y2023-b20004.dat
+python3 scripts/mobility_to_json.py acsdt5y2023-b07201.dat
 PYTHONPATH=scripts python3 scripts/climate_to_json.py climdiv-tmpccy-v1.0.0-YYYYMMDD prri_county.csv list1_2023.xlsx
 npm i d3-geo topojson-client us-atlas && node scripts/build_map.mjs
 node scripts/check_page.mjs   # needs Playwright

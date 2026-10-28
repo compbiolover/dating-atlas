@@ -293,7 +293,7 @@ const ZS = (() => { let a = 20251002; const rnd = () => { a |= 0; a = a + 0x6D2B
   return z; })();
 const LN = (sd, z) => Math.exp(sd*z - sd*sd/2);       // mean-one lognormal scale
 const NR = (sd, z) => Math.max(.05, 1 + sd*z);        // mean-one normal scale, kept positive
-const UNC = {goal:.15, when:.25, cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
+const UNC = {turn:.35, goal:.15, when:.25, cohab:.035, look:.08, openAdapt:.05, pol:.15, sec:.05, psi:{all:.235, ba:.384}, degOR:.1, pagan:.35, kids:.06, his:.25, her:.25, dietPol:.2,
   diet:{veg:.15, vegan:.3, pesc:.08, kosher:.05, halal:.05}};
 // Each group as it reads after "mostly depending on"
 const UGROUPS = {census:"the local Census counts", look:"how many singles are looking", open:"how many are open to dating you",
@@ -329,30 +329,32 @@ function interval(m, s, P, f){
   const anyWhen = {...P, when:"any"};
   const wr = parts.map(({t}) => P.kids !== "want" || P.when === "any" ? 0
     : 1 - kidsFit(m, t, P, kidsWant(t, P, s), s)/kidsFit(m, t, anyWhen, kidsWant(t, anyWhen, s), s));
+  // Newcomers over a year; the breakup rates (brk) are the uncertain part, varied on the one spare dimension, 30
+  const tf = parts.map(({t}) => turnFit(m, t, s));
   const dietSD = P.diet === "any" ? 0 : UNC.diet[P.diet], dietPolSD = ["veg","vegan","pesc"].includes(P.diet) && P.pol !== "any" ? UNC.dietPol : 0;
   // One pass computes the total for every draw with all groups varying, and with each group varying alone.
   // Group order matches UGROUPS: census, look, open, values, diet, kids, click.
-  const keys = Object.keys(UGROUPS), K = keys.length, tot = new Float64Array(NSIM), solo = keys.map(() => new Float64Array(NSIM));
+  const keys = Object.keys(UGROUPS), K = keys.length, tot = new Float64Array(NSIM), solo = keys.map(() => new Float64Array(NSIM)), yr = new Float64Array(NSIM);
   const Q = {...VQ}, fac = new Float64Array(K), one = new Float64Array(K);
   for (let d = 0; d < NSIM; d++){
     const z = i => ZS[d*DIMS + i];
     Q.pol = LN(UNC.pol, z(0)); Q.sec = VQ.sec + UNC.sec*z(1); Q.fr = frSD ? LN(frSD, z(2)) : 1; Q.psi = LN(UNC.psi[s.deg ? "ba" : "all"], z(3));
     Q.ds = s.deg ? LN(UNC.degOR, z(31)) : 1;
     const cohab = NR(UNC.cohab, z(4)), click = LN(UNC.his, z(5))*LN(UNC.her, z(6)), diet = (dietSD ? LN(dietSD, z(7)) : 1)*(dietPolSD ? LN(dietPolSD, z(8)) : 1);
-    let all = 0; one.fill(0);
+    let all = 0, yall = 0; one.fill(0); const brk = LN(UNC.turn, z(30));
     parts.forEach((p, j) => { const g = g0[j], b = 9 + j*7;
       fac[0] = cohab*NR(g.rs, z(b))*(g.ds ? NR(g.ds, z(b+1)) : 1); fac[1] = LN(UNC.look, z(b+2))*cut(gr[j], UNC.goal, z(b+5)); fac[2] = NR(g.os, z(b+3));
       fac[3] = vf[j] ? valRaw(m, p.t, P, Q)/vf[j] : 1; fac[4] = diet; fac[5] = NR(UNC.kids, z(b+4))*cut(wr[j], UNC.when, z(b+6)); fac[6] = click;
       let prod = 1; for (let k = 0; k < K; k++){ prod *= fac[k]; one[k] += p.ck*fac[k]; }
-      all += p.ck*prod; });
-    tot[d] = all; for (let k = 0; k < K; k++) solo[k][d] = one[k];
+      all += p.ck*prod; yall += p.ck*prod*(1 + tf[j].acs + tf[j].brk*brk); });
+    tot[d] = all; yr[d] = yall; for (let k = 0; k < K; k++) solo[k][d] = one[k];
   }
-  tot.sort();
+  tot.sort(); yr.sort();
   const q = p => tot[Math.floor(p*(NSIM - 1))];
   const lv = arr => { let s1 = 0, s2 = 0; arr.forEach(x => { const l = Math.log(Math.max(1e-9, x)); s1 += l; s2 += l*l; }); const n = arr.length; return Math.max(0, s2/n - (s1/n)**2); };
   const vars = solo.map(lv), vt = vars.reduce((a, v) => a + v, 0), ti = vars.indexOf(Math.max(...vars));
   const ranges = keys.map((k, i) => { const a = solo[i].sort(); return {k, lo: a[Math.floor(.1*(NSIM - 1))], hi: a[Math.floor(.9*(NSIM - 1))]}; });
-  return {lo: q(.1), hi: q(.9), top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
+  return {lo: q(.1), hi: q(.9), ylo: yr[Math.floor(.1*(NSIM - 1))], yhi: yr[Math.floor(.9*(NSIM - 1))], top: keys[ti], share: vt ? vars[ti]/vt : 0, ranges, draws: tot};
 }
 const TOP = [...M].sort((a,b) => b.pop - a.pop), BIG = new Set(TOP.slice(0,25));
 const SINGLE = 50; // modeled share single for women, used only for a metro without ACS counts
@@ -432,6 +434,33 @@ function base(m, g, s){
   const age = m.pop*G[g].share*Math.min(1, (s.ageMax - s.ageMin + 1)*.0125);
   return {age, single: age*Math.min(.9, (SINGLE + SINGLE_ADJ[g])/100)};
 }
+
+// Over a year: the count above is one moment, but over a year people break up, divorce and move to town. Each year
+// of age adds, per single not living with a partner, from the ACS (acs): the share divorced or widowed in the past
+// 12 months (PUMS.div) and the share who moved in from outside the metro (its MOVE share, scaled by age and sex with
+// PUMS.mig); and from breakup rates (brk): the committed singles (COMMITTED) whose relationship ends, B_DATE a year,
+// and the people living with a partner (1 - PUMS.free) who split, B_COHAB a year. Rhoades et al. 2011: 36.5% of
+// unmarried 18-to-35-year-olds in a relationship broke up within 20 months, about 24% a year, cohabiting couples
+// included; dating couples break up more often, so 30%. Copen et al. 2013 (NSFG 2006-10): in 3 years, 27% of first
+// premarital cohabitations dissolved, 40% married and 32% were intact; constant rates fit that at 15% a year.
+// Newcomers look and fit at the usual rates. Not counted: singles who start looking, people aging into your range
+// (it moves with you), and anyone who joins and leaves again within the year, so it's a floor.
+const B_DATE = .30, B_COHAB = .15, MOVE_US = 4.6;  // MOVE_US: B07201, all metro residents, for a metro without a row
+function turnFit(m, g, s){
+  if (g === "n"){ const w = turnFit(m, "w", s), x = turnFit(m, "m", s); return {acs: (w.acs + x.acs)/2, brk: (w.brk + x.brk)/2}; }
+  const yr = m.acs ? singleYears(m.acs[g]) : null, mv = (MOVE[m.name] ?? MOVE_US)/100;
+  let acs = 0, brk = 0, n = 0;
+  for (let a = s.ageMin; a <= s.ageMax; a++){
+    const b = ACS.bands.findIndex(([lo, hi]) => a >= lo && a <= hi), f = PUMS.free[g][b];
+    // Weighted by single people looking at that age; without ACS counts, every year counts the same
+    const w = (yr ? yr[a - AGE0] || 0 : 1)*f*lookRate(g, a);
+    acs += w*(PUMS.div[g][b] + mv*PUMS.mig[g][b]);
+    brk += w*(COMMITTED/(1 - COMMITTED)*B_DATE + (1 - f)/(f*(1 - COMMITTED))*B_COHAB); n += w;
+  }
+  return n ? {acs: acs/n, brk: brk/n} : {acs: 0, brk: 0};
+}
+// Possibilities over a year: today's, plus the newcomers in each gender's part of the pool
+const yearPool = (m, s, f) => f.parts.reduce((t, p) => { const x = turnFit(m, p.t, s); return t + p.ck*(1 + x.acs + x.brk); }, 0);
 
 // Degree and values shares for a metro, blended across the genders you're looking for
 function blends(m, s, P){

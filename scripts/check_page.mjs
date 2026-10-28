@@ -46,9 +46,13 @@ if (p){
   await p.waitForFunction(() => document.getElementById("ageCard").offsetParent !== null, null, {timeout: 10000});
   await openAll(p).catch(e => problems.push("script error: " + e.message.split("\n")[0]));
   if (!await p.$eval("#ages", el => el.querySelector("rect"))) problems.push("the age chart didn't draw");
+  if (!await p.$eval("#later", el => el.querySelector("rect"))) problems.push("the later chart didn't draw");
 }
 const pool = p ? await p.textContent("#sPool") : "";
 if (p && pool !== "142") problems.push(`the default search reads "${pool}", not 142`);
+// The yearly count, so a change to the turnover rates or their range fails here too
+const year = p ? await p.textContent("#sYear") : "";
+if (p && !year.startsWith("Over a year, about 172 (likely 81 to 270)")) problems.push(`the default yearly count reads "${year}"`);
 // Pinned results, so a change that moves one of these numbers fails here. Update them only for an intended model change.
 const PINNED = [["m=New York–Newark–Jersey City, NY-NJ&seek=wmn&pol=prog,lib,mod,con&faith=atheist,agnostic,catholic,jewish", "7,796"],
   ["m=Chicago–Naperville–Elgin, IL-IN&you=w&seek=m&age=44&ageMin=38&ageMax=52&kids=have&edu=no&job=less&diet=pesc", "26"],

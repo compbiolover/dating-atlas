@@ -59,6 +59,7 @@ function drawCharts(){
   if (shown($("rentCard"))) rentPlot(m, P, all);
   if (shown($("drvCard"))) drivers(LAST);
   if (shown($("ageCard"))) ages(LAST);
+  if (shown($("laterCard"))) laterChart(LAST);
   if (shown($("cmpCard"))) compare(LAST);
   if (shown($("sexCard"))) sexByAge(LAST);
   answers(LAST);
@@ -218,6 +219,28 @@ function ages({byAge, s, m, age}){
   $("ageT").textContent = peakText(peak);
   $("ages").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} for each year of age from ${byAge[0].a} to ${byAge[n - 1].a}. Your range, ${s.ageMin} to ${s.ageMax}, is highlighted. ${peak.v ? `The most are at age ${peak.a}, about ${fmt(peak.v)}.` : "No age has any."}">${g}</svg>`;
   $("ageNote").textContent = `Blue bars are your range, ${s.ageMin} to ${s.ageMax}; the orange bar is your own age. ${peak.v ? `The most possibilities in ${m.short} are at age ${peak.a}. ` : ""}Widening your range by two years at each end would add about ${fmt(Math.max(0, wider - inside))}. Single years are interpolated smoothly from the Census's 5-year age bands. The drops at 40 and 65 are real: in Pew's surveys, far fewer singles 40 and older say they're looking to date, especially women, and fewer still from 65. Each year is estimated on its own, so the bars only roughly add up to your total.`;
+}
+
+// Columns per year from now, your age and range moved up together: today in orange, later years in blue
+function laterChart({later, m}){
+  const W = $("later").clientWidth || 900, nw = W < 560, L = nw ? 36 : 48, R = 8, T = 10, B = 34, H = nw ? 180 : 200;
+  const vmax = Math.max(...later.map(b => b.v)) || 1, step = Math.pow(10, Math.floor(Math.log10(vmax))), top = Math.ceil(vmax/step)*step;
+  const n = later.length, bw = (W - L - R)/n, X = i => L + i*bw, Y = v => T + (1 - v/top)*(H - T - B);
+  let g = "";
+  for (let k = 0; k <= top/step; k++){ const v = k*step; if (top/step > 6 && k % 2) continue;
+    g += `<line class="tick" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${fmtAx(v)}</text>`; }
+  later.forEach((b, i) => {
+    g += `<rect class="bar ${b.k ? "in" : "you"}" x="${(X(i) + 1).toFixed(1)}" y="${Y(b.v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(Y(0) - Y(b.v)).toFixed(1)}"><title>At ${b.age}, looking for ${b.s.ageMin} to ${b.s.ageMax}: about ${fmt(b.v)}</title></rect>`;
+    if (!nw || i % 2 === 0) g += `<text x="${X(i) + bw/2}" y="${H - B + 16}" text-anchor="middle">${b.age}</text>`;
+  });
+  g += `<text x="${(L + W - R)/2}" y="${H - 4}" text-anchor="middle">Your age</text>`;
+  const now = later[0], at = k => later.find(b => b.k === k), five = at(5), ten = at(10);
+  const vs = b => !now.v ? `about ${fmt(b.v)}` : `about ${fmt(b.v)}, ${b.v >= now.v*1.05 ? `${fmtX(b.v/now.v)}× as many` : b.v <= now.v*.95 ? `${Math.round((1 - b.v/now.v)*100)}% fewer` : "about the same"}`;
+  const last = five || later[n - 1];
+  $("laterT").textContent = n < 2 ? "No later years to show" : `In ${last.k} year${last.k === 1 ? "" : "s"}, ${vs(last)}`;
+  $("later").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Possibilities in ${m.short} at your age now and in each of the next ${n - 1} years, with the ages you're looking for moving up with you. ${later.map(b => `At ${b.age}: about ${fmt(b.v)}`).join(". ")}.">${g}</svg>`;
+  $("laterNote").textContent = n < 2 ? "Your age or the ages you're looking for are already at the fields' limits, so there are no later years to show." : `The orange bar is you today, ${now.age}, looking for ${now.s.ageMin} to ${now.s.ageMax}. Each blue bar moves you and that range up a year${ten ? `; in 10 years, at ${ten.age}, there would be ${vs(ten)}` : ""}. ` +
+    `It moves because fewer people are single in their 30s than their 20s, more are divorced or widowed later on, and fewer are looking after 40 and again after 65. This compares today's older people with today's younger ones: in ${ten ? 10 : n - 1} years, people your age won't match today's older people exactly, and ${m.short} will have changed. Treat it as a rough guide, not a forecast.`;
 }
 
 // Dumbbells per funnel step: your metro in orange, the comparison in blue, on one log axis
